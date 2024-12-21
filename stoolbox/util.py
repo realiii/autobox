@@ -48,6 +48,36 @@ def validate_toolbox_alias(value: str) -> STRING:
     Validates the toolbox alias.  Alias must not start with a number,
     contain only letters and numbers.
     """
+    return _validate_alpha_start_sans_special(value)
+# End validate_toolbox_alias function
+
+
+def validate_script_name(value: str) -> STRING:
+    """
+    Validates the script name.  Name must not start with a number,
+    contain only letters and numbers.
+    """
+    return _validate_alpha_start_sans_special(value)
+# End validate_script_name function
+
+
+def validate_script_folder_name(value: str) -> STRING:
+    """
+    Validate the script folder name.  Input needs to be the validated script
+    name, check if the name is reserved and change with a trailing underscore
+    if the name is reserved.
+    """
+    if value.upper() in WINDOWS_RESERVED:
+        return f'{value}{UNDERSCORE}'
+    return value
+# End validate_script_folder_name function
+
+
+def _validate_alpha_start_sans_special(value: str) -> STRING:
+    """
+    Validate that the value is a string, starts with a letter, and does not
+    contain any special characters.  Attempt to make a valid name.
+    """
     if not isinstance(value, str):
         return
     if not (value := value.strip()):
@@ -60,7 +90,7 @@ def validate_toolbox_alias(value: str) -> STRING:
             return
         first, *_ = value
     return value
-# End validate_toolbox_alias function
+# End _validate_alpha_start_sans_special function
 
 
 def make_temp_folder() -> Path:
