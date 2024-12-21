@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Base Classes
+Toolbox
 """
 
 
@@ -8,15 +8,19 @@ from json import dump
 from os import walk
 from pathlib import Path
 from shutil import rmtree
-from typing import NoReturn, Optional, Union
+from typing import NoReturn, Optional, TYPE_CHECKING, Union
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from stoolbox.constants import (
     DOLLAR_RC, EXT, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC, ToolboxContentKeys,
     ToolboxContentResourceKeys)
-from stoolbox.hints import STRING
+from stoolbox.types import STRING
 from stoolbox.util import (
     make_temp_folder, validate_toolbox_alias, validate_toolbox_name)
+
+
+if TYPE_CHECKING:  # pragma: no cover
+    from stoolbox.script import ScriptTool
 
 
 class Toolbox:
@@ -39,6 +43,7 @@ class Toolbox:
         self._label: STRING = self._validate_label(label)
         self._alias: STRING = self._validate_alias(alias)
         self._description: STRING = description
+        self._tools: list[ScriptTool] = []
     # End init built-in
 
     @staticmethod
@@ -47,7 +52,7 @@ class Toolbox:
         Validate Name
         """
         if not (validated_name := validate_toolbox_name(name)):
-            raise ValueError(f'Invalid toolbox value: {name}')
+            raise ValueError(f'Invalid toolbox name: {name}')
         return validated_name
     # End _validate_name method
 
@@ -57,7 +62,7 @@ class Toolbox:
         """
         if not (validated_alias := validate_toolbox_alias(alias)):
             if not (validated_alias := validate_toolbox_alias(self.name)):
-                raise ValueError(f'Invalid alias value: {alias}')
+                raise ValueError(f'Invalid toolbox alias: {alias}')
         return validated_alias
     # End _validate_alias method
 
@@ -70,12 +75,11 @@ class Toolbox:
         return label.strip() or self.name
     # End _validate_label method
 
-    def _save_files(self) -> Path:
+    def _serialize(self, path: Path) -> None:
         """
-        Save Files to Temporary Folder
+        Serialize Files to Temporary Folder
         """
-        path = make_temp_folder()
-        content = self._build_content()
+        content = self._build_content(path)
         resource = self._build_resource()
         for name, data in zip((TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC),
                               (content, resource)):
@@ -84,8 +88,7 @@ class Toolbox:
                     mode='w', encoding='utf-8') as fout:
                 # noinspection PyTypeChecker
                 dump(data, fp=fout, indent=2)
-        return path
-    # End _save_files method
+    # End _serialize method
 
     @staticmethod
     def _save_toolbox(source: Path, target: Path) -> None:
@@ -116,7 +119,7 @@ class Toolbox:
         return toolbox_path
     # End _get_toolbox_path method
 
-    def _build_content(self) -> dict[str, str | dict[str, list]]:
+    def _build_content(self, path: Path) -> dict[str, str | dict[str, list]]:
         """
         Build Content
         """
@@ -127,7 +130,7 @@ class Toolbox:
                 f'{DOLLAR_RC}{ToolboxContentResourceKeys.title}',
             ToolboxContentKeys.description:
                 f'{DOLLAR_RC}{ToolboxContentResourceKeys.description}',
-            ToolboxContentKeys.toolsets: self._build_toolsets(),
+            ToolboxContentKeys.toolsets: self._build_toolsets(path),
         }
         if not self.description:
             mapping.pop(ToolboxContentKeys.description)
@@ -141,18 +144,22 @@ class Toolbox:
         data = {ToolboxContentResourceKeys.title: self.label}
         if self.description:
             data[ToolboxContentResourceKeys.description] = self.description
-        mapping = {ToolboxContentResourceKeys.map: data}
-        return mapping
+        return {ToolboxContentResourceKeys.map: data}
     # End _build_resource method
 
-    @staticmethod
-    def _build_toolsets() -> dict[str, dict[str, list]]:
+    def _build_toolsets(self, path: Path) -> dict[str, dict[str, list[str]]]:
         """
         Build Toolsets
         """
         keys = ToolboxContentKeys
-        mapping = {keys.root: {keys.tools: ['']}}
-        return mapping
+        tools = []
+        if not self._tools:
+            tools.append('')
+        else:
+            for tool in self._tools:
+                tool.serialize(path)
+                tools.append(tool.full_qualified_name)
+        return {keys.root: {keys.tools: tools}}
     # End _build_toolsets method
 
     @property
@@ -187,6 +194,13 @@ class Toolbox:
         return self._description
     # End description property
 
+    def add_script_tool(self, tool: 'ScriptTool') -> None:
+        """
+        Add Script Tool
+        """
+        self._tools.append(tool)
+    # End add_script_tool method
+
     def save(self, folder: Path, overwrite: bool = False) -> Optional[Path]:
         """
         Save toolbox into specified folder.
@@ -194,7 +208,8 @@ class Toolbox:
         if not folder.is_dir():
             return
         toolbox = self._get_toolbox_path(folder, overwrite)
-        temporary = self._save_files()
+        temporary = make_temp_folder()
+        self._serialize(temporary)
         self._save_toolbox(source=temporary, target=toolbox)
         return toolbox
     # End save method
