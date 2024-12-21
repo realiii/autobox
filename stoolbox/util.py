@@ -9,7 +9,9 @@ from re import sub
 from tempfile import mkdtemp
 
 from stoolbox.constants import DOUBLE_UNDERSCORE, EXT, UNDERSCORE
-from stoolbox.hints import STRING
+from stoolbox.types import STRING
+
+
 
 
 def validate_toolbox_name(value: str) -> STRING:

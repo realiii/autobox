@@ -14,7 +14,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from stoolbox.constants import (
     DOLLAR_RC, EXT, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC, ToolboxContentKeys,
     ToolboxContentResourceKeys)
-from stoolbox.hints import STRING
+from stoolbox.types import STRING
 from stoolbox.util import (
     make_temp_folder, validate_toolbox_alias, validate_toolbox_name)
 
