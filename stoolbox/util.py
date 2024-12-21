@@ -12,6 +12,11 @@ from stoolbox.constants import DOUBLE_UNDERSCORE, EXT, UNDERSCORE
 from stoolbox.types import STRING
 
 
+WINDOWS_RESERVED: tuple[str, ...] = (
+    'CON', 'PRN', 'AUX', 'NUL',
+    *(f'COM{i}' for i in range(1, 10)),
+    *(f'LPT{i}' for i in range(1, 10))
+)
 
 
 def validate_toolbox_name(value: str) -> STRING:
@@ -32,9 +37,7 @@ def validate_toolbox_name(value: str) -> STRING:
     value = value.strip(UNDERSCORE)
     if not value or value == UNDERSCORE:
         return
-    reserved = ('CON', 'PRN', 'AUX', 'NUL', *(f'COM{i}' for i in range(1, 10)),
-                *(f'LPT{i}' for i in range(1, 10)))
-    if value.upper() in reserved:
+    if value.upper() in WINDOWS_RESERVED:
         return
     return value
 # End validate_toolbox_name function
