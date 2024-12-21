@@ -101,5 +101,22 @@ def make_temp_folder() -> Path:
 # End make_temp_folder function
 
 
+def wrap_markup(value: STRING) -> STRING:
+    """
+    Wrap text with xdoc if the text appears to be html-ish.
+    """
+    if not isinstance(value, str):
+        return
+    if not (value := value.strip()):
+        return
+    begin, end = '<xdoc>', '</xdoc>'
+    if value.startswith(begin) and value.endswith(end):
+        return value
+    if '</' in value and '>' in value:
+        return f'{begin}{value}{end}'
+    return value
+# End wrap_markup function
+
+
 if __name__ == '__main__':  # pragma: no cover
     pass
