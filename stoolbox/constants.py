@@ -24,12 +24,16 @@ CONTENT: str = 'content'
 NAME: str = 'name'
 
 TOOL: str = 'tool'
+SCRIPT: str = 'script'
+EXECUTE: str = 'execute'
 TOOLSET: str = f'{TOOL}set'
 TOOLBOX: str = f'{TOOL}box'
 
 TOOL_CONTENT: str = f'{TOOL}{DOT}{CONTENT}'
 TOOL_CONTENT_RC: str = f'{TOOL_CONTENT}{DOT}{RC}'
-TOOL_SCRIPT: str = f'{TOOL}{DOT}script{DOT}execute{DOT}py'
+TOOL_SCRIPT_EXECUTE: str = f'{TOOL}{DOT}{SCRIPT}{DOT}{EXECUTE}{DOT}'
+TOOL_SCRIPT_EXECUTE_PY: str = f'{TOOL_SCRIPT_EXECUTE}py'
+TOOL_SCRIPT_EXECUTE_LINK: str = f'{TOOL_SCRIPT_EXECUTE}link'
 TOOLBOX_CONTENT: str = f'{TOOLBOX}{DOT}{CONTENT}'
 TOOLBOX_CONTENT_RC: str = f'{TOOLBOX_CONTENT}{DOT}{RC}'
 
