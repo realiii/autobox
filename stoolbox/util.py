@@ -8,7 +8,8 @@ from pathlib import Path
 from re import sub
 from tempfile import mkdtemp
 
-from stoolbox.constants import DOUBLE_UNDERSCORE, EXT, UNDERSCORE
+from stoolbox.constants import (
+    DOUBLE_SPACE, DOUBLE_UNDERSCORE, EXT, SPACE, UNDERSCORE)
 from stoolbox.types import STRING
 
 
@@ -91,6 +92,24 @@ def _validate_alpha_start_sans_special(value: str) -> STRING:
         first, *_ = value
     return value
 # End _validate_alpha_start_sans_special function
+
+
+def validate_toolset_name(value: str) -> STRING:
+    """
+    Validate that the value is a string, is not empty, and does not
+    contain special characters.
+    """
+    if not isinstance(value, str):
+        return
+    if not (value := value.strip()):
+        return
+    value = sub(r'[\\/:*?&"<>|]', repl=SPACE, string=value)
+    while DOUBLE_SPACE in value:
+        value = value.replace(DOUBLE_SPACE, SPACE)
+    if not (value := value.strip()):
+        return
+    return value
+# End validate_toolset_name function
 
 
 def make_temp_folder() -> Path:

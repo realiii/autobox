@@ -10,6 +10,8 @@ from typing import ClassVar
 DOT: str = '.'
 SPACE: str = ' '
 UNDERSCORE: str = '_'
+COLON: str = ':'
+DOUBLE_SPACE: str = f'{SPACE}{SPACE}'
 DOUBLE_UNDERSCORE: str = f'{UNDERSCORE}{UNDERSCORE}'
 
 
@@ -17,15 +19,17 @@ EXT: str = '.atbx'
 
 
 RC: str = 'rc'
-DOLLAR_RC: str = f'${RC}:'
+DOLLAR_RC: str = f'${RC}{COLON}'
 CONTENT: str = 'content'
+NAME: str = 'name'
 
 TOOL: str = 'tool'
+TOOLSET: str = f'{TOOL}set'
+TOOLBOX: str = f'{TOOL}box'
+
 TOOL_CONTENT: str = f'{TOOL}{DOT}{CONTENT}'
 TOOL_CONTENT_RC: str = f'{TOOL_CONTENT}{DOT}{RC}'
 TOOL_SCRIPT: str = f'{TOOL}{DOT}script{DOT}execute{DOT}py'
-
-TOOLBOX: str = f'{TOOL}box'
 TOOLBOX_CONTENT: str = f'{TOOLBOX}{DOT}{CONTENT}'
 TOOLBOX_CONTENT_RC: str = f'{TOOLBOX_CONTENT}{DOT}{RC}'
 

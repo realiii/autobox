@@ -5,6 +5,7 @@ Toolbox
 
 
 from json import dump
+from operator import attrgetter
 from os import walk
 from pathlib import Path
 from shutil import rmtree
@@ -12,15 +13,16 @@ from typing import NoReturn, Optional, TYPE_CHECKING, Union
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from stoolbox.constants import (
-    DOLLAR_RC, EXT, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC, ToolboxContentKeys,
-    ToolboxContentResourceKeys)
-from stoolbox.types import STRING
+    DOLLAR_RC, DOT, EXT, NAME, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC, TOOLSET,
+    ToolboxContentKeys, ToolboxContentResourceKeys)
+from stoolbox.types import STRING, TOOLS_MAP
 from stoolbox.util import (
     make_temp_folder, validate_toolbox_alias, validate_toolbox_name)
 
 
 if TYPE_CHECKING:  # pragma: no cover
     from stoolbox.script import ScriptTool
+    from stoolbox.toolset import Toolset
 
 
 class Toolbox:
@@ -32,7 +34,7 @@ class Toolbox:
         """
         Initialize the Toolbox class
 
-        :param name: The value of the toolbox file without the extension.
+        :param name: The name of the toolbox file without the extension.
         :param label: An optional label for the toolbox.
         :param alias: An optional alias for the toolbox, must not contain
             spaces, underscores, special characters.  Must start with a letter.
@@ -43,7 +45,8 @@ class Toolbox:
         self._label: STRING = self._validate_label(label)
         self._alias: STRING = self._validate_alias(alias)
         self._description: STRING = description
-        self._tools: list[ScriptTool] = []
+        self._toolsets: list['Toolset'] = []
+        self._tools: list['ScriptTool'] = []
     # End init built-in
 
     @staticmethod
@@ -79,8 +82,8 @@ class Toolbox:
         """
         Serialize Files to Temporary Folder
         """
-        content = self._build_content(path)
-        resource = self._build_resource()
+        content, toolset_names = self._build_content(path)
+        resource = self._build_resource(toolset_names)
         for name, data in zip((TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC),
                               (content, resource)):
             file_path = path.joinpath(name)
@@ -119,10 +122,12 @@ class Toolbox:
         return toolbox_path
     # End _get_toolbox_path method
 
-    def _build_content(self, path: Path) -> dict[str, str | dict[str, list]]:
+    def _build_content(self, path: Path) -> tuple[
+            dict[str, str | dict[str, list]], dict[str, str]]:
         """
         Build Content
         """
+        toolsets, toolset_names = self._build_toolsets(path)
         mapping = {
             ToolboxContentKeys.version: '1.0',
             ToolboxContentKeys.alias: self.alias,
@@ -130,37 +135,78 @@ class Toolbox:
                 f'{DOLLAR_RC}{ToolboxContentResourceKeys.title}',
             ToolboxContentKeys.description:
                 f'{DOLLAR_RC}{ToolboxContentResourceKeys.description}',
-            ToolboxContentKeys.toolsets: self._build_toolsets(path),
+            ToolboxContentKeys.toolsets: toolsets,
         }
         if not self.description:
             mapping.pop(ToolboxContentKeys.description)
-        return mapping
+        return mapping, toolset_names
     # End _build_content method
 
-    def _build_resource(self) -> dict[str, dict[str, str]]:
+    def _build_resource(self, toolset_names: dict[str, str]) \
+            -> dict[str, dict[str, str]]:
         """
         Build Resource
         """
         data = {ToolboxContentResourceKeys.title: self.label}
         if self.description:
             data[ToolboxContentResourceKeys.description] = self.description
-        return {ToolboxContentResourceKeys.map: data}
+        return {ToolboxContentResourceKeys.map: {**data, **toolset_names}}
     # End _build_resource method
 
-    def _build_toolsets(self, path: Path) -> dict[str, dict[str, list[str]]]:
+    def _build_toolsets(self, path: Path) -> tuple[TOOLS_MAP, dict[str, str]]:
         """
-        Build Toolsets
+        Build Toolsets (and tools)
         """
-        keys = ToolboxContentKeys
-        tools = []
-        if not self._tools:
-            tools.append('')
-        else:
-            for tool in self._tools:
-                tool.serialize(path)
-                tools.append(tool.full_qualified_name)
-        return {keys.root: {keys.tools: tools}}
+        nada = {ToolboxContentKeys.root: {ToolboxContentKeys.tools: ['']}}
+        has_toolset_tools = any(t.has_tools for t in self.toolsets)
+        if not self.tools and not has_toolset_tools:
+            return nada, {}
+        root_mapping = self._build_root_tools(path)
+        if not has_toolset_tools:
+            return root_mapping or nada, {}
+        toolset_tools, toolset_names = self._build_toolset_tools(path)
+        return {**root_mapping, **toolset_tools} or nada, toolset_names
     # End _build_toolsets method
+
+    def _build_root_tools(self, path: Path) -> TOOLS_MAP:
+        """
+        Build Root Tools
+        """
+        if not self.tools:
+            return {}
+        tools = self._make_tools_list(path, tools=self.tools)
+        return {ToolboxContentKeys.root: {ToolboxContentKeys.tools: tools}}
+    # End _build_root_tools method
+
+    @staticmethod
+    def _make_tools_list(path: Path, tools: list['ScriptTool']) -> list[str]:
+        """
+        Make Tools List
+        """
+        names = []
+        for tool in sorted(tools, key=attrgetter(NAME)):
+            tool.serialize(path)
+            names.append(tool.qualified_name)
+        return names
+    # End _make_tools_list method
+
+    def _build_toolset_tools(self, path: Path) -> tuple[TOOLS_MAP, dict[str, str]]:
+        """
+        Build Toolset Tools and Toolset Mapping
+        """
+        counter = 0
+        toolset_tools = {}
+        toolset_names = {}
+        for toolset in self.toolsets:
+            if not (tools := self._make_tools_list(path, tools=toolset.tools)):
+                continue
+            counter += 1
+            indexed_name = f'{TOOLSET}{counter}{DOT}{NAME}'
+            toolset_tools[f'{DOLLAR_RC}{indexed_name}'] = {
+                ToolboxContentKeys.tools: tools}
+            toolset_names[indexed_name] = toolset.qualified_name
+        return toolset_tools, toolset_names
+    # End _build_toolset_tools method
 
     @property
     def name(self) -> str:
@@ -194,12 +240,35 @@ class Toolbox:
         return self._description
     # End description property
 
+    @property
+    def tools(self) -> list['ScriptTool']:
+        """
+        Tools
+        """
+        return self._tools
+    # End tools property
+
+    @property
+    def toolsets(self) -> list['Toolset']:
+        """
+        Toolsets
+        """
+        return self._toolsets
+    # End toolsets property
+
     def add_script_tool(self, tool: 'ScriptTool') -> None:
         """
         Add Script Tool
         """
-        self._tools.append(tool)
+        self.tools.append(tool)
     # End add_script_tool method
+
+    def add_toolset(self, toolset: 'Toolset') -> None:
+        """
+        Add Toolset
+        """
+        self.toolsets.append(toolset)
+    # End add_toolset method
 
     def save(self, folder: Path, overwrite: bool = False) -> Optional[Path]:
         """

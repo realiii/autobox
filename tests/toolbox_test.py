@@ -9,6 +9,7 @@ from helpers import read_from_zip
 from stoolbox import ScriptTool
 from stoolbox.toolbox import Toolbox
 from stoolbox.constants import EXT, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC
+from stoolbox.toolset import Toolset
 from stoolbox.types import ToolAttributes
 
 
@@ -100,6 +101,135 @@ def test_toolbox_save_with_bad_tool_names(tmp_path, data_path):
     assert source_content == compare_content
     assert source_resource == compare_resource
 # End test_toolbox_save_with_bad_tool_names function
+
+
+def test_toolbox_with_toolsets_sans_tools(tmp_path, data_path):
+    """
+    Test a Toolbox that has toolsets but no tools
+    """
+    compare_path = data_path.joinpath('toolsets_sans_tools.atbx')
+    assert compare_path.is_file()
+    toolset1 = Toolset(name='A Toolset')
+    toolset2 = Toolset(name='B Toolset')
+    toolset3 = Toolset(name='C Toolset')
+    toolset2.add_toolset(toolset3)
+
+    tbx = Toolbox(name='toolsets_sans_tools')
+    tbx.add_toolset(toolset1)
+    tbx.add_toolset(toolset2)
+    tbx_path = tbx.save(tmp_path)
+    assert tbx_path.is_file()
+
+    source_content = read_from_zip(tbx_path, name=TOOLBOX_CONTENT, as_json=True)
+    source_resource = read_from_zip(tbx_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+    compare_content = read_from_zip(compare_path, name=TOOLBOX_CONTENT, as_json=True)
+    compare_resource = read_from_zip(compare_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+
+    assert source_content == compare_content
+    assert source_resource == compare_resource
+# End test_toolbox_with_toolsets_sans_tools function
+
+
+def test_toolbox_with_toolsets_and_tools(tmp_path, data_path):
+    """
+    Test a Toolbox that has toolsets and tools, no root tools
+    """
+    compare_path = data_path.joinpath('toolset_no_root.atbx')
+    assert compare_path.is_file()
+    toolset1 = Toolset(name='His Tools')
+    toolset2 = Toolset(name='Her Tools')
+    toolset3 = Toolset(name='Another Toolset')
+    toolset4 = Toolset(name='A Toolset')
+    toolset5 = Toolset(name='B Toolset')
+    toolset6 = Toolset(name='C Toolset')
+
+    toolset1.add_toolset(toolset3)
+    toolset2.add_toolset(toolset4)
+    toolset2.add_toolset(toolset5)
+    toolset2.add_toolset(toolset6)
+
+    tool1 = ScriptTool(name='ScriptInToolset', label='Script In Toolset')
+    tool2 = ScriptTool(name='SubScriptInToolset', label='Sub Script in Toolset')
+    toolset1.add_script_tool(tool1)
+    toolset1.add_script_tool(tool2)
+
+    tool3 = ScriptTool(name='Anudder', label='Another Script')
+    tool4 = ScriptTool(name='SecondScriptInToolset', label='Script in Toolset (Second)')
+    tool5 = ScriptTool(name='SecondSubScriptInToolset', label='Sub Script in Toolset (Second)')
+    toolset3.add_script_tool(tool3)
+    toolset3.add_script_tool(tool4)
+    toolset3.add_script_tool(tool5)
+
+    tool6 = ScriptTool(name='AScript', label='A Script')
+    toolset4.add_script_tool(tool6)
+    tool7 = ScriptTool(name='BScript', label='B Script')
+    toolset5.add_script_tool(tool7)
+    tool8 = ScriptTool(name='CScript', label='C Script')
+    toolset6.add_script_tool(tool8)
+
+    tbx = Toolbox(name='toolset_no_root')
+    tbx.add_toolset(toolset3)
+    tbx.add_toolset(toolset2)
+    tbx.add_toolset(toolset4)
+    tbx.add_toolset(toolset5)
+    tbx.add_toolset(toolset6)
+    tbx.add_toolset(toolset1)
+
+    tbx_path = tbx.save(tmp_path)
+    assert tbx_path.is_file()
+
+    source_content = read_from_zip(tbx_path, name=TOOLBOX_CONTENT, as_json=True)
+    source_resource = read_from_zip(tbx_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+    compare_content = read_from_zip(compare_path, name=TOOLBOX_CONTENT, as_json=True)
+    compare_resource = read_from_zip(compare_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+
+    assert source_content == compare_content
+    assert source_resource == compare_resource
+# End test_toolbox_with_toolsets_and_tools function
+
+
+def test_toolbox_with_toolsets_and_tools_plus_root(tmp_path, data_path):
+    """
+    Test a Toolbox that has toolsets and tools + tool at root
+    """
+    compare_path = data_path.joinpath('toolsets_with_tools.atbx')
+    assert compare_path.is_file()
+    toolset1 = Toolset(name='A')
+    toolset2 = Toolset(name='B')
+    toolset3 = Toolset(name='C')
+    toolset4 = Toolset(name='D')
+    toolset3.add_toolset(toolset4)
+
+    tool_root = ScriptTool(
+        name='ScriptInRoot', label='Script in Root',
+        description='simple description', summary='plain summary, no formatting')
+    tool1 = ScriptTool(name='ScriptInToolsetA', label='Script in Toolset A')
+    toolset1.add_script_tool(tool1)
+    tool2 = ScriptTool(name='ScriptInToolsetB', label='Script in Toolset B')
+    toolset2.add_script_tool(tool2)
+    tool3 = ScriptTool(name='ScriptInToolsetC', label='Script in Toolset C')
+    toolset3.add_script_tool(tool3)
+    tool4 = ScriptTool(name='ScriptInToolsetD', label='Script in Toolset D')
+    toolset4.add_script_tool(tool4)
+
+    tbx = Toolbox(name='toolsets_with_tools')
+    tbx.add_script_tool(tool_root)
+    tbx.add_toolset(toolset1)
+    tbx.add_toolset(toolset2)
+    tbx.add_toolset(toolset3)
+    tbx.add_toolset(toolset4)
+
+    tbx_path = tbx.save(tmp_path)
+    assert tbx_path.is_file()
+
+    source_content = read_from_zip(tbx_path, name=TOOLBOX_CONTENT, as_json=True)
+    source_resource = read_from_zip(tbx_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+    compare_content = read_from_zip(compare_path, name=TOOLBOX_CONTENT, as_json=True)
+    compare_resource = read_from_zip(compare_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+
+    assert source_content == compare_content
+    assert source_resource == compare_resource
+# End test_toolbox_with_toolsets_and_tools_plus_root function
 
 
 def test_toolbox_save_bogus_path(tmp_path):

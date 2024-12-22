@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import NoReturn
 
 from stoolbox.constants import (
-    DOT, SCRIPT_STUB, ScriptToolContentKeys,
+    COLON, DOT, SCRIPT_STUB, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT, TOOL_CONTENT_RC,
     TOOL_SCRIPT, ToolAttributeKeywords)
 from stoolbox.types import STRING, ToolAttributes
@@ -27,6 +27,16 @@ class ScriptTool:
                  attributes: ToolAttributes = ToolAttributes()) -> None:
         """
         Initialize the ScriptTool class
+
+        :param name: The name of the script tool, alphanumeric characters only,
+            cannot start with a number.
+        :param label: An optional label for the script tool.
+        :param description: An optional description of the script tool,
+            this should be plain text only.
+        :param description: An optional summary of the script tool,
+            this text can be plain text or html.
+        :param attributes: An optional tuple of booleans which set special
+            attributes on the script tool.
         """
         super().__init__()
         self._name: str = self._validate_name(name)
@@ -133,14 +143,14 @@ class ScriptTool:
     # End name property
 
     @property
-    def full_qualified_name(self) -> str:
+    def qualified_name(self) -> str:
         """
-        Full Qualified Name
+        Qualified Name
         """
         if self._folder == self.name:
             return self.name
-        return f'{self.name}:{self._folder}{DOT}{TOOL}'
-    # End full_qualified_name property
+        return f'{self.name}{COLON}{self._folder}{DOT}{TOOL}'
+    # End qualified_name property
 
     @property
     def label(self) -> str:
