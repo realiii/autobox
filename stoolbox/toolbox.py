@@ -32,7 +32,7 @@ class Toolbox:
         """
         Initialize the Toolbox class
 
-        :param name: The value of the toolbox file without the extension.
+        :param name: The name of the toolbox file without the extension.
         :param label: An optional label for the toolbox.
         :param alias: An optional alias for the toolbox, must not contain
             spaces, underscores, special characters.  Must start with a letter.
