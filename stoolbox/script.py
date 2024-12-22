@@ -7,13 +7,13 @@ Script Tool
 from datetime import datetime
 from json import dump
 from pathlib import Path
-from typing import NoReturn
+from typing import NoReturn, Optional
 
 from stoolbox.constants import (
     COLON, DOT, SCRIPT_STUB, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT, TOOL_CONTENT_RC,
-    TOOL_SCRIPT, ToolAttributeKeywords)
-from stoolbox.types import STRING, ToolAttributes
+    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, ToolAttributeKeywords)
+from stoolbox.types import PATH, STRING, ToolAttributes
 from stoolbox.util import (
     validate_script_folder_name, validate_script_name, wrap_markup)
 
@@ -45,6 +45,7 @@ class ScriptTool:
         self._description: STRING = description
         self._summary: STRING = summary
         self._attributes: ToolAttributes = attributes
+        self._execution: Optional[ExecutionScript] = None
     # End init built-in
 
     @staticmethod
@@ -124,13 +125,12 @@ class ScriptTool:
         for name, data in zip((TOOL_CONTENT, TOOL_CONTENT_RC),
                               (content, resource)):
             file_path = script_path.joinpath(name)
-            with file_path.open(
-                    mode='w', encoding='utf-8') as fout:
+            with file_path.open(mode='w', encoding='utf-8') as fout:
                 # noinspection PyTypeChecker
                 dump(data, fp=fout, indent=2)
-        with script_path.joinpath(TOOL_SCRIPT).open(
-                mode='w', encoding='utf-8') as fout:
-            fout.write(self.execution_script)
+        if not self.execution_script:
+            self.execution_script = DEFAULT_EXECUTION_SCRIPT
+        self.execution_script.serialize(source=script_path, target=target)
         return script_path
     # End _serialize method
 
@@ -177,11 +177,15 @@ class ScriptTool:
     # End summary property
 
     @property
-    def execution_script(self) -> str:
+    def execution_script(self) -> Optional['ExecutionScript']:
         """
-        Execution Script, path or content
+        Execution Script
         """
-        return SCRIPT_STUB
+        return self._execution
+
+    @execution_script.setter
+    def execution_script(self, value: Optional['ExecutionScript']) -> None:
+        self._execution = value
     # End execution_script property
 
     def serialize(self, source: Path, target: Path) -> Path:
@@ -191,6 +195,98 @@ class ScriptTool:
         return self._serialize(source=source, target=target)
     # End serialize method
 # End ScriptTool class
+
+
+class ExecutionScript:
+    """
+    Execution Script
+
+    Includes methods for working with script execution files,
+    including serialization and verifying folder paths.
+    """
+    def __init__(self, code: STRING = None, path: PATH = None,
+                 embed: bool = False) -> None:
+        """
+        Initialize the ExecutionScript class
+        """
+        super().__init__()
+        self._code: STRING = code
+        self._path: PATH = path
+        self._embed: bool = embed
+    # End init built-in
+
+    def _serialize(self, source: Path, target: Path) -> Path:
+        """
+        Serialize File to Temporary Folder
+        """
+        name = self._get_file_name()
+        content = self._get_content(target)
+        exec_path = source.joinpath(name)
+        with exec_path.open(mode='w', encoding='utf-8') as fout:
+            fout.write(content)
+        return exec_path
+    # End _serialize method
+
+    def _get_content(self, target: Path) -> str:
+        """
+        Get Content
+        """
+        if not self._path and not self._code:
+            raise ValueError('No code or path provided')
+        if self._code:
+            return self._code
+        if self._embed:
+            return self._path.read_text(encoding='utf-8')
+        try:
+            path = self._path.relative_to(target.resolve())
+        except ValueError:
+            return str(self._path)
+        return f'..\\..\\{path}'
+    # End _get_content method
+
+    def _get_file_name(self) -> str:
+        """
+        Get File Name
+        """
+        if self._embed:
+            return TOOL_SCRIPT_EXECUTE_PY
+        return TOOL_SCRIPT_EXECUTE_LINK
+    # End _serialize method
+
+    @classmethod
+    def from_code(cls, code: str) -> 'ExecutionScript':
+        """
+        From Code, a string containing python code.
+        """
+        if not code:
+            raise ValueError('No code provided')
+        return cls(code=code, embed=True)
+    # End from_code method
+
+    @classmethod
+    def from_file(cls, path: Path, embed: bool) -> 'ExecutionScript':
+        """
+        From File, a path to a file containing python code
+        """
+        try:
+            path = Path(path)
+        except TypeError:
+            raise ValueError(f'Invalid path provided: {path}')
+        if not path.is_file():
+            raise FileNotFoundError(f'File not found: {path}')
+        return cls(path=path.resolve(), embed=embed)
+    # End from_file method
+
+    def serialize(self, source: Path, target: Path) -> Path:
+        """
+        Serialize Execution Script to Disk
+        """
+        return self._serialize(source=source, target=target)
+    # End serialize method
+# End ExecutionScript class
+
+
+DEFAULT_EXECUTION_SCRIPT = ExecutionScript.from_code(SCRIPT_STUB)
 
 
 if __name__ == '__main__':  # pragma: no cover
