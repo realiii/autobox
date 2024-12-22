@@ -9,13 +9,13 @@ from operator import attrgetter
 from os import walk
 from pathlib import Path
 from shutil import rmtree
-from typing import NoReturn, Optional, TYPE_CHECKING, Union
+from typing import NoReturn, TYPE_CHECKING, Union
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from stoolbox.constants import (
     DOLLAR_RC, DOT, EXT, NAME, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC, TOOLSET,
     ToolboxContentKeys, ToolboxContentResourceKeys)
-from stoolbox.types import STRING, TOOLS_MAP
+from stoolbox.types import PATH, STRING, TOOLS_MAP
 from stoolbox.util import (
     make_temp_folder, validate_toolbox_alias, validate_toolbox_name)
 
@@ -270,7 +270,7 @@ class Toolbox:
         self.toolsets.append(toolset)
     # End add_toolset method
 
-    def save(self, folder: Path, overwrite: bool = False) -> Optional[Path]:
+    def save(self, folder: Path, overwrite: bool = False) -> PATH:
         """
         Save toolbox into specified folder.
         """
