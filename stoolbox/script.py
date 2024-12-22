@@ -27,6 +27,16 @@ class ScriptTool:
                  attributes: ToolAttributes = ToolAttributes()) -> None:
         """
         Initialize the ScriptTool class
+
+        :param name: The name of the script tool, alphanumeric characters only,
+            cannot start with a number.
+        :param label: An optional label for the script tool.
+        :param description: An optional description of the script tool,
+            this should be plain text only.
+        :param description: An optional summary of the script tool,
+            this text can be plain text or html.
+        :param attributes: An optional tuple of booleans which set special
+            attributes on the script tool.
         """
         super().__init__()
         self._name: str = self._validate_name(name)
