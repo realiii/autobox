@@ -13,10 +13,10 @@ from stoolbox.constants import (
 from stoolbox.types import STRING
 
 
-WINDOWS_RESERVED: tuple[str, ...] = (
-    'CON', 'PRN', 'AUX', 'NUL',
-    *(f'COM{i}' for i in range(1, 10)),
-    *(f'LPT{i}' for i in range(1, 10))
+WINDOWS_RESERVED: set[str] = (
+        {'CON', 'PRN', 'AUX', 'NUL', 'CONIN$', 'CONOUT$'} |
+        {'COM%s' % c for c in '123456789\xb9\xb2\xb3'} |
+        {'LPT%s' % c for c in '123456789\xb9\xb2\xb3'}
 )
 
 

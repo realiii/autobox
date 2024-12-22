@@ -3,12 +3,18 @@
 Toolbox Class Tests
 """
 
+
+from shutil import copyfile
+
 from pytest import mark, raises
 
-from helpers import read_from_zip
+from helpers import DEFAULT_EXECUTION_CODE, read_from_zip
 from stoolbox import ScriptTool
+from stoolbox.script import ExecutionScript
 from stoolbox.toolbox import Toolbox
-from stoolbox.constants import EXT, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC
+from stoolbox.constants import (
+    DOT, EXT, TOOL, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
+    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY)
 from stoolbox.toolset import Toolset
 from stoolbox.types import ToolAttributes
 
@@ -186,6 +192,74 @@ def test_toolbox_with_toolsets_and_tools(tmp_path, data_path):
     assert source_content == compare_content
     assert source_resource == compare_resource
 # End test_toolbox_with_toolsets_and_tools function
+
+
+def test_toolbox_with_execution_scripts(tmp_path, data_path):
+    """
+    Test Toolbox with Execution Scripts (varying configurations)
+    """
+    compare_path = data_path.joinpath('script_execute.atbx')
+    assert compare_path.is_file()
+
+    execution_path = data_path / 'execution'
+    assert execution_path.is_dir()
+    example_name = 'example.py'
+    example = execution_path / example_name
+    assert example.is_file()
+    example_sub = execution_path / 'subfolder' / example_name
+    assert example_sub.is_file()
+
+    name = 'simple.py'
+    tmp_example = tmp_path / name
+    copyfile(execution_path / 'c_software' / name, tmp_example)
+
+    tbx = Toolbox(name='script_execute')
+    tool1 = ScriptTool(name='ScriptEmbeddedDefaultScript', label='Embedded Script (Default Script)')
+    tool1.execution_script = ExecutionScript.from_code(DEFAULT_EXECUTION_CODE)
+    tool2 = ScriptTool(name='ScriptPathAlongsideToolbox', label='Script Path Alongside Toolbox')
+    tool2.execution_script = ExecutionScript.from_file(example, embed=False)
+    tool3 = ScriptTool(name='ScriptPathAlongsideToolboxEmbedded', label='Script Path Alongside Toolbox (Embedded)')
+    tool3.execution_script = ExecutionScript.from_file(example, embed=True)
+    tool4 = ScriptTool(name='ScriptPathDifferentLocation', label='Script Path Different Location')
+    tool4.execution_script = ExecutionScript.from_file(tmp_example, embed=False)
+    tool5 = ScriptTool(name='ScriptPathDifferentLocationEmbedded', label='Script Path Different Location (Embedded)')
+    tool5.execution_script = ExecutionScript.from_file(tmp_example, embed=True)
+    tool6 = ScriptTool(name='ScriptPathSubFolderAlongsideToolbox', label='Script Path Sub Folder Alongside Toolbox')
+    tool6.execution_script = ExecutionScript.from_file(example_sub, embed=False)
+    tool7 = ScriptTool(name='ScriptPathSubFolderAlongsideToolboxEmbedded', label='Script Path Sub Folder Alongside Toolbox (Embedded)')
+    tool7.execution_script = ExecutionScript.from_file(example_sub, embed=True)
+
+    for tool in [tool1, tool2, tool3, tool4, tool5, tool6, tool7]:
+        tbx.add_script_tool(tool)
+
+    tbx_path = tbx.save(execution_path, overwrite=True)
+    assert tbx_path.is_file()
+
+    source_content = read_from_zip(tbx_path, name=TOOLBOX_CONTENT, as_json=True)
+    source_resource = read_from_zip(tbx_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+    compare_content = read_from_zip(compare_path, name=TOOLBOX_CONTENT, as_json=True)
+    compare_resource = read_from_zip(compare_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+
+    assert source_content == compare_content
+    assert source_resource == compare_resource
+
+    exe1 = read_from_zip(tbx_path, name=f'{tool1.name}{DOT}{TOOL}/{TOOL_SCRIPT_EXECUTE_PY}', as_json=False)
+    assert exe1 == DEFAULT_EXECUTION_CODE
+    exe2 = read_from_zip(tbx_path, name=f'{tool2.name}{DOT}{TOOL}/{TOOL_SCRIPT_EXECUTE_LINK}', as_json=False)
+    assert exe2.startswith('..\\..') and exe2.endswith(example_name)
+    exe3 = read_from_zip(tbx_path, name=f'{tool3.name}{DOT}{TOOL}/{TOOL_SCRIPT_EXECUTE_PY}', as_json=False)
+    assert exe3 == 'from numpy import ndarray'
+    exe4 = read_from_zip(tbx_path, name=f'{tool4.name}{DOT}{TOOL}/{TOOL_SCRIPT_EXECUTE_LINK}', as_json=False)
+    assert not exe4.startswith('..') and exe4.endswith(name)
+    exe5 = read_from_zip(tbx_path, name=f'{tool5.name}{DOT}{TOOL}/{TOOL_SCRIPT_EXECUTE_PY}', as_json=False)
+    assert exe5 == 'from numpy import ndarray'
+    exe6 = read_from_zip(tbx_path, name=f'{tool6.name}{DOT}{TOOL}/{TOOL_SCRIPT_EXECUTE_LINK}', as_json=False)
+    assert exe6.startswith('..') and exe6.endswith(example_name) and 'subfolder' in exe6
+    exe7 = read_from_zip(tbx_path, name=f'{tool7.name}{DOT}{TOOL}/{TOOL_SCRIPT_EXECUTE_PY}', as_json=False)
+    assert exe7 == 'from numpy import ndarray, abs as abs_'
+
+    tbx_path.unlink()
+# End test_toolbox_with_execution_scripts function
 
 
 def test_toolbox_with_toolsets_and_tools_plus_root(tmp_path, data_path):
