@@ -8,6 +8,7 @@ from typing import NamedTuple, Optional, TypeAlias
 
 
 STRING: TypeAlias = Optional[str]
+TOOLS_MAP: TypeAlias = dict[str, dict[str, list[str]]]
 
 
 class ToolAttributes(NamedTuple):
