@@ -284,7 +284,7 @@ class Toolbox:
         """
         if not folder.is_dir():
             return
-        toolbox = self._get_toolbox_path(folder, overwrite)
+        toolbox = self._get_toolbox_path(folder=folder, overwrite=overwrite)
         temporary = make_temp_folder()
         self._serialize(source=temporary, target=folder)
         self._save_toolbox(source=temporary, target=toolbox)
