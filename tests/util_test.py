@@ -3,10 +3,11 @@
 Utility Tests
 """
 
+
 from pytest import mark
 from stoolbox.util import (
     _validate_alpha_start_sans_special, validate_script_folder_name,
-    validate_toolbox_name, wrap_markup)
+    validate_toolbox_name, validate_toolset_name, wrap_markup)
 
 
 @mark.parametrize('value, expected', [
@@ -32,6 +33,30 @@ def test_validate_toolbox_name(value, expected):
     """
     assert validate_toolbox_name(value) == expected
 # End test_validate_toolbox_name function
+
+
+@mark.parametrize('value, expected', [
+    ('valid_name', 'valid_name'),
+    ('valid value', 'valid value'),
+    ('in|valid?', 'in valid'),
+    ('<<<>>>:', None),
+    ('file  name', 'file name'),
+    ('   valid  ', 'valid'),
+    ('', None),
+    ('PRN', 'PRN'),
+    ('COM1', 'COM1'),
+    ('valid-file-value.ext', 'valid-file-value.ext'),
+    ('', None),
+    ('______', '______'),
+    ('tool?\\:set<>name', 'tool set name'),
+    (None, None)
+])
+def test_validate_toolset_name(value, expected):
+    """
+    Test Validate Toolset Name
+    """
+    assert validate_toolset_name(value) == expected
+# End test_validate_toolset_name function
 
 
 @mark.parametrize('value, expected', [
