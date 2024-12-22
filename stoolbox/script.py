@@ -200,14 +200,11 @@ class ScriptTool:
 class ExecutionScript:
     """
     Execution Script
-
-    Includes methods for working with script execution files,
-    including serialization and verifying folder paths.
     """
     def __init__(self, code: STRING = None, path: PATH = None,
                  embed: bool = False) -> None:
         """
-        Initialize the ExecutionScript class
+        Use the class methods to create an instance of this class.
         """
         super().__init__()
         self._code: STRING = code
@@ -266,7 +263,7 @@ class ExecutionScript:
     @classmethod
     def from_file(cls, path: Path, embed: bool) -> 'ExecutionScript':
         """
-        From File, a path to a file containing python code
+        From File, a path to a file containing python code.
         """
         try:
             path = Path(path)
