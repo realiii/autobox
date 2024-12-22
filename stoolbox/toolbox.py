@@ -78,15 +78,16 @@ class Toolbox:
         return label.strip() or self.name
     # End _validate_label method
 
-    def _serialize(self, path: Path) -> None:
+    def _serialize(self, source: Path, target: Path) -> None:
         """
         Serialize Files to Temporary Folder
         """
-        content, toolset_names = self._build_content(path)
+        content, toolset_names = self._build_content(
+            source=source, target=target)
         resource = self._build_resource(toolset_names)
         for name, data in zip((TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC),
                               (content, resource)):
-            file_path = path.joinpath(name)
+            file_path = source.joinpath(name)
             with file_path.open(
                     mode='w', encoding='utf-8') as fout:
                 # noinspection PyTypeChecker
@@ -122,12 +123,13 @@ class Toolbox:
         return toolbox_path
     # End _get_toolbox_path method
 
-    def _build_content(self, path: Path) -> tuple[
+    def _build_content(self, source: Path, target: Path) -> tuple[
             dict[str, str | dict[str, list]], dict[str, str]]:
         """
         Build Content
         """
-        toolsets, toolset_names = self._build_toolsets(path)
+        toolsets, toolset_names = self._build_toolsets(
+            source=source, target=target)
         mapping = {
             ToolboxContentKeys.version: '1.0',
             ToolboxContentKeys.alias: self.alias,
@@ -153,7 +155,8 @@ class Toolbox:
         return {ToolboxContentResourceKeys.map: {**data, **toolset_names}}
     # End _build_resource method
 
-    def _build_toolsets(self, path: Path) -> tuple[TOOLS_MAP, dict[str, str]]:
+    def _build_toolsets(self, source: Path, target: Path) \
+            -> tuple[TOOLS_MAP, dict[str, str]]:
         """
         Build Toolsets (and tools)
         """
@@ -161,36 +164,40 @@ class Toolbox:
         has_toolset_tools = any(t.has_tools for t in self.toolsets)
         if not self.tools and not has_toolset_tools:
             return nada, {}
-        root_mapping = self._build_root_tools(path)
+        root_mapping = self._build_root_tools(source=source, target=target)
         if not has_toolset_tools:
             return root_mapping or nada, {}
-        toolset_tools, toolset_names = self._build_toolset_tools(path)
+        toolset_tools, toolset_names = self._build_toolset_tools(
+            source=source, target=target)
         return {**root_mapping, **toolset_tools} or nada, toolset_names
     # End _build_toolsets method
 
-    def _build_root_tools(self, path: Path) -> TOOLS_MAP:
+    def _build_root_tools(self, source: Path, target: Path) -> TOOLS_MAP:
         """
         Build Root Tools
         """
         if not self.tools:
             return {}
-        tools = self._make_tools_list(path, tools=self.tools)
+        tools = self._make_tools_list(
+            source=source, target=target, tools=self.tools)
         return {ToolboxContentKeys.root: {ToolboxContentKeys.tools: tools}}
     # End _build_root_tools method
 
     @staticmethod
-    def _make_tools_list(path: Path, tools: list['ScriptTool']) -> list[str]:
+    def _make_tools_list(source: Path, target: Path,
+                         tools: list['ScriptTool']) -> list[str]:
         """
         Make Tools List
         """
         names = []
         for tool in sorted(tools, key=attrgetter(NAME)):
-            tool.serialize(path)
+            tool.serialize(source=source, target=target)
             names.append(tool.qualified_name)
         return names
     # End _make_tools_list method
 
-    def _build_toolset_tools(self, path: Path) -> tuple[TOOLS_MAP, dict[str, str]]:
+    def _build_toolset_tools(self, source: Path, target: Path) \
+            -> tuple[TOOLS_MAP, dict[str, str]]:
         """
         Build Toolset Tools and Toolset Mapping
         """
@@ -198,7 +205,8 @@ class Toolbox:
         toolset_tools = {}
         toolset_names = {}
         for toolset in self.toolsets:
-            if not (tools := self._make_tools_list(path, tools=toolset.tools)):
+            if not (tools := self._make_tools_list(
+                    source=source, target=target, tools=toolset.tools)):
                 continue
             counter += 1
             indexed_name = f'{TOOLSET}{counter}{DOT}{NAME}'
@@ -278,7 +286,7 @@ class Toolbox:
             return
         toolbox = self._get_toolbox_path(folder, overwrite)
         temporary = make_temp_folder()
-        self._serialize(temporary)
+        self._serialize(source=temporary, target=folder)
         self._save_toolbox(source=temporary, target=toolbox)
         return toolbox
     # End save method

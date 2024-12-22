@@ -113,13 +113,13 @@ class ScriptTool:
         return {ScriptToolContentResourceKeys.map: data}
     # End _build_resource method
 
-    def _serialize(self, path: Path) -> Path:
+    def _serialize(self, source: Path, target: Path) -> Path:
         """
         Serialize Files to Temporary Folder
         """
         content = self._build_content()
         resource = self._build_resource()
-        script_path = path.joinpath(f'{self._folder}{DOT}{TOOL}')
+        script_path = source.joinpath(f'{self._folder}{DOT}{TOOL}')
         script_path.mkdir()
         for name, data in zip((TOOL_CONTENT, TOOL_CONTENT_RC),
                               (content, resource)):
@@ -184,11 +184,11 @@ class ScriptTool:
         return SCRIPT_STUB
     # End execution_script property
 
-    def serialize(self, folder: Path) -> Path:
+    def serialize(self, source: Path, target: Path) -> Path:
         """
         Serialize Script Tool to Disk
         """
-        return self._serialize(folder)
+        return self._serialize(source=source, target=target)
     # End serialize method
 # End ScriptTool class
 
