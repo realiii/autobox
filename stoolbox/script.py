@@ -4,6 +4,7 @@ Script Tool
 """
 
 
+from abc import abstractmethod
 from datetime import datetime
 from json import dump
 from pathlib import Path
@@ -12,7 +13,8 @@ from typing import NoReturn, Optional
 from stoolbox.constants import (
     COLON, DOT, SCRIPT_STUB, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT, TOOL_CONTENT_RC,
-    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, ToolAttributeKeywords)
+    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY,
+    ToolAttributeKeywords)
 from stoolbox.types import PATH, STRING, ToolAttributes
 from stoolbox.util import (
     validate_script_folder_name, validate_script_name, wrap_markup)
@@ -46,6 +48,7 @@ class ScriptTool:
         self._summary: STRING = summary
         self._attributes: ToolAttributes = attributes
         self._execution: Optional[ExecutionScript] = None
+        self._validation: Optional[ValidationScript] = None
     # End init built-in
 
     @staticmethod
@@ -131,6 +134,8 @@ class ScriptTool:
         if not self.execution_script:
             self.execution_script = DEFAULT_EXECUTION_SCRIPT
         self.execution_script.serialize(source=script_path, target=target)
+        if self.validation_script:
+            self.validation_script.serialize(source=script_path, target=target)
         return script_path
     # End _serialize method
 
@@ -188,6 +193,18 @@ class ScriptTool:
         self._execution = value
     # End execution_script property
 
+    @property
+    def validation_script(self) -> Optional['ValidationScript']:
+        """
+        Validation Script
+        """
+        return self._validation
+
+    @validation_script.setter
+    def validation_script(self, value: Optional['ValidationScript']) -> None:
+        self._validation = value
+    # End validation_script property
+
     def serialize(self, source: Path, target: Path) -> Path:
         """
         Serialize Script Tool to Disk
@@ -197,17 +214,14 @@ class ScriptTool:
 # End ScriptTool class
 
 
-class ExecutionScript:
+class AbstractScript:
     """
-    Execution Script
-
-    Includes methods for working with script execution files,
-    including serialization and verifying folder paths.
+    Abstract Script
     """
     def __init__(self, code: STRING = None, path: PATH = None,
                  embed: bool = False) -> None:
         """
-        Initialize the ExecutionScript class
+        Initialize the AbstractScript class
         """
         super().__init__()
         self._code: STRING = code
@@ -244,6 +258,50 @@ class ExecutionScript:
         return f'..\\..\\{path}'
     # End _get_content method
 
+    @staticmethod
+    def _validate_path(path: Path) -> Path | NoReturn:
+        """
+        Validate Path
+        """
+        try:
+            path = Path(path)
+        except TypeError:
+            raise ValueError(f'Invalid path provided: {path}')
+        if not path.is_file():
+            raise FileNotFoundError(f'File not found: {path}')
+        return path.resolve()
+    # End _validate_path method
+
+    @staticmethod
+    def _validate_code(code: str) -> None | NoReturn:
+        """
+        Validate Code
+        """
+        if not code:
+            raise ValueError('No code provided')
+    # End _validate_code method
+
+    @abstractmethod
+    def _get_file_name(self) -> str:  # pragma: no cover
+        """
+        Get File Name
+        """
+        pass
+    # End _serialize method
+
+    def serialize(self, source: Path, target: Path) -> Path:
+        """
+        Serialize Execution Script to Disk
+        """
+        return self._serialize(source=source, target=target)
+    # End serialize method
+# End AbstractScript class
+
+
+class ExecutionScript(AbstractScript):
+    """
+    Execution Script
+    """
     def _get_file_name(self) -> str:
         """
         Get File Name
@@ -258,32 +316,57 @@ class ExecutionScript:
         """
         From Code, a string containing python code.
         """
-        if not code:
-            raise ValueError('No code provided')
+        cls._validate_code(code)
         return cls(code=code, embed=True)
     # End from_code method
 
     @classmethod
     def from_file(cls, path: Path, embed: bool) -> 'ExecutionScript':
         """
-        From File, a path to a file containing python code
+        From File, a path to a file containing python code.
         """
-        try:
-            path = Path(path)
-        except TypeError:
-            raise ValueError(f'Invalid path provided: {path}')
-        if not path.is_file():
-            raise FileNotFoundError(f'File not found: {path}')
-        return cls(path=path.resolve(), embed=embed)
+        path = cls._validate_path(path)
+        return cls(path=path, embed=embed)
     # End from_file method
-
-    def serialize(self, source: Path, target: Path) -> Path:
-        """
-        Serialize Execution Script to Disk
-        """
-        return self._serialize(source=source, target=target)
-    # End serialize method
 # End ExecutionScript class
+
+
+class ValidationScript(AbstractScript):
+    """
+    Validation Script
+    """
+    def __init__(self, code: STRING = None, path: PATH = None) -> None:
+        """
+        Use the class methods to create an instance of this class.
+        """
+        super().__init__(code=code, path=path, embed=True)
+    # End init built-in
+
+    def _get_file_name(self) -> str:
+        """
+        Get File Name
+        """
+        return TOOL_SCRIPT_VALIDATE_PY
+    # End _serialize method
+
+    @classmethod
+    def from_code(cls, code: str) -> 'ValidationScript':
+        """
+        From Code, a string containing python code.
+        """
+        cls._validate_code(code)
+        return cls(code=code)
+    # End from_code method
+
+    @classmethod
+    def from_file(cls, path: Path) -> 'ValidationScript':
+        """
+        From File, a path to a file containing python code.
+        """
+        path = cls._validate_path(path)
+        return cls(path=path)
+    # End from_file method
+# End ValidationScript class
 
 
 DEFAULT_EXECUTION_SCRIPT = ExecutionScript.from_code(SCRIPT_STUB)

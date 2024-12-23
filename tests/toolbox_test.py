@@ -10,11 +10,11 @@ from pytest import mark, raises
 
 from helpers import DEFAULT_EXECUTION_CODE, read_from_zip
 from stoolbox import ScriptTool
-from stoolbox.script import ExecutionScript
+from stoolbox.script import ExecutionScript, ValidationScript
 from stoolbox.toolbox import Toolbox
 from stoolbox.constants import (
     DOT, EXT, TOOL, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
-    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY)
+    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)
 from stoolbox.toolset import Toolset
 from stoolbox.types import ToolAttributes
 
@@ -201,17 +201,17 @@ def test_toolbox_with_execution_scripts(tmp_path, data_path):
     compare_path = data_path.joinpath('script_execute.atbx')
     assert compare_path.is_file()
 
-    execution_path = data_path / 'execution'
-    assert execution_path.is_dir()
+    scripts_path = data_path / 'scripts'
+    assert scripts_path.is_dir()
     example_name = 'example.py'
-    example = execution_path / example_name
+    example = scripts_path / example_name
     assert example.is_file()
-    example_sub = execution_path / 'subfolder' / example_name
+    example_sub = scripts_path / 'subfolder' / example_name
     assert example_sub.is_file()
 
     name = 'simple.py'
     tmp_example = tmp_path / name
-    copyfile(execution_path / 'c_software' / name, tmp_example)
+    copyfile(scripts_path / 'c_software' / name, tmp_example)
 
     tbx = Toolbox(name='script_execute')
     tool1 = ScriptTool(name='ScriptEmbeddedDefaultScript', label='Embedded Script (Default Script)')
@@ -232,7 +232,7 @@ def test_toolbox_with_execution_scripts(tmp_path, data_path):
     for tool in [tool1, tool2, tool3, tool4, tool5, tool6, tool7]:
         tbx.add_script_tool(tool)
 
-    tbx_path = tbx.save(execution_path, overwrite=True)
+    tbx_path = tbx.save(scripts_path, overwrite=True)
     assert tbx_path.is_file()
 
     source_content = read_from_zip(tbx_path, name=TOOLBOX_CONTENT, as_json=True)
@@ -260,6 +260,45 @@ def test_toolbox_with_execution_scripts(tmp_path, data_path):
 
     tbx_path.unlink()
 # End test_toolbox_with_execution_scripts function
+
+
+def test_toolbox_with_validation_script(tmp_path, data_path):
+    """
+    Test Toolbox with Validation Script (varying configurations)
+    """
+    compare_path = data_path.joinpath('script_validate.atbx')
+    assert compare_path.is_file()
+
+    scripts_path = data_path / 'scripts'
+    assert scripts_path.is_dir()
+    validator = scripts_path / 'validator.py'
+    assert validator.is_file()
+
+    tbx = Toolbox(name='script_validate')
+    tool1 = ScriptTool(name='ScriptDefaultValidation', label='Script Default Validation')
+    tool2 = ScriptTool(name='ScriptCustomValidation', label='Script Custom Validation')
+    tool2.validation_script = ValidationScript.from_file(validator)
+
+    tbx.add_script_tool(tool1)
+    tbx.add_script_tool(tool2)
+
+    tbx_path = tbx.save(tmp_path, overwrite=True)
+    assert tbx_path.is_file()
+
+    source_content = read_from_zip(tbx_path, name=TOOLBOX_CONTENT, as_json=True)
+    source_resource = read_from_zip(tbx_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+    compare_content = read_from_zip(compare_path, name=TOOLBOX_CONTENT, as_json=True)
+    compare_resource = read_from_zip(compare_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+
+    assert source_content == compare_content
+    assert source_resource == compare_resource
+
+    with raises(KeyError):
+        read_from_zip(tbx_path, name=f'{tool1.name}{DOT}{TOOL}/{TOOL_SCRIPT_VALIDATE_PY}', as_json=False)
+
+    exe2 = read_from_zip(tbx_path, name=f'{tool2.name}{DOT}{TOOL}/{TOOL_SCRIPT_VALIDATE_PY}', as_json=False)
+    assert 'class ToolValidator' in exe2
+# End test_toolbox_with_validation_script function
 
 
 def test_toolbox_with_toolsets_and_tools_plus_root(tmp_path, data_path):
