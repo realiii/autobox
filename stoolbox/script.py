@@ -8,16 +8,18 @@ from abc import abstractmethod
 from datetime import datetime
 from json import dump
 from pathlib import Path
+from shutil import copyfile
 from typing import NoReturn, Optional
 
 from stoolbox.constants import (
-    COLON, DOT, SCRIPT_STUB, ScriptToolContentKeys,
+    COLON, DOT, ICON, ILLUSTRATION, SCRIPT_STUB, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT, TOOL_CONTENT_RC,
-    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY,
-    ToolAttributeKeywords)
+    TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
+    TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY, ToolAttributeKeywords)
 from stoolbox.types import PATH, STRING, ToolAttributes
 from stoolbox.util import (
-    validate_script_folder_name, validate_script_name, wrap_markup)
+    validate_path, validate_script_folder_name, validate_script_name,
+    wrap_markup)
 
 
 class ScriptTool:
@@ -49,6 +51,8 @@ class ScriptTool:
         self._attributes: ToolAttributes = attributes
         self._execution: Optional[ExecutionScript] = None
         self._validation: Optional[ValidationScript] = None
+        self._icon: PATH = None
+        self._illustration: PATH = None
     # End init built-in
 
     @staticmethod
@@ -117,6 +121,30 @@ class ScriptTool:
         return {ScriptToolContentResourceKeys.map: data}
     # End _build_resource method
 
+    def _copy_images(self, source: Path) -> None:
+        """
+        Copy Images
+        """
+        for name, path in zip((TOOL_ICON, TOOL_ILLUSTRATION),
+                              (self.icon, self.illustration)):
+            if not path:
+                continue
+            copyfile(path, source.joinpath(f'{name}{path.suffix}'))
+    # End _copy_images method
+
+    @staticmethod
+    def _validate_image(path: PATH, text: str) -> PATH:
+        """
+        Validate Image Path
+        """
+        if not path:
+            return
+        path = validate_path(path, text=text)
+        if path.suffix.casefold() not in ('.png', '.jpg'):
+            raise TypeError(f'Invalid {text} file type: {path.suffix}')
+        return path
+    # End _validate_image method
+
     def _serialize(self, source: Path, target: Path) -> Path:
         """
         Serialize Files to Temporary Folder
@@ -136,6 +164,7 @@ class ScriptTool:
         self.execution_script.serialize(source=script_path, target=target)
         if self.validation_script:
             self.validation_script.serialize(source=script_path, target=target)
+        self._copy_images(script_path)
         return script_path
     # End _serialize method
 
@@ -205,6 +234,30 @@ class ScriptTool:
         self._validation = value
     # End validation_script property
 
+    @property
+    def icon(self) -> PATH:
+        """
+        Icon Path
+        """
+        return self._icon
+
+    @icon.setter
+    def icon(self, value: PATH) -> None:
+        self._icon = self._validate_image(value, text=ICON)
+    # End icon property
+
+    @property
+    def illustration(self) -> PATH:
+        """
+        Illustration
+        """
+        return self._illustration
+
+    @illustration.setter
+    def illustration(self, value: PATH) -> None:
+        self._illustration = self._validate_image(value, text=ILLUSTRATION)
+    # End illustration property
+
     def serialize(self, source: Path, target: Path) -> Path:
         """
         Serialize Script Tool to Disk
@@ -259,20 +312,6 @@ class AbstractScript:
     # End _get_content method
 
     @staticmethod
-    def _validate_path(path: Path) -> Path | NoReturn:
-        """
-        Validate Path
-        """
-        try:
-            path = Path(path)
-        except TypeError:
-            raise ValueError(f'Invalid path provided: {path}')
-        if not path.is_file():
-            raise FileNotFoundError(f'File not found: {path}')
-        return path.resolve()
-    # End _validate_path method
-
-    @staticmethod
     def _validate_code(code: str) -> None | NoReturn:
         """
         Validate Code
@@ -325,7 +364,7 @@ class ExecutionScript(AbstractScript):
         """
         From File, a path to a file containing python code.
         """
-        path = cls._validate_path(path)
+        path = validate_path(path, text='script')
         return cls(path=path, embed=embed)
     # End from_file method
 # End ExecutionScript class
@@ -363,7 +402,7 @@ class ValidationScript(AbstractScript):
         """
         From File, a path to a file containing python code.
         """
-        path = cls._validate_path(path)
+        path = validate_path(path, text='script')
         return cls(path=path)
     # End from_file method
 # End ValidationScript class

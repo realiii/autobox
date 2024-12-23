@@ -11,7 +11,9 @@ from pytest import mark, raises
 from stoolbox import ScriptTool
 from stoolbox.constants import (
     SCRIPT_STUB, ScriptToolContentKeys, TOOL_CONTENT, TOOL_CONTENT_RC,
-    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)
+    TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
+    TOOL_SCRIPT_EXECUTE_PY,
+    TOOL_SCRIPT_VALIDATE_PY)
 from helpers import DATETIME_PATTERN, read_from_zip
 from stoolbox.script import ExecutionScript, ValidationScript
 from stoolbox.types import ToolAttributes
@@ -101,6 +103,8 @@ def test_script_tool_serialize_root(tmp_path, data_path):
     """
     compare_path = data_path.joinpath('root_script.atbx')
     assert compare_path.is_file()
+    images_path = data_path.joinpath('images')
+    assert images_path.is_dir()
     tool = ScriptTool(
         name='TheScriptNameSansSpaces',
         label='The Script Label With Spaces',
@@ -120,6 +124,9 @@ def test_script_tool_serialize_root(tmp_path, data_path):
             show_modifies_input=True, do_not_add_to_map=True,
             show_enable_undo=True, show_consumes_credits=True)
     )
+    tool.icon = images_path.joinpath('python_icon.png')
+    tool.illustration = images_path.joinpath('numpy_illustration.png')
+
     script_folder = tool.serialize(tmp_path, compare_path)
     assert script_folder.is_dir()
     assert script_folder.name == 'TheScriptNameSansSpaces.tool'
@@ -133,6 +140,9 @@ def test_script_tool_serialize_root(tmp_path, data_path):
     source_resource = loads(script_folder.joinpath(TOOL_CONTENT_RC).read_text())
     compare_content = read_from_zip(compare_path, name=f'{script_folder.name}/{TOOL_CONTENT}', as_json=True)
     compare_resource = read_from_zip(compare_path, name=f'{script_folder.name}/{TOOL_CONTENT_RC}', as_json=True)
+
+    assert script_folder.joinpath(f'{TOOL_ICON}.png').is_file()
+    assert script_folder.joinpath(f'{TOOL_ILLUSTRATION}.png').is_file()
 
     updated = ScriptToolContentKeys.updated
     assert updated in source_content
@@ -280,6 +290,33 @@ def test_validation_script_from_file(data_path):
     assert es._embed
     assert es._get_file_name() == TOOL_SCRIPT_VALIDATE_PY
 # End test_validation_script_from_file function
+
+
+def test_script_images(data_path):
+    """
+    Test Script Images (icon and illustration)
+    """
+    images_path = data_path.joinpath('images')
+    assert images_path.is_dir()
+    tif_image = images_path.joinpath('python_icon.tif')
+    tool = ScriptTool(name='bob')
+    tool.icon = None
+    tool.illustration = None
+
+    with raises(ValueError):
+        tool.icon = Ellipsis
+    with raises(FileNotFoundError):
+        tool.icon = 'python_icon.png'
+    with raises(TypeError):
+        tool.icon = tif_image
+
+    with raises(ValueError):
+        tool.illustration = Ellipsis
+    with raises(FileNotFoundError):
+        tool.illustration = 'python_icon.png'
+    with raises(TypeError):
+        tool.illustration = tif_image
+# End test_script_images function
 
 
 if __name__ == '__main__':  # pragma: no cover

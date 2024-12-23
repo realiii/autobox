@@ -7,6 +7,7 @@ Utility Functionality
 from pathlib import Path
 from re import sub
 from tempfile import mkdtemp
+from typing import NoReturn
 
 from stoolbox.constants import (
     DOUBLE_SPACE, DOUBLE_UNDERSCORE, EXT, SPACE, UNDERSCORE)
@@ -135,6 +136,20 @@ def wrap_markup(value: STRING) -> STRING:
         return f'{begin}{value}{end}'
     return value
 # End wrap_markup function
+
+
+def validate_path(path: Path, text: str) -> Path | NoReturn:
+    """
+    Validate Path
+    """
+    try:
+        path = Path(path)
+    except TypeError:
+        raise ValueError(f'Invalid {text} path provided: {path}')
+    if not path.is_file():
+        raise FileNotFoundError(f'File not found: {path}')
+    return path.resolve()
+# End validate_path function
 
 
 if __name__ == '__main__':  # pragma: no cover
