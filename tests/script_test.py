@@ -11,9 +11,9 @@ from pytest import mark, raises
 from stoolbox import ScriptTool
 from stoolbox.constants import (
     SCRIPT_STUB, ScriptToolContentKeys, TOOL_CONTENT, TOOL_CONTENT_RC,
-    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY)
+    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)
 from helpers import DATETIME_PATTERN, read_from_zip
-from stoolbox.script import ExecutionScript
+from stoolbox.script import ExecutionScript, ValidationScript
 from stoolbox.types import ToolAttributes
 
 
@@ -235,6 +235,51 @@ def test_execution_script_get_content_absolute(tmp_path, data_path, embed, expec
         assert not es._get_content(tmp_path).startswith(expected)
         assert es._get_content(tmp_path).endswith(name)
 # End test_execution_script_get_content_absolute function
+
+
+def test_validation_script_instantiation():
+    """
+    Test instantiation of ValidationScript
+    """
+    es = ValidationScript()
+    assert not es._code
+    assert not es._path
+    assert es._embed
+# End test_validation_script_instantiation function
+
+
+def test_validation_script_from_code():
+    """
+    Test
+    """
+    with raises(ValueError):
+        ValidationScript.from_code('')
+    with raises(ValueError):
+        ValidationScript.from_code(None)
+    es = ValidationScript.from_code('print("Hello World")')
+    assert es._code
+    assert not es._path
+    assert es._embed
+    assert es._get_file_name() == TOOL_SCRIPT_VALIDATE_PY
+# End test_validation_script_from_code function
+
+
+def test_validation_script_from_file(data_path):
+    """
+    Test Validation Script from File
+    """
+    scripts_path = data_path / 'scripts'
+    assert scripts_path.is_dir()
+    with raises(ValueError):
+        ValidationScript.from_file(None)
+    with raises(FileNotFoundError):
+        ValidationScript.from_file('')
+    es = ValidationScript.from_file(scripts_path / 'validator.py')
+    assert not es._code
+    assert es._path
+    assert es._embed
+    assert es._get_file_name() == TOOL_SCRIPT_VALIDATE_PY
+# End test_validation_script_from_file function
 
 
 if __name__ == '__main__':  # pragma: no cover
