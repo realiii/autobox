@@ -48,6 +48,7 @@ class ScriptTool:
         self._summary: STRING = summary
         self._attributes: ToolAttributes = attributes
         self._execution: Optional[ExecutionScript] = None
+        self._validation: Optional[ValidationScript] = None
     # End init built-in
 
     @staticmethod
@@ -133,6 +134,8 @@ class ScriptTool:
         if not self.execution_script:
             self.execution_script = DEFAULT_EXECUTION_SCRIPT
         self.execution_script.serialize(source=script_path, target=target)
+        if self.validation_script:
+            self.validation_script.serialize(source=script_path, target=target)
         return script_path
     # End _serialize method
 
@@ -189,6 +192,18 @@ class ScriptTool:
     def execution_script(self, value: Optional['ExecutionScript']) -> None:
         self._execution = value
     # End execution_script property
+
+    @property
+    def validation_script(self) -> Optional['ValidationScript']:
+        """
+        Validation Script
+        """
+        return self._validation
+
+    @validation_script.setter
+    def validation_script(self, value: Optional['ValidationScript']) -> None:
+        self._validation = value
+    # End validation_script property
 
     def serialize(self, source: Path, target: Path) -> Path:
         """
