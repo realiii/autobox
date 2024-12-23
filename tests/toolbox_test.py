@@ -201,17 +201,17 @@ def test_toolbox_with_execution_scripts(tmp_path, data_path):
     compare_path = data_path.joinpath('script_execute.atbx')
     assert compare_path.is_file()
 
-    execution_path = data_path / 'execution'
-    assert execution_path.is_dir()
+    scripts_path = data_path / 'scripts'
+    assert scripts_path.is_dir()
     example_name = 'example.py'
-    example = execution_path / example_name
+    example = scripts_path / example_name
     assert example.is_file()
-    example_sub = execution_path / 'subfolder' / example_name
+    example_sub = scripts_path / 'subfolder' / example_name
     assert example_sub.is_file()
 
     name = 'simple.py'
     tmp_example = tmp_path / name
-    copyfile(execution_path / 'c_software' / name, tmp_example)
+    copyfile(scripts_path / 'c_software' / name, tmp_example)
 
     tbx = Toolbox(name='script_execute')
     tool1 = ScriptTool(name='ScriptEmbeddedDefaultScript', label='Embedded Script (Default Script)')
@@ -232,7 +232,7 @@ def test_toolbox_with_execution_scripts(tmp_path, data_path):
     for tool in [tool1, tool2, tool3, tool4, tool5, tool6, tool7]:
         tbx.add_script_tool(tool)
 
-    tbx_path = tbx.save(execution_path, overwrite=True)
+    tbx_path = tbx.save(scripts_path, overwrite=True)
     assert tbx_path.is_file()
 
     source_content = read_from_zip(tbx_path, name=TOOLBOX_CONTENT, as_json=True)

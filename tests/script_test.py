@@ -182,13 +182,13 @@ def test_execution_script_from_file(data_path, embed, expected):
     """
     Test Execution Script from File
     """
-    execution_path = data_path / 'execution'
-    assert execution_path.is_dir()
+    scripts_path = data_path / 'scripts'
+    assert scripts_path.is_dir()
     with raises(ValueError):
         ExecutionScript.from_file(None, embed=True)
     with raises(FileNotFoundError):
         ExecutionScript.from_file('', embed=True)
-    es = ExecutionScript.from_file(execution_path / 'example.py', embed=embed)
+    es = ExecutionScript.from_file(scripts_path / 'example.py', embed=embed)
     assert not es._code
     assert es._path
     assert es._embed is embed
@@ -204,7 +204,7 @@ def test_execution_script_get_content_relative(data_path, embed, expected):
     """
     Test Execution Script, embedded or relative path
     """
-    execution_path = data_path / 'execution'
+    execution_path = data_path / 'scripts'
     assert execution_path.is_dir()
     es = ExecutionScript()
     with raises(ValueError):
@@ -222,7 +222,7 @@ def test_execution_script_get_content_absolute(tmp_path, data_path, embed, expec
     """
     Test Execution Script, embedded or absolute path
     """
-    execution_path = data_path / 'execution'
+    execution_path = data_path / 'scripts'
     assert execution_path.is_dir()
     es = ExecutionScript()
     with raises(ValueError):
