@@ -15,6 +15,9 @@ DOUBLE_SPACE: str = f'{SPACE}{SPACE}'
 DOUBLE_UNDERSCORE: str = f'{UNDERSCORE}{UNDERSCORE}'
 
 
+ENCODING: str = 'utf-8'
+
+
 EXT: str = '.atbx'
 PY: str = '.py'
 

@@ -9,12 +9,12 @@ from operator import attrgetter
 from os import walk
 from pathlib import Path
 from shutil import rmtree
-from typing import NoReturn, TYPE_CHECKING, Union
+from typing import NoReturn, TYPE_CHECKING
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from stoolbox.constants import (
-    DOLLAR_RC, DOT, EXT, NAME, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC, TOOLSET,
-    ToolboxContentKeys, ToolboxContentResourceKeys)
+    DOLLAR_RC, DOT, ENCODING, EXT, NAME, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
+    TOOLSET, ToolboxContentKeys, ToolboxContentResourceKeys)
 from stoolbox.types import PATH, STRING, TOOLS_MAP
 from stoolbox.util import (
     make_temp_folder, validate_toolbox_alias, validate_toolbox_name)
@@ -88,8 +88,7 @@ class Toolbox:
         for name, data in zip((TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC),
                               (content, resource)):
             file_path = source.joinpath(name)
-            with file_path.open(
-                    mode='w', encoding='utf-8') as fout:
+            with file_path.open(mode='w', encoding=ENCODING) as fout:
                 # noinspection PyTypeChecker
                 dump(data, fp=fout, indent=2)
     # End _serialize method
@@ -108,8 +107,7 @@ class Toolbox:
         rmtree(source)
     # End _save_toolbox method
 
-    def _get_toolbox_path(self, folder: Path, overwrite: bool) \
-            -> Union[Path, NoReturn]:
+    def _get_toolbox_path(self, folder: Path, overwrite: bool) -> Path | NoReturn:
         """
         Get Toolbox Path, if the file exists and overwrite is False raise
         an exception otherwise delete the file and return the path.

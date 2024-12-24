@@ -9,17 +9,161 @@ from datetime import datetime
 from json import dump
 from pathlib import Path
 from shutil import copyfile
-from typing import NoReturn, Optional
+from typing import NoReturn, Self
 
 from stoolbox.constants import (
-    COLON, DOT, ICON, ILLUSTRATION, SCRIPT_STUB, ScriptToolContentKeys,
-    ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT, TOOL_CONTENT_RC,
-    TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
+    COLON, DOT, ENCODING, ICON, ILLUSTRATION, SCRIPT, SCRIPT_STUB,
+    ScriptToolContentKeys, ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT,
+    TOOL_CONTENT_RC, TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY, ToolAttributeKeywords)
 from stoolbox.types import PATH, STRING, ToolAttributes
 from stoolbox.util import (
     validate_path, validate_script_folder_name, validate_script_name,
     wrap_markup)
+
+
+class AbstractScript:
+    """
+    Abstract Script
+    """
+    def __init__(self, code: STRING = None, path: PATH = None,
+                 embed: bool = False) -> None:
+        """
+        Initialize the AbstractScript class
+        """
+        super().__init__()
+        self._code: STRING = code
+        self._path: PATH = path
+        self._embed: bool = embed
+    # End init built-in
+
+    def _serialize(self, source: Path, target: Path) -> Path:
+        """
+        Serialize File to Temporary Folder
+        """
+        name = self._get_file_name()
+        content = self._get_content(target)
+        exec_path = source.joinpath(name)
+        with exec_path.open(mode='w', encoding=ENCODING) as fout:
+            fout.write(content)
+        return exec_path
+    # End _serialize method
+
+    def _get_content(self, target: Path) -> str:
+        """
+        Get Content
+        """
+        if not self._path and not self._code:
+            raise ValueError('No code or path provided')
+        if self._code:
+            return self._code
+        if self._embed:
+            return self._path.read_text(encoding=ENCODING)
+        try:
+            path = self._path.relative_to(target.resolve())
+        except ValueError:
+            return str(self._path)
+        return f'..\\..\\{path}'
+    # End _get_content method
+
+    @staticmethod
+    def _validate_code(code: str) -> None | NoReturn:
+        """
+        Validate Code
+        """
+        if not code:
+            raise ValueError('No code provided')
+    # End _validate_code method
+
+    @abstractmethod
+    def _get_file_name(self) -> str:  # pragma: no cover
+        """
+        Get File Name
+        """
+        pass
+    # End _serialize method
+
+    def serialize(self, source: Path, target: Path) -> Path:
+        """
+        Serialize Execution Script to Disk
+        """
+        return self._serialize(source=source, target=target)
+    # End serialize method
+# End AbstractScript class
+
+
+class ExecutionScript(AbstractScript):
+    """
+    Execution Script
+    """
+    def _get_file_name(self) -> str:
+        """
+        Get File Name
+        """
+        if self._embed:
+            return TOOL_SCRIPT_EXECUTE_PY
+        return TOOL_SCRIPT_EXECUTE_LINK
+    # End _serialize method
+
+    @classmethod
+    def from_code(cls, code: str) -> Self:
+        """
+        From Code, a string containing python code.
+        """
+        cls._validate_code(code)
+        return cls(code=code, embed=True)
+    # End from_code method
+
+    @classmethod
+    def from_file(cls, path: Path, embed: bool) -> Self:
+        """
+        From File, a path to a file containing python code.
+        """
+        path = validate_path(path, text=SCRIPT)
+        return cls(path=path, embed=embed)
+    # End from_file method
+# End ExecutionScript class
+
+
+class ValidationScript(AbstractScript):
+    """
+    Validation Script
+    """
+    def __init__(self, code: STRING = None, path: PATH = None) -> None:
+        """
+        Use the class methods to create an instance of this class.
+        """
+        super().__init__(code=code, path=path, embed=True)
+    # End init built-in
+
+    def _get_file_name(self) -> str:
+        """
+        Get File Name
+        """
+        return TOOL_SCRIPT_VALIDATE_PY
+    # End _serialize method
+
+    @classmethod
+    def from_code(cls, code: str) -> Self:
+        """
+        From Code, a string containing python code.
+        """
+        cls._validate_code(code)
+        return cls(code=code)
+    # End from_code method
+
+    @classmethod
+    def from_file(cls, path: Path) -> Self:
+        """
+        From File, a path to a file containing python code.
+        """
+        path = validate_path(path, text=SCRIPT)
+        return cls(path=path)
+    # End from_file method
+# End ValidationScript class
+
+
+DEFAULT_EXECUTION_SCRIPT = ExecutionScript.from_code(SCRIPT_STUB)
 
 
 class ScriptTool:
@@ -49,8 +193,8 @@ class ScriptTool:
         self._description: STRING = description
         self._summary: STRING = summary
         self._attributes: ToolAttributes = attributes
-        self._execution: Optional[ExecutionScript] = None
-        self._validation: Optional[ValidationScript] = None
+        self._execution: ExecutionScript | None = None
+        self._validation: ValidationScript | None = None
         self._icon: PATH = None
         self._illustration: PATH = None
     # End init built-in
@@ -100,10 +244,10 @@ class ScriptTool:
 
         if not self.description:
             mapping.pop(ScriptToolContentKeys.description)
-        if not any(self._attributes):
+        if not any(self.attributes):
             mapping.pop(ScriptToolContentKeys.attributes)
         else:
-            for a, k in zip(self._attributes, ToolAttributeKeywords.ordered):
+            for a, k in zip(self.attributes, ToolAttributeKeywords.ordered):
                 if a:
                     mapping[ScriptToolContentKeys.attributes].append(k)
         return mapping
@@ -156,7 +300,7 @@ class ScriptTool:
         for name, data in zip((TOOL_CONTENT, TOOL_CONTENT_RC),
                               (content, resource)):
             file_path = script_path.joinpath(name)
-            with file_path.open(mode='w', encoding='utf-8') as fout:
+            with file_path.open(mode='w', encoding=ENCODING) as fout:
                 # noinspection PyTypeChecker
                 dump(data, fp=fout, indent=2)
         if not self.execution_script:
@@ -211,26 +355,34 @@ class ScriptTool:
     # End summary property
 
     @property
-    def execution_script(self) -> Optional['ExecutionScript']:
+    def attributes(self) -> ToolAttributes:
+        """
+        Attributes
+        """
+        return self._attributes
+    # End attributes property
+
+    @property
+    def execution_script(self) -> ExecutionScript | None:
         """
         Execution Script
         """
         return self._execution
 
     @execution_script.setter
-    def execution_script(self, value: Optional['ExecutionScript']) -> None:
+    def execution_script(self, value: ExecutionScript | None) -> None:
         self._execution = value
     # End execution_script property
 
     @property
-    def validation_script(self) -> Optional['ValidationScript']:
+    def validation_script(self) -> ValidationScript | None:
         """
         Validation Script
         """
         return self._validation
 
     @validation_script.setter
-    def validation_script(self, value: Optional['ValidationScript']) -> None:
+    def validation_script(self, value: ValidationScript | None) -> None:
         self._validation = value
     # End validation_script property
 
@@ -265,150 +417,6 @@ class ScriptTool:
         return self._serialize(source=source, target=target)
     # End serialize method
 # End ScriptTool class
-
-
-class AbstractScript:
-    """
-    Abstract Script
-    """
-    def __init__(self, code: STRING = None, path: PATH = None,
-                 embed: bool = False) -> None:
-        """
-        Initialize the AbstractScript class
-        """
-        super().__init__()
-        self._code: STRING = code
-        self._path: PATH = path
-        self._embed: bool = embed
-    # End init built-in
-
-    def _serialize(self, source: Path, target: Path) -> Path:
-        """
-        Serialize File to Temporary Folder
-        """
-        name = self._get_file_name()
-        content = self._get_content(target)
-        exec_path = source.joinpath(name)
-        with exec_path.open(mode='w', encoding='utf-8') as fout:
-            fout.write(content)
-        return exec_path
-    # End _serialize method
-
-    def _get_content(self, target: Path) -> str:
-        """
-        Get Content
-        """
-        if not self._path and not self._code:
-            raise ValueError('No code or path provided')
-        if self._code:
-            return self._code
-        if self._embed:
-            return self._path.read_text(encoding='utf-8')
-        try:
-            path = self._path.relative_to(target.resolve())
-        except ValueError:
-            return str(self._path)
-        return f'..\\..\\{path}'
-    # End _get_content method
-
-    @staticmethod
-    def _validate_code(code: str) -> None | NoReturn:
-        """
-        Validate Code
-        """
-        if not code:
-            raise ValueError('No code provided')
-    # End _validate_code method
-
-    @abstractmethod
-    def _get_file_name(self) -> str:  # pragma: no cover
-        """
-        Get File Name
-        """
-        pass
-    # End _serialize method
-
-    def serialize(self, source: Path, target: Path) -> Path:
-        """
-        Serialize Execution Script to Disk
-        """
-        return self._serialize(source=source, target=target)
-    # End serialize method
-# End AbstractScript class
-
-
-class ExecutionScript(AbstractScript):
-    """
-    Execution Script
-    """
-    def _get_file_name(self) -> str:
-        """
-        Get File Name
-        """
-        if self._embed:
-            return TOOL_SCRIPT_EXECUTE_PY
-        return TOOL_SCRIPT_EXECUTE_LINK
-    # End _serialize method
-
-    @classmethod
-    def from_code(cls, code: str) -> 'ExecutionScript':
-        """
-        From Code, a string containing python code.
-        """
-        cls._validate_code(code)
-        return cls(code=code, embed=True)
-    # End from_code method
-
-    @classmethod
-    def from_file(cls, path: Path, embed: bool) -> 'ExecutionScript':
-        """
-        From File, a path to a file containing python code.
-        """
-        path = validate_path(path, text='script')
-        return cls(path=path, embed=embed)
-    # End from_file method
-# End ExecutionScript class
-
-
-class ValidationScript(AbstractScript):
-    """
-    Validation Script
-    """
-    def __init__(self, code: STRING = None, path: PATH = None) -> None:
-        """
-        Use the class methods to create an instance of this class.
-        """
-        super().__init__(code=code, path=path, embed=True)
-    # End init built-in
-
-    def _get_file_name(self) -> str:
-        """
-        Get File Name
-        """
-        return TOOL_SCRIPT_VALIDATE_PY
-    # End _serialize method
-
-    @classmethod
-    def from_code(cls, code: str) -> 'ValidationScript':
-        """
-        From Code, a string containing python code.
-        """
-        cls._validate_code(code)
-        return cls(code=code)
-    # End from_code method
-
-    @classmethod
-    def from_file(cls, path: Path) -> 'ValidationScript':
-        """
-        From File, a path to a file containing python code.
-        """
-        path = validate_path(path, text='script')
-        return cls(path=path)
-    # End from_file method
-# End ValidationScript class
-
-
-DEFAULT_EXECUTION_SCRIPT = ExecutionScript.from_code(SCRIPT_STUB)
 
 
 if __name__ == '__main__':  # pragma: no cover
