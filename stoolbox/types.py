@@ -4,16 +4,13 @@ Types and Aliases
 """
 
 
-from typing import NamedTuple, Optional, TYPE_CHECKING, TypeAlias
+from pathlib import Path
+from typing import NamedTuple, TypeAlias
 
 
-if TYPE_CHECKING:  # pragma: no cover
-    from pathlib import Path
-
-
-STRING: TypeAlias = Optional[str]
+STRING: TypeAlias = str | None
 TOOLS_MAP: TypeAlias = dict[str, dict[str, list[str]]]
-PATH: TypeAlias = Optional['Path']
+PATH: TypeAlias = Path | None
 
 
 class ToolAttributes(NamedTuple):
