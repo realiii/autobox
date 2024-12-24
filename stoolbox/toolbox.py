@@ -42,8 +42,8 @@ class Toolbox:
         """
         super().__init__()
         self._name: str = self._validate_name(name)
-        self._label: STRING = self._validate_label(label)
-        self._alias: STRING = self._validate_alias(alias)
+        self._label: str = self._validate_label(label)
+        self._alias: str = self._validate_alias(alias)
         self._description: STRING = description
         self._toolsets: list['Toolset'] = []
         self._tools: list['ScriptTool'] = []

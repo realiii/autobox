@@ -45,12 +45,12 @@ class ScriptTool:
         super().__init__()
         self._name: str = self._validate_name(name)
         self._folder: str = self._validate_folder_name(self._name)
-        self._label: STRING = self._validate_label(label)
+        self._label: str = self._validate_label(label)
         self._description: STRING = description
         self._summary: STRING = summary
         self._attributes: ToolAttributes = attributes
-        self._execution: Optional[ExecutionScript] = None
-        self._validation: Optional[ValidationScript] = None
+        self._execution: Optional['ExecutionScript'] = None
+        self._validation: Optional['ValidationScript'] = None
         self._icon: PATH = None
         self._illustration: PATH = None
     # End init built-in
