@@ -11,6 +11,7 @@ from typing import NamedTuple, TypeAlias
 STRING: TypeAlias = str | None
 TOOLS_MAP: TypeAlias = dict[str, dict[str, list[str]]]
 PATH: TypeAlias = Path | None
+BOOL: TypeAlias = bool | None
 
 
 class ToolAttributes(NamedTuple):

@@ -6,7 +6,9 @@ Utility Tests
 
 from pytest import mark
 from stoolbox.util import (
-    _validate_alpha_start_sans_special, validate_script_folder_name,
+    _remove_leading_non_alpha, _validate_alpha_start_sans_special,
+    make_parameter_name, validate_parameter_label, validate_parameter_name,
+    validate_script_folder_name,
     validate_toolbox_name, validate_toolset_name, wrap_markup)
 
 
@@ -104,6 +106,76 @@ def test_wrap_markup(value, expected):
     """
     assert wrap_markup(value) == expected
 # End test_wrap_markup function
+
+
+@mark.parametrize('value, expected', [
+    ('validLabel', 'validLabel'),
+    ('Valid_Label123', 'Valid_Label123'),
+    ('valid label', 'valid label'),
+    ('accidental  spaces', 'accidental spaces'),
+    ('123 valid', '123 valid'),
+    ('', None),
+    ('  ', None),
+    ('   ', None),
+    (None, None)
+])
+def test_validate_parameter_label(value, expected):
+    """
+    Test validate_parameter_label
+    """
+    assert validate_parameter_label(value) == expected
+# End test_validate_parameter_label function
+
+
+@mark.parametrize('value, expected', [
+    ('validname', 'validname'),
+    ('Valid_name123', 'Valid_name123'),
+    ('valid name', 'valid name'),
+    ('accidental  spaces', 'accidental spaces'),
+    ('123 valid', 'valid'),
+    ('', None),
+    ('  ', None),
+    ('   ', None),
+    (None, None)
+])
+def test_validate_parameter_name(value, expected):
+    """
+    Test validate_parameter_name
+    """
+    assert validate_parameter_name(value) == expected
+# End test_validate_parameter_name function
+
+
+@mark.parametrize('value, expected', [
+    ('1234', None),
+    ('asdf', 'asdf'),
+    ('1234asdf', 'asdf'),
+    ('1234_asdf', 'asdf'),
+    ('asdf1234', 'asdf1234'),
+])
+def test_remove_leading_numeric(value, expected):
+    """
+    Test _remove_leading_non_alpha
+    """
+    assert _remove_leading_non_alpha(value) == expected
+# End test_remove_leading_numeric function
+
+
+@mark.parametrize('value, expected', [
+    ('validLabel', 'validlabel'),
+    ('Valid_Label123', 'valid_label123'),
+    ('valid label', 'valid_label'),
+    ('accidental  spaces', 'accidental_spaces'),
+    ('123 valid', 'valid'),
+    ('123', None),
+])
+def test_make_parameter_name(value, expected):
+    """
+    Test make_parameter_name
+    """
+    value = validate_parameter_label(value)
+    assert make_parameter_name(value) == expected
+# End test_make_parameter_name function
 
 
 if __name__ == '__main__':  # pragma: no cover

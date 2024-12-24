@@ -42,8 +42,8 @@ class Toolbox:
         """
         super().__init__()
         self._name: str = self._validate_name(name)
-        self._label: STRING = self._validate_label(label)
-        self._alias: STRING = self._validate_alias(alias)
+        self._label: str = self._validate_label(label, name=self._name)
+        self._alias: str = self._validate_alias(alias, name=self._name)
         self._description: STRING = description
         self._toolsets: list['Toolset'] = []
         self._tools: list['ScriptTool'] = []
@@ -59,23 +59,25 @@ class Toolbox:
         return validated_name
     # End _validate_name method
 
-    def _validate_alias(self, alias: STRING) -> str | NoReturn:
+    @staticmethod
+    def _validate_alias(alias: STRING, name: str) -> str | NoReturn:
         """
         Validate Alias
         """
         if not (validated_alias := validate_toolbox_alias(alias)):
-            if not (validated_alias := validate_toolbox_alias(self.name)):
+            if not (validated_alias := validate_toolbox_alias(name)):
                 raise ValueError(f'Invalid toolbox alias: {alias}')
         return validated_alias
     # End _validate_alias method
 
-    def _validate_label(self, label: STRING) -> str:
+    @staticmethod
+    def _validate_label(label: STRING, name: str) -> str:
         """
         Validate Label
         """
         if not isinstance(label, str):
-            return self.name
-        return label.strip() or self.name
+            return name
+        return label.strip() or name
     # End _validate_label method
 
     def _serialize(self, source: Path, target: Path) -> None:
