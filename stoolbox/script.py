@@ -45,7 +45,7 @@ class ScriptTool:
         super().__init__()
         self._name: str = self._validate_name(name)
         self._folder: str = self._validate_folder_name(self._name)
-        self._label: str = self._validate_label(label)
+        self._label: str = self._validate_label(label, name=self._name)
         self._description: STRING = description
         self._summary: STRING = summary
         self._attributes: ToolAttributes = attributes
@@ -73,13 +73,14 @@ class ScriptTool:
         return validate_script_folder_name(value)
     # End _validate_folder_name method
 
-    def _validate_label(self, label: STRING) -> str:
+    @staticmethod
+    def _validate_label(label: STRING, name: str) -> str:
         """
         Validate Label
         """
         if not isinstance(label, str):
-            return self.name
-        return label.strip() or self.name
+            return name
+        return label.strip() or name
     # End _validate_label method
 
     def _build_content(self) -> dict[str, str | dict[str, list]]:
