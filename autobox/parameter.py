@@ -6,7 +6,7 @@ Parameters
 
 from typing import Any, ClassVar, NoReturn, Self
 
-from autobox.constants import (
+from autobox.constant import (
     DERIVED, DOLLAR_RC, DOT, GP_FEATURE_SCHEMA, GP_MULTI_VALUE, GP_TABLE_SCHEMA,
     OPTIONAL, OUT, ParameterContentKeys, ParameterContentResourceKeys,
     SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,

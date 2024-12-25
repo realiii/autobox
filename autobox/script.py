@@ -12,7 +12,7 @@ from pathlib import Path
 from shutil import copyfile
 from typing import NoReturn, Self
 
-from autobox.constants import (
+from autobox.constant import (
     COLON, DOT, ENCODING, ICON, ILLUSTRATION, ParameterContentKeys, SCRIPT,
     SCRIPT_STUB, ScriptToolContentKeys, ScriptToolContentResourceKeys, TOOL,
     TOOL_CONTENT, TOOL_CONTENT_RC, TOOL_ICON, TOOL_ILLUSTRATION,

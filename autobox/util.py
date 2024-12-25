@@ -9,7 +9,7 @@ from re import sub
 from tempfile import mkdtemp
 from typing import NoReturn
 
-from autobox.constants import (
+from autobox.constant import (
     DOUBLE_SPACE, DOUBLE_UNDERSCORE, EXT, SPACE, UNDERSCORE)
 from autobox.types import STRING
 

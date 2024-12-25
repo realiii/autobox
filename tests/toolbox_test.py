@@ -16,7 +16,7 @@ from autobox.parameter import (
     StringParameter, TableParameter, TinParameter, WorkspaceParameter)
 from autobox.script import ExecutionScript, ValidationScript
 from autobox.toolbox import Toolbox
-from autobox.constants import (
+from autobox.constant import (
     DOT, EXT, ScriptToolContentKeys, TOOL, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
     TOOL_CONTENT, TOOL_CONTENT_RC, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)

@@ -12,7 +12,7 @@ from shutil import rmtree
 from typing import NoReturn, TYPE_CHECKING
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from autobox.constants import (
+from autobox.constant import (
     DOLLAR_RC, DOT, ENCODING, EXT, NAME, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
     TOOLSET, ToolboxContentKeys, ToolboxContentResourceKeys)
 from autobox.types import MAP_STR, PATH, STRING, TOOLS_MAP

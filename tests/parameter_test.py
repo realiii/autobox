@@ -6,7 +6,7 @@ Parameter Test
 
 from pytest import mark, raises
 
-from autobox.constants import ParameterContentKeys
+from autobox.constant import ParameterContentKeys
 from autobox.parameter import (
     DoubleParameter, FeatureClassParameter, FeatureDatasetParameter,
     FeatureLayerParameter, FieldParameter, InputOutputParameter, InputParameter,

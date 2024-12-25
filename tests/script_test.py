@@ -9,7 +9,7 @@ from json import loads
 from pytest import mark, raises
 
 from autobox import ScriptTool
-from autobox.constants import (
+from autobox.constant import (
     SCRIPT_STUB, ScriptToolContentKeys, TOOL_CONTENT, TOOL_CONTENT_RC,
     TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)
