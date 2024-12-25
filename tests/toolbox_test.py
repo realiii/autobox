@@ -10,11 +10,16 @@ from pytest import mark, raises
 
 from helpers import DEFAULT_EXECUTION_CODE, read_from_zip
 from stoolbox import ScriptTool
+from stoolbox.parameter import (
+    DoubleParameter, FeatureClassParameter, FeatureDatasetParameter,
+    FeatureLayerParameter, LongParameter, RasterDatasetParameter,
+    StringParameter, TableParameter, TinParameter, WorkspaceParameter)
 from stoolbox.script import ExecutionScript, ValidationScript
 from stoolbox.toolbox import Toolbox
 from stoolbox.constants import (
-    DOT, EXT, TOOL, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
-    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)
+    DOT, EXT, ScriptToolContentKeys, TOOL, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
+    TOOL_CONTENT, TOOL_CONTENT_RC, TOOL_SCRIPT_EXECUTE_LINK,
+    TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)
 from stoolbox.toolset import Toolset
 from stoolbox.types import ToolAttributes
 
@@ -396,6 +401,110 @@ def test_toolbox_validate_alias_raise():
     with raises(ValueError):
         Toolbox(name='1234')
 # End test_toolbox_validate_alias_raise function
+
+
+def test_build_parameters_toolbox(tmp_path, data_path):
+    """
+    Build Parameters Toolbox
+    """
+    compare_path = data_path.joinpath('parameters.atbx')
+    assert compare_path.is_file()
+
+    param1 = StringParameter(
+        label='Simple String Label', name='Simple_String_Name',
+        category='cat 1', description='plain text description',
+        default_value='the quick brown fox')
+    param2 = StringParameter(
+        label='Multi String Label', name='multi_string_name', category='cat 1',
+        description='<p><b>all bold</b></p>',
+        default_value=('jumps over the', 'second line', 'includes "double quote" characters', "includes 'single quote' characters"),
+        is_required=False, is_multi=True)
+    param3 = StringParameter(
+        label='Derived String Label', name='DerivedStringName', category='cat 2',
+        description='<p><span style=\"text-decoration:underline;\">underline </span><span>and </span><i>emphasis</i></p>',
+        default_value='lazy dog')
+    param3.set_derived()
+    tool1 = ScriptTool(name='ScriptWithStringParameters', label='Script with String Parameters')
+    for p in param1, param2, param3:
+        tool1.add_parameter(p)
+
+    param1 = WorkspaceParameter(label='Workspaces', name='workspaces', description='Allow for multiple workspaces', is_multi=True)
+    param2 = WorkspaceParameter(label='Output Workspace', name='output_workspace_name', is_input=False)
+    param3 = FeatureDatasetParameter(label='A Feature Dataset', name='a_feature_dataset_name', is_input=False)
+    param4 = FeatureClassParameter(label='Main Feature Class', name='main_feature_class_name', is_input=False, is_required=False)
+    param5 = FeatureClassParameter(label='Feature Class Input', name='feature_class_input_name')
+    param6 = FeatureLayerParameter(label='Feature Layer Example', name='feature_layer_example')
+    param7 = RasterDatasetParameter(label='Raster Dataset Input', name='raster_dataset_input_name')
+    param8 = RasterDatasetParameter(label='Raster Dataset Output', name='raster_dataset_output_name', is_input=False)
+    param9 = TinParameter(label='Tin Man', name='tin_man_name')
+    param10 = TableParameter(label='Table Input', name='table_input_name')
+    param11 = TableParameter(label='Table Output', name='table_output_name', is_input=False)
+    tool2 = ScriptTool(name='ScriptWithDataElementParameters', label='Script with Data Element Parameters')
+    for p in param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11:
+        tool2.add_parameter(p)
+
+    param1 = LongParameter(label='Long', name='long_name', default_value=123)
+    param2 = LongParameter(label='Long Multi', name='long_multi_name', default_value=(12, 34, 56), is_multi=True)
+    param3 = DoubleParameter(label='Double', name='double_name', default_value=123.456)
+    param4 = DoubleParameter(label='Double Multi', name='double_multi_name', default_value=(23.456, 789.1), is_multi=True)
+    tool3 = ScriptTool(name='ScriptWithNumericParameters', label='Script with Numeric Parameters')
+    for p in param1, param2, param3, param4:
+        tool3.add_parameter(p)
+
+    tbx = Toolbox(name='parameters', label='parameters', alias='parameters')
+    tbx.add_script_tool(tool1)
+    tbx.add_script_tool(tool2)
+    tbx.add_script_tool(tool3)
+
+    tbx_path = tbx.save(tmp_path)
+    assert tbx_path.is_file()
+
+    source_content = read_from_zip(tbx_path, name=TOOLBOX_CONTENT, as_json=True)
+    source_resource = read_from_zip(tbx_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+    compare_content = read_from_zip(compare_path, name=TOOLBOX_CONTENT, as_json=True)
+    compare_resource = read_from_zip(compare_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+
+    assert source_content == compare_content
+    assert source_resource == compare_resource
+
+    updated = ScriptToolContentKeys.updated
+
+    name = f'{tool1.name}{DOT}{TOOL}/{TOOL_CONTENT}'
+    source_content = read_from_zip(tbx_path, name=name, as_json=True)
+    compare_content = read_from_zip(compare_path, name=name, as_json=True)
+    source_content.pop(updated)
+    compare_content.pop(updated)
+    assert source_content == compare_content
+
+    name = f'{tool1.name}{DOT}{TOOL}/{TOOL_CONTENT_RC}'
+    source_resource = read_from_zip(tbx_path, name=name, as_json=True)
+    compare_resource = read_from_zip(compare_path, name=name, as_json=True)
+    assert source_resource == compare_resource
+
+    name = f'{tool2.name}{DOT}{TOOL}/{TOOL_CONTENT}'
+    source_content = read_from_zip(tbx_path, name=name, as_json=True)
+    compare_content = read_from_zip(compare_path, name=name, as_json=True)
+    source_content.pop(updated)
+    compare_content.pop(updated)
+    assert source_content == compare_content
+
+    name = f'{tool2.name}{DOT}{TOOL}/{TOOL_CONTENT_RC}'
+    source_resource = read_from_zip(tbx_path, name=name, as_json=True)
+    compare_resource = read_from_zip(compare_path, name=name, as_json=True)
+    assert source_resource == compare_resource
+
+    name = f'{tool3.name}{DOT}{TOOL}/{TOOL_CONTENT}'
+    source_content = read_from_zip(tbx_path, name=name, as_json=True)
+    compare_content = read_from_zip(compare_path, name=name, as_json=True)
+    source_content.pop(updated)
+    compare_content.pop(updated)
+    assert source_content == compare_content
+
+    name = f'{tool3.name}{DOT}{TOOL}/{TOOL_CONTENT_RC}'
+    source_resource = read_from_zip(tbx_path, name=name, as_json=True)
+    compare_resource = read_from_zip(compare_path, name=name, as_json=True)
+    assert source_resource == compare_resource
+# End test_build_parameters_toolbox function
 
 
 if __name__ == '__main__':  # pragma: no cover

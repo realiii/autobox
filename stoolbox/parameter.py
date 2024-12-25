@@ -6,25 +6,39 @@ Parameters
 
 from typing import Any, ClassVar, NoReturn
 
-from stoolbox.types import BOOL, STRING
+from stoolbox.constants import (
+    DERIVED, DOLLAR_RC, DOT, GP_FEATURE_SCHEMA, GP_MULTI_VALUE, GP_TABLE_SCHEMA,
+    OPTIONAL, OUT, ParameterContentKeys, ParameterContentResourceKeys,
+    SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
+    ScriptToolContentResourceKeys, TRUE)
+from stoolbox.types import BOOL, MAP_STR, STRING
 from stoolbox.util import (
-    make_parameter_name, validate_parameter_label,
-    validate_parameter_name)
+    make_parameter_name, validate_parameter_label, validate_parameter_name,
+    wrap_markup)
 
 
 __all__ = [
-    'AnalysisCellSize', 'MapDocument', 'ArealUnit', 'Boolean',
-    'CadDrawingDataset', 'CalculatorExpression', 'CatalogLayer', 'SACellSize',
-    'CellSizeXY', 'CoordinateSystem', 'Coverage', 'CoverageFeatureClass',
-    'DataElement', 'DatasetType', 'Date', 'DbaseTable', 'Double',
-    'EncryptedString', 'Envelope', 'Extent', 'FeatureClass', 'FeatureDataset',
-    'FeatureLayer', 'Field', 'File', 'Folder', 'GroupLayer', 'LasDataset',
-    'LasDatasetLayer', 'GPLayer', 'LayerFile', 'LinearUnit', 'Long', 'Map',
-    'MosaicDataset', 'MosaicLayer', 'NetworkDataset', 'Point', 'PrjFile',
-    'RasterBand', 'RasterCalculatorExpression', 'RasterDataLayer',
-    'RasterDataset', 'RasterLayer', 'RelationshipClass', 'ShapeFile',
-    'SpatialReference', 'SQLExpression', 'String', 'StringHidden', 'Table',
-    'TableView', 'Textfile', 'Tin', 'TinLayer', 'Topology', 'Workspace',
+    'AnalysisCellSizeParameter', 'MapDocumentParameter', 'ArealUnitParameter',
+    'BooleanParameter', 'CadDrawingDatasetParameter',
+    'CalculatorExpressionParameter', 'CatalogLayerParameter',
+    'SACellSizeParameter', 'CellSizeXYParameter', 'CoordinateSystemParameter',
+    'CoverageParameter', 'CoverageFeatureClassParameter',
+    'DataElementParameter', 'DatasetTypeParameter', 'DateParameter',
+    'DbaseTableParameter', 'DoubleParameter', 'EncryptedStringParameter',
+    'EnvelopeParameter', 'ExtentParameter', 'FeatureClassParameter',
+    'FeatureDatasetParameter', 'FeatureLayerParameter', 'FieldParameter',
+    'FileParameter', 'FolderParameter', 'GroupLayerParameter',
+    'LasDatasetParameter', 'LasDatasetLayerParameter', 'GPLayerParameter',
+    'LayerFileParameter', 'LinearUnitParameter', 'LongParameter',
+    'MapParameter', 'MosaicDatasetParameter', 'MosaicLayerParameter',
+    'NetworkDatasetParameter', 'PointParameter', 'PrjFileParameter',
+    'RasterBandParameter', 'RasterCalculatorExpressionParameter',
+    'RasterDataLayerParameter', 'RasterDatasetParameter',
+    'RasterLayerParameter', 'RelationshipClassParameter', 'ShapeFileParameter',
+    'SpatialReferenceParameter', 'SQLExpressionParameter', 'StringParameter',
+    'StringHiddenParameter', 'TableParameter', 'TableViewParameter',
+    'TextfileParameter', 'TinParameter', 'TinLayerParameter',
+    'TopologyParameter', 'WorkspaceParameter',
 ]
 
 
@@ -32,6 +46,8 @@ class BaseParameter:
     """
     Base Parameter
     """
+    keyword: ClassVar[str] = ''
+
     def __init__(self, label: str, name: STRING = None, category: STRING = None,
                  description: STRING = None, default_value: Any = None,
                  is_input: bool = True, is_required: BOOL = True,
@@ -86,6 +102,124 @@ class BaseParameter:
         return validated_name
     # End _validate_name method
 
+    def _build_parameter_type(self) -> dict[str, STRING]:
+        """
+        Build Parameter Type
+        """
+        if self.is_required:
+            value = None
+        elif self.is_required is None:
+            value = DERIVED
+        else:
+            value = OPTIONAL
+        return {ParameterContentKeys.parameter_type: value}
+    # End _build_parameter_type method
+
+    def _build_direction(self) -> dict[str, STRING]:
+        """
+        Build Direction
+        """
+        if self.is_input:
+            value = None
+        else:
+            value = OUT
+        return {ParameterContentKeys.direction: value}
+    # End _build_direction method
+
+    def _build_display_name(self) -> tuple[MAP_STR, MAP_STR]:
+        """
+        Build Display Name
+        """
+        suffix = ScriptToolContentResourceKeys.title
+        key = f'{self.name.casefold()}{DOT}{suffix}'
+        content = {ParameterContentKeys.display_name: f'{DOLLAR_RC}{key}'}
+        return content, {key: self.label}
+    # End _build_display_name method
+
+    def _build_category(self, categories: dict[str, int]) -> dict[str, STRING]:
+        """
+        Build Category
+        """
+        key = ParameterContentKeys.category
+        if self.category not in categories:
+            value = None
+        else:
+            id_ = categories[self.category]
+            value = f'{DOLLAR_RC}{ScriptToolContentKeys.parameters}.{key}{id_}'
+        return {key: value}
+    # End _build_category method
+
+    def _build_data_type(self) -> dict[str, str | MAP_STR]:
+        """
+        Build Data Type with Schema
+        """
+        key = ParameterContentKeys.data_type
+        data_type = {ParameterContentKeys.type: self.keyword}
+        if not self.is_multi:
+            return {key: data_type}
+        return {key: {
+            key: data_type,
+            ParameterContentKeys.type: GP_MULTI_VALUE}}
+    # End _build_data_type method
+
+    def _build_schema(self) -> MAP_STR:
+        """
+        Build Schema
+        """
+        return {}
+    # End _build_schema method
+
+    def _build_default_value(self) -> dict[str, Any]:
+        """
+        Build Default Value
+        """
+        value = self.default_value
+        if self.is_multi:
+            if value is None:
+                value = ()
+            elif not isinstance(value, (list, tuple)):  # pragma: no cover
+                value = value,
+            value = SEMI_COLON.join(repr(v) for v in value)
+        else:
+            if value is not None:
+                value = str(value)
+        return {ParameterContentKeys.value: value}
+    # End _build_default_value method
+
+    def _build_description(self) -> tuple[MAP_STR, MAP_STR]:
+        """
+        Build Description
+        """
+        if not self.description:
+            return {}, {}
+        suffix = ParameterContentResourceKeys.description
+        key = f'{self.name.casefold()}{DOT}{suffix}'
+        content = {ParameterContentKeys.description: f'{DOLLAR_RC}{key}'}
+        return content, {key: self.description}
+    # End _build_description method
+
+    def _serialize(self, categories: dict[str, int]) \
+            -> tuple[dict[str, dict], MAP_STR]:
+        """
+        Serialize Parameter to a content dictionary and a resource dictionary.
+        """
+        parameter_type = self._build_parameter_type()
+        direction = self._build_direction()
+        display_name_content, display_name_resource = self._build_display_name()
+        category = self._build_category(categories)
+        data_type = self._build_data_type()
+        schema = self._build_schema()
+        default_value = self._build_default_value()
+        description_content, description_resource = self._build_description()
+        content = {**parameter_type, **direction, **display_name_content,
+                   **category, **data_type, **schema, **default_value,
+                   **description_content}
+        content = {k: v for k, v in content.items() if v}
+        resource = {**description_resource, **display_name_resource}
+        resource = {k: v for k, v in resource.items() if v}
+        return content, resource
+    # End _serialize method
+
     @property
     def name(self) -> str:
         """
@@ -119,7 +253,7 @@ class BaseParameter:
         """
         Description / Documentation
         """
-        return self._description
+        return wrap_markup(self._description)
 
     @description.setter
     def description(self, value: STRING) -> None:
@@ -173,6 +307,14 @@ class BaseParameter:
     def is_enabled(self, value: bool) -> None:
         self._is_enabled = value
     # End is_enabled property
+
+    def serialize(self, categories: dict[str, int]) \
+            -> tuple[dict[str, dict], MAP_STR]:
+        """
+        Serialize Parameter to a content dictionary and a resource dictionary.
+        """
+        return self._serialize(categories)
+    # End serialize method
 # End BaseParameter class
 
 
@@ -223,303 +365,316 @@ class InputOutputParameter(BaseParameter):
 # End InputOutputParameter class
 
 
-class AnalysisCellSize(InputParameter):
+class AnalysisCellSizeParameter(InputParameter):
     """
     The cell size used by raster tools.
     """
     keyword: ClassVar[str] = 'analysis_cell_size'
-# End AnalysisCellSize class
+# End AnalysisCellSizeParameter class
 
 
-class MapDocument(InputParameter):
+class MapDocumentParameter(InputParameter):
     """
     A file that contains one map, its layout, and its associated layers,
     tables, charts, and reports.
     """
     keyword: ClassVar[str] = 'DEMapDocument'
-# End MapDocument class
+# End MapDocumentParameter class
 
 
-class ArealUnit(InputParameter):
+class ArealUnitParameter(InputParameter):
     """
     An areal unit type and value, such as square meter or acre.
     """
     keyword: ClassVar[str] = 'GPArealUnit'
-# End ArealUnit class
+# End ArealUnitParameter class
 
 
-class Boolean(InputParameter):
+class BooleanParameter(InputParameter):
     """
     A Boolean value.
     """
     keyword: ClassVar[str] = 'GPBoolean'
-# End Boolean class
+# End BooleanParameter class
 
 
-class CadDrawingDataset(InputOutputParameter):
+class CadDrawingDatasetParameter(InputOutputParameter):
     """
     A vector data source combined with feature types and symbology. The
     dataset cannot be used for feature class-based queries or analysis.
     """
     keyword: ClassVar[str] = 'DECadDrawingDataset'
-# End CadDrawingDataset class
+# End CadDrawingDatasetParameter class
 
 
-class CalculatorExpression(InputParameter):
+class CalculatorExpressionParameter(InputParameter):
     """
     A calculator expression.
     """
     keyword: ClassVar[str] = 'GPCalculatorExpression'
-# End CalculatorExpression class
+# End CalculatorExpressionParameter class
 
 
-class CatalogLayer(InputParameter):
+class CatalogLayerParameter(InputParameter):
     """
     A collection of references to different data types. The data types can
     be from different locations and are managed and visualized dynamically
     as layers based on location, time, and other attributes.
     """
     keyword: ClassVar[str] = 'GPCatalogLayer'
-# End CatalogLayer class
+# End CatalogLayerParameter class
 
 
-class SACellSize(InputParameter):
+class SACellSizeParameter(InputParameter):
     """
     The cell size used by the ArcGIS Spatial Analyst extension.
     """
     keyword: ClassVar[str] = 'GPSACellSize'
-# End SACellSize class
+# End SACellSizeParameter class
 
 
-class CellSizeXY(InputParameter):
+class CellSizeXYParameter(InputParameter):
     """
     The size that defines the two sides of a raster cell.
     """
     keyword: ClassVar[str] = 'GPCellSizeXY'
-# End CellSizeXY class
+# End CellSizeXYParameter class
 
 
-class CoordinateSystem(InputOutputParameter):
+class CoordinateSystemParameter(InputOutputParameter):
     """
     A reference framework, such as the UTM system consisting of a set of
     points, lines, or surfaces, and a set of rules used to define the
     positions of points in two- and three-dimensional space.
     """
     keyword: ClassVar[str] = 'GPCoordinateSystem'
-# End CoordinateSystem class
+# End CoordinateSystemParameter class
 
 
-class Coverage(InputParameter):
+class CoverageParameter(InputParameter):
     """
     A coverage dataset, a proprietary data model for storing geographic
     features as points, arcs, and polygons with associated feature
     attribute tables.
     """
     keyword: ClassVar[str] = 'DECoverage'
-# End Coverage class
+# End CoverageParameter class
 
 
-class CoverageFeatureClass(InputParameter):
+class CoverageFeatureClassParameter(InputParameter):
     """
     A coverage feature class, such as point, arc, node, route, route
     system, section, polygon, and region.
     """
     keyword: ClassVar[str] = 'DECoverageFeatureClasses'
-# End CoverageFeatureClass class
+# End CoverageFeatureClassParameter class
 
 
-class DataElement(InputOutputParameter):
+class DataElementParameter(InputOutputParameter):
     """
     A dataset visible in ArcCatalog.
     """
     keyword: ClassVar[str] = 'DEType'
-# End DataElement class
+# End DataElementParameter class
 
 
-class DatasetType(InputParameter):
+class DatasetTypeParameter(InputParameter):
     """
     A collection of related data, usually grouped or stored together.
     """
     keyword: ClassVar[str] = 'DEDatasetType'
-# End DatasetType class
+# End DatasetTypeParameter class
 
 
-class Date(InputParameter):
+class DateParameter(InputParameter):
     """
     A date value.
     """
     keyword: ClassVar[str] = 'GPDate'
-# End Date class
+# End DateParameter class
 
 
-class DbaseTable(InputOutputParameter):
+class DbaseTableParameter(InputOutputParameter):
     """
     Attribute data stored in dBASE format.
     """
     keyword: ClassVar[str] = 'DEDbaseTable'
-# End DbaseTable class
+# End DbaseTableParameter class
 
 
-class Double(InputParameter):
+class DoubleParameter(InputParameter):
     """
     Any floating-point number stored as a double precision, 64-bit value.
     """
     keyword: ClassVar[str] = 'GPDouble'
-# End Double class
+# End DoubleParameter class
 
 
-class EncryptedString(InputParameter):
+class EncryptedStringParameter(InputParameter):
     """
     An encrypted string for passwords.
     """
     keyword: ClassVar[str] = 'GPEncryptedString'
-# End EncryptedString class
+# End EncryptedStringParameter class
 
 
-class Envelope(InputParameter):
+class EnvelopeParameter(InputParameter):
     """
     The coordinate pairs that define the minimum bounding rectangle in
     which the data source resides.
     """
     keyword: ClassVar[str] = 'GPEnvelope'
-# End Envelope class
+# End EnvelopeParameter class
 
 
-class Extent(InputParameter):
+class ExtentParameter(InputParameter):
     """
     The coordinate pairs that define the minimum bounding rectangle
     (x-minimum, y-minimum and x-maximum, y-maximum) of a data source. All
     coordinates for the data source are within this boundary.
     """
     keyword: ClassVar[str] = 'GPExtent'
-# End Extent class
+# End ExtentParameter class
 
 
-class FeatureClass(InputOutputParameter):
+class FeatureClassParameter(InputOutputParameter):
     """
     A collection of spatial data with the same shape type: point,
     multipoint, polyline, and polygon.
     """
     keyword: ClassVar[str] = 'DEFeatureClass'
-# End FeatureClass class
+
+    def _build_schema(self) -> MAP_STR:
+        """
+        Build Schema
+        """
+        if self.is_input:
+            return {}
+        if self.is_required is None:  # pragma: no cover
+            return {}
+        return {ParameterContentKeys.schema: {
+            SchemaContentKeys.type: GP_FEATURE_SCHEMA,
+            SchemaContentKeys.generate_output_catalog_path: TRUE}}
+    # End _build_schema method
+# End FeatureClassParameter class
 
 
-class FeatureDataset(InputOutputParameter):
+class FeatureDatasetParameter(InputOutputParameter):
     """
     A collection of feature classes that share a common geographic area
     and the same spatial reference system.
     """
     keyword: ClassVar[str] = 'DEFeatureDataset'
-# End FeatureDataset class
+# End FeatureDatasetParameter class
 
 
-class FeatureLayer(InputOutputParameter):
+class FeatureLayerParameter(InputOutputParameter):
     """
     A reference to a feature class, including symbology and rendering
     properties.
     """
     keyword: ClassVar[str] = 'GPFeatureLayer'
-# End FeatureLayer class
+# End FeatureLayerParameter class
 
 
-class Field(InputParameter):
+class FieldParameter(InputParameter):
     """
     A column in a table that stores the values for a single attribute.
     """
     keyword: ClassVar[str] = 'Field'
-# End Field class
+# End FieldParameter class
 
 
-class File(InputOutputParameter):
+class FileParameter(InputOutputParameter):
     """
     A file on disk.
     """
     keyword: ClassVar[str] = 'DEFile'
-# End File class
+# End FileParameter class
 
 
-class Folder(InputOutputParameter):
+class FolderParameter(InputOutputParameter):
     """
     A location on disk where data is stored.
     """
     keyword: ClassVar[str] = 'DEFolder'
-# End Folder class
+# End FolderParameter class
 
 
-class GroupLayer(InputOutputParameter):
+class GroupLayerParameter(InputOutputParameter):
     """
     A collection of layers that appear and act as a single layer. Group
     layers make it easier to organize a map, assign advanced drawing order
     options, and share layers for use in other maps.
     """
     keyword: ClassVar[str] = 'GPGroupLayer'
-# End GroupLayer class
+# End GroupLayerParameter class
 
 
-class LasDataset(InputOutputParameter):
+class LasDatasetParameter(InputOutputParameter):
     """
     A LAS dataset stores reference to one or more LAS files on disk as
     well as to additional surface features. A LAS file is a binary file
     that stores airborne lidar data.
     """
     keyword: ClassVar[str] = 'DELasDataset'
-# End LasDataset class
+# End LasDatasetParameter class
 
 
-class LasDatasetLayer(InputOutputParameter):
+class LasDatasetLayerParameter(InputOutputParameter):
     """
     A layer that references a LAS dataset on disk. This layer can apply
     filters on lidar files and surface constraints referenced by a LAS
     dataset.
     """
     keyword: ClassVar[str] = 'GPLasDatasetLayer'
-# End LasDatasetLayer class
+# End LasDatasetLayerParameter class
 
 
-class GPLayer(InputOutputParameter):
+class GPLayerParameter(InputOutputParameter):
     """
     A reference to a data source, such as a shapefile, coverage,
     geodatabase feature class, or raster, including symbology and
     rendering properties.
     """
     keyword: ClassVar[str] = 'GPLayer'
-# End GPLayer class
+# End GPLayerParameter class
 
 
-class LayerFile(InputOutputParameter):
+class LayerFileParameter(InputOutputParameter):
     """
     A layer file stores a layer definition, including symbology and
     rendering properties.
     """
     keyword: ClassVar[str] = 'DELayer'
-# End LayerFile class
+# End LayerFileParameter class
 
 
-class LinearUnit(InputParameter):
+class LinearUnitParameter(InputParameter):
     """
     A linear unit type and value such as meter or feet.
     """
     keyword: ClassVar[str] = 'GPLinearUnit'
-# End LinearUnit class
+# End LinearUnitParameter class
 
 
-class Long(InputParameter):
+class LongParameter(InputParameter):
     """
     An integer number value.
     """
     keyword: ClassVar[str] = 'GPLong'
-# End Long class
+# End LongParameter class
 
 
-class Map(InputOutputParameter):
+class MapParameter(InputOutputParameter):
     """
     An ArcGIS Pro map.
     """
     keyword: ClassVar[str] = 'GPMap'
-# End Map class
+# End MapParameter class
 
 
-class MosaicDataset(InputOutputParameter):
+class MosaicDatasetParameter(InputOutputParameter):
     """
     A collection of raster and image data that allows you to store, view,
     and query the data. It is a data model in the geodatabase used to
@@ -527,192 +682,205 @@ class MosaicDataset(InputOutputParameter):
     and viewed as a mosaicked image.
     """
     keyword: ClassVar[str] = 'DEMosaicDataset'
-# End MosaicDataset class
+# End MosaicDatasetParameter class
 
 
-class MosaicLayer(InputOutputParameter):
+class MosaicLayerParameter(InputOutputParameter):
     """
     A layer that references a mosaic dataset.
     """
     keyword: ClassVar[str] = 'GPMosaicLayer'
-# End MosaicLayer class
+# End MosaicLayerParameter class
 
 
-class NetworkDataset(InputOutputParameter):
+class NetworkDatasetParameter(InputOutputParameter):
     """
     A collection of topologically connected network elements (edges,
     junctions, and turns), derived from network sources and associated
     with a collection of network attributes.
     """
     keyword: ClassVar[str] = 'DENetworkDataset'
-# End NetworkDataset class
+# End NetworkDatasetParameter class
 
 
-class Point(InputParameter):
+class PointParameter(InputParameter):
     """
     A pair of x,y-coordinates.
     """
     keyword: ClassVar[str] = 'GPPoint'
-# End Point class
+# End PointParameter class
 
 
-class PrjFile(InputOutputParameter):
+class PrjFileParameter(InputOutputParameter):
     """
     A file storing coordinate system information for spatial data.
     """
     keyword: ClassVar[str] = 'DEPrjFile'
-# End PrjFile class
+# End PrjFileParameter class
 
 
-class RasterBand(InputOutputParameter):
+class RasterBandParameter(InputOutputParameter):
     """
     A layer in a raster dataset.
     """
     keyword: ClassVar[str] = 'DERasterBand'
-# End RasterBand class
+# End RasterBandParameter class
 
 
-class RasterCalculatorExpression(InputParameter):
+class RasterCalculatorExpressionParameter(InputParameter):
     """
     A raster calculator expression.
     """
     keyword: ClassVar[str] = 'GPRasterCalculatorExpression'
-# End RasterCalculatorExpression class
+# End RasterCalculatorExpressionParameter class
 
 
-class RasterDataLayer(InputOutputParameter):
+class RasterDataLayerParameter(InputOutputParameter):
     """
     A raster data layer.
     """
     keyword: ClassVar[str] = 'GPRasterDataLayer'
-# End RasterDataLayer class
+# End RasterDataLayerParameter class
 
 
-class RasterDataset(InputOutputParameter):
+class RasterDatasetParameter(InputOutputParameter):
     """
     A single dataset built from one or more rasters.
     """
     keyword: ClassVar[str] = 'DERasterDataset'
-# End RasterDataset class
+# End RasterDatasetParameter class
 
 
-class RasterLayer(InputOutputParameter):
+class RasterLayerParameter(InputOutputParameter):
     """
     A reference to a raster, including symbology and rendering properties.
     """
     keyword: ClassVar[str] = 'GPRasterLayer'
-# End RasterLayer class
+# End RasterLayerParameter class
 
 
-class RelationshipClass(InputOutputParameter):
+class RelationshipClassParameter(InputOutputParameter):
     """
     The details about the relationship between objects in the geodatabase.
     """
     keyword: ClassVar[str] = 'DERelationshipClass'
-# End RelationshipClass class
+# End RelationshipClassParameter class
 
 
-class ShapeFile(InputOutputParameter):
+class ShapeFileParameter(InputOutputParameter):
     """
     Spatial data in shapefile format.
     """
     keyword: ClassVar[str] = 'DEShapeFile'
-# End ShapeFile class
+# End ShapeFileParameter class
 
 
-class SpatialReference(InputParameter):
+class SpatialReferenceParameter(InputParameter):
     """
     The coordinate system used to store a spatial dataset, including the
     spatial domain.
     """
     keyword: ClassVar[str] = 'GPSpatialReference'
-# End SpatialReference class
+# End SpatialReferenceParameter class
 
 
-class SQLExpression(InputParameter):
+class SQLExpressionParameter(InputParameter):
     """
     A syntax for defining and manipulating data from a relational
     database.
     """
     keyword: ClassVar[str] = 'GPSQLExpression'
-# End SQLExpression class
+# End SQLExpressionParameter class
 
 
-class String(InputParameter):
+class StringParameter(InputOutputParameter):
     """
     A text value.
     """
     keyword: ClassVar[str] = 'GPString'
-# End String class
+# End StringParameter class
 
 
-class StringHidden(InputParameter):
+class StringHiddenParameter(InputParameter):
     """
     A string that is masked by asterisk characters.
     """
     keyword: ClassVar[str] = 'GPStringHidden'
-# End StringHidden class
+# End StringHiddenParameter class
 
 
-class Table(InputOutputParameter):
+class TableParameter(InputOutputParameter):
     """
     Tabular data.
     """
     keyword: ClassVar[str] = 'DETable'
-# End Table class
+
+    def _build_schema(self) -> MAP_STR:
+        """
+        Build Schema
+        """
+        if self.is_input:
+            return {}
+        if self.is_required is None:  # pragma: no cover
+            return {}
+        return {ParameterContentKeys.schema: {
+            SchemaContentKeys.type: GP_TABLE_SCHEMA,
+            SchemaContentKeys.generate_output_catalog_path: TRUE}}
+    # End _build_schema method
+# End TableParameter class
 
 
-class TableView(InputOutputParameter):
+class TableViewParameter(InputOutputParameter):
     """
     A representation of tabular data for viewing and editing purposes
     stored in memory or on disk.
     """
     keyword: ClassVar[str] = 'GPTableView'
-# End TableView class
+# End TableViewParameter class
 
 
-class Textfile(InputOutputParameter):
+class TextfileParameter(InputOutputParameter):
     """
     A text file.
     """
     keyword: ClassVar[str] = 'DETextfile'
-# End Textfile class
+# End TextfileParameter class
 
 
-class Tin(InputOutputParameter):
+class TinParameter(InputOutputParameter):
     """
     A vector data structure that partitions geographic space into
     contiguous, nonoverlapping triangles. The vertices of each triangle
     are sample data points with x-, y-, and z-values.
     """
     keyword: ClassVar[str] = 'DETin'
-# End Tin class
+# End TinParameter class
 
 
-class TinLayer(InputOutputParameter):
+class TinLayerParameter(InputOutputParameter):
     """
     A reference to a TIN, including topological relationships, symbology,
     and rendering properties.
     """
     keyword: ClassVar[str] = 'GPTinLayer'
-# End TinLayer class
+# End TinLayerParameter class
 
 
-class Topology(InputOutputParameter):
+class TopologyParameter(InputOutputParameter):
     """
     A topology that defines and enforces data integrity rules for spatial
     data.
     """
     keyword: ClassVar[str] = 'DETopology'
-# End Topology class
+# End TopologyParameter class
 
 
-class Workspace(InputOutputParameter):
+class WorkspaceParameter(InputOutputParameter):
     """
     A container such as a geodatabase or folder.
     """
     keyword: ClassVar[str] = 'DEWorkspace'
-# End Workspace class
+# End WorkspaceParameter class
 
 
 if __name__ == '__main__':  # pragma: no cover

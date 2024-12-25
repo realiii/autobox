@@ -7,16 +7,18 @@ Script Tool
 from abc import abstractmethod
 from datetime import datetime
 from json import dump
+from operator import itemgetter
 from pathlib import Path
 from shutil import copyfile
 from typing import NoReturn, Self
 
 from stoolbox.constants import (
-    COLON, DOT, ENCODING, ICON, ILLUSTRATION, SCRIPT, SCRIPT_STUB,
-    ScriptToolContentKeys, ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT,
-    TOOL_CONTENT_RC, TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
-    TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY, ToolAttributeKeywords)
-from stoolbox.types import PATH, STRING, ToolAttributes
+    COLON, DOT, ENCODING, ICON, ILLUSTRATION, ParameterContentKeys, SCRIPT,
+    SCRIPT_STUB, ScriptToolContentKeys, ScriptToolContentResourceKeys, TOOL,
+    TOOL_CONTENT, TOOL_CONTENT_RC, TOOL_ICON, TOOL_ILLUSTRATION,
+    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY,
+    ToolAttributeKeywords)
+from stoolbox.types import MAP_STR, PARAMETER, PATH, STRING, ToolAttributes
 from stoolbox.util import (
     validate_path, validate_script_folder_name, validate_script_name,
     wrap_markup)
@@ -197,6 +199,7 @@ class ScriptTool:
         self._validation: ValidationScript | None = None
         self._icon: PATH = None
         self._illustration: PATH = None
+        self._parameters: list[PARAMETER] = []
     # End init built-in
 
     @staticmethod
@@ -227,10 +230,11 @@ class ScriptTool:
         return label.strip() or name
     # End _validate_label method
 
-    def _build_content(self) -> dict[str, str | dict[str, list]]:
+    def _build_content(self) -> tuple[dict[str, str | dict[str, list]], MAP_STR]:
         """
         Build Content
         """
+        parameter_content, parameter_resource = self._build_parameters()
         mapping = {
             ScriptToolContentKeys.type: 'ScriptTool',
             ScriptToolContentKeys.display_name: '$rc:title',
@@ -240,9 +244,8 @@ class ScriptTool:
             ScriptToolContentKeys.product: '100',
             ScriptToolContentKeys.updated: (
                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
-            ScriptToolContentKeys.parameters: '',
+            ScriptToolContentKeys.parameters: parameter_content,
         }
-
         if not self.description:
             mapping.pop(ScriptToolContentKeys.description)
         if not any(self.attributes):
@@ -251,10 +254,46 @@ class ScriptTool:
             for a, k in zip(self.attributes, ToolAttributeKeywords.ordered):
                 if a:
                     mapping[ScriptToolContentKeys.attributes].append(k)
-        return mapping
+        return mapping, parameter_resource
     # End _build_content method
 
-    def _build_resource(self) -> dict[str, dict[str, str]]:
+    def _build_parameters(self) -> tuple[dict[str, dict] | str, MAP_STR]:
+        """
+        Build Parameters
+        """
+        if not self.parameters:
+            return '', {}
+        parameters = {}
+        resources = {}
+        categories = self._build_categories()
+        for parameter in self.parameters:
+            content, resource = parameter.serialize(categories)
+            resources.update(resource)
+            parameters[parameter.name] = content
+        prefix = (f'{ScriptToolContentKeys.parameters}{DOT}'
+                  f'{ParameterContentKeys.category}')
+        for name, i in sorted(categories.items(), key=itemgetter(1)):
+            resources[f'{prefix}{i}'] = name
+        return parameters, resources
+    # End _build_parameters method
+
+    def _build_categories(self) -> dict[str, int]:
+        """
+        Build Categories
+        """
+        counter = 1
+        categories = {}
+        for parameter in self.parameters:
+            if not (category := parameter.category):
+                continue
+            if category in categories:
+                continue
+            categories[category] = counter
+            counter += 1
+        return categories
+    # End _build_categories method
+
+    def _build_resource(self, parameters: MAP_STR) -> dict[str, MAP_STR]:
         """
         Build Resource
         """
@@ -263,6 +302,7 @@ class ScriptTool:
             data[ScriptToolContentResourceKeys.description] = self.description
         if self.summary:
             data[ScriptToolContentResourceKeys.summary] = self.summary
+        data.update(parameters)
         return {ScriptToolContentResourceKeys.map: data}
     # End _build_resource method
 
@@ -294,8 +334,8 @@ class ScriptTool:
         """
         Serialize Files to Temporary Folder
         """
-        content = self._build_content()
-        resource = self._build_resource()
+        content, parameter_resource = self._build_content()
+        resource = self._build_resource(parameter_resource)
         script_path = source.joinpath(f'{self._folder}{DOT}{TOOL}')
         script_path.mkdir()
         for name, data in zip((TOOL_CONTENT, TOOL_CONTENT_RC),
@@ -410,6 +450,21 @@ class ScriptTool:
     def illustration(self, value: PATH) -> None:
         self._illustration = self._validate_image(value, text=ILLUSTRATION)
     # End illustration property
+
+    @property
+    def parameters(self) -> list[PARAMETER]:
+        """
+        Parameters
+        """
+        return self._parameters
+    # End parameters property
+
+    def add_parameter(self, parameter: PARAMETER) -> None:
+        """
+        Add Parameter
+        """
+        self.parameters.append(parameter)
+    # End add_parameter method
 
     def serialize(self, source: Path, target: Path) -> Path:
         """

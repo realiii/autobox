@@ -15,7 +15,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from stoolbox.constants import (
     DOLLAR_RC, DOT, ENCODING, EXT, NAME, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
     TOOLSET, ToolboxContentKeys, ToolboxContentResourceKeys)
-from stoolbox.types import PATH, STRING, TOOLS_MAP
+from stoolbox.types import MAP_STR, PATH, STRING, TOOLS_MAP
 from stoolbox.util import (
     make_temp_folder, validate_toolbox_alias, validate_toolbox_name)
 
@@ -124,7 +124,7 @@ class Toolbox:
     # End _get_toolbox_path method
 
     def _build_content(self, source: Path, target: Path) -> tuple[
-            dict[str, str | dict[str, list]], dict[str, str]]:
+            dict[str, str | dict[str, list]], MAP_STR]:
         """
         Build Content
         """
@@ -144,8 +144,7 @@ class Toolbox:
         return mapping, toolset_names
     # End _build_content method
 
-    def _build_resource(self, toolset_names: dict[str, str]) \
-            -> dict[str, dict[str, str]]:
+    def _build_resource(self, toolset_names: MAP_STR) -> dict[str, MAP_STR]:
         """
         Build Resource
         """
@@ -156,7 +155,7 @@ class Toolbox:
     # End _build_resource method
 
     def _build_toolsets(self, source: Path, target: Path) \
-            -> tuple[TOOLS_MAP, dict[str, str]]:
+            -> tuple[TOOLS_MAP, MAP_STR]:
         """
         Build Toolsets (and tools)
         """
@@ -197,7 +196,7 @@ class Toolbox:
     # End _make_tools_list method
 
     def _build_toolset_tools(self, source: Path, target: Path) \
-            -> tuple[TOOLS_MAP, dict[str, str]]:
+            -> tuple[TOOLS_MAP, MAP_STR]:
         """
         Build Toolset Tools and Toolset Mapping
         """
