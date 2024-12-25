@@ -655,7 +655,7 @@ class SQLExpressionParameter(InputParameter):
 # End SQLExpressionParameter class
 
 
-class StringParameter(InputParameter):
+class StringParameter(InputOutputParameter):
     """
     A text value.
     """
