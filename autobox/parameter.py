@@ -365,6 +365,29 @@ class InputOutputParameter(BaseParameter):
 # End InputOutputParameter class
 
 
+class SchemaMixin:
+    """
+    Schema Mixin
+    """
+    schema_type: ClassVar[str] = ''
+
+    def _build_schema(self) -> MAP_STR:
+        """
+        Build Schema
+        """
+        # noinspection PyUnresolvedReferences
+        if self.is_input:
+            return {}
+        # noinspection PyUnresolvedReferences
+        if self.is_required is None:  # pragma: no cover
+            return {}
+        return {ParameterContentKeys.schema: {
+            SchemaContentKeys.type: self.schema_type,
+            SchemaContentKeys.generate_output_catalog_path: TRUE}}
+    # End _build_schema method
+# End SchemaMixin class
+
+
 class AnalysisCellSizeParameter(InputParameter):
     """
     The cell size used by raster tools.
@@ -537,25 +560,13 @@ class ExtentParameter(InputParameter):
 # End ExtentParameter class
 
 
-class FeatureClassParameter(InputOutputParameter):
+class FeatureClassParameter(SchemaMixin, InputOutputParameter):
     """
     A collection of spatial data with the same shape type: point,
     multipoint, polyline, and polygon.
     """
     keyword: ClassVar[str] = 'DEFeatureClass'
-
-    def _build_schema(self) -> MAP_STR:
-        """
-        Build Schema
-        """
-        if self.is_input:
-            return {}
-        if self.is_required is None:  # pragma: no cover
-            return {}
-        return {ParameterContentKeys.schema: {
-            SchemaContentKeys.type: GP_FEATURE_SCHEMA,
-            SchemaContentKeys.generate_output_catalog_path: TRUE}}
-    # End _build_schema method
+    schema_type: ClassVar[str] = GP_FEATURE_SCHEMA
 # End FeatureClassParameter class
 
 
@@ -809,24 +820,12 @@ class StringHiddenParameter(InputParameter):
 # End StringHiddenParameter class
 
 
-class TableParameter(InputOutputParameter):
+class TableParameter(SchemaMixin, InputOutputParameter):
     """
     Tabular data.
     """
     keyword: ClassVar[str] = 'DETable'
-
-    def _build_schema(self) -> MAP_STR:
-        """
-        Build Schema
-        """
-        if self.is_input:
-            return {}
-        if self.is_required is None:  # pragma: no cover
-            return {}
-        return {ParameterContentKeys.schema: {
-            SchemaContentKeys.type: GP_TABLE_SCHEMA,
-            SchemaContentKeys.generate_output_catalog_path: TRUE}}
-    # End _build_schema method
+    schema_type: ClassVar[str] = GP_TABLE_SCHEMA
 # End TableParameter class
 
 
