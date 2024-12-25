@@ -115,7 +115,7 @@
 114,Shapefile,DEShapeFile,ShapeFile,v0.1.0,Y,Y,Spatial data in shapefile format.
 115,Spatial Reference,GPSpatialReference,SpatialReference,v0.1.0,Y,N,"The coordinate system used to store a spatial dataset, including the spatial domain."
 116,SQL Expression,GPSQLExpression,SQLExpression,v0.1.0,Y,N,A syntax for defining and manipulating data from a relational database.
-117,String,GPString,String,v0.1.0,Y,N,A text value.
+117,String,GPString,String,v0.1.0,Y,Y,A text value.
 118,String Hidden,GPStringHidden,StringHidden,v0.1.0,Y,N,A string that is masked by asterisk characters.
 119,Table,DETable,Table,v0.1.0,Y,Y,Tabular data.
 120,Table View,GPTableView,TableView,v0.1.0,Y,Y,A representation of tabular data for viewing and editing purposes stored in memory or on disk.
