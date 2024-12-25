@@ -1,6 +1,6 @@
 [project]
-name = "fudgeo"
-version = "0.8.1"
+name = "autobox"
+version = "0.1.0"
 description = """\
     Automation for ArcGIS Pro toolboxes, script tools, and documentation from Python objects.
     """
