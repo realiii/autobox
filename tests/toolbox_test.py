@@ -9,19 +9,19 @@ from shutil import copyfile
 from pytest import mark, raises
 
 from helpers import DEFAULT_EXECUTION_CODE, read_from_zip
-from stoolbox import ScriptTool
-from stoolbox.parameter import (
+from autobox import ScriptTool
+from autobox.parameter import (
     DoubleParameter, FeatureClassParameter, FeatureDatasetParameter,
     FeatureLayerParameter, LongParameter, RasterDatasetParameter,
     StringParameter, TableParameter, TinParameter, WorkspaceParameter)
-from stoolbox.script import ExecutionScript, ValidationScript
-from stoolbox.toolbox import Toolbox
-from stoolbox.constants import (
+from autobox.script import ExecutionScript, ValidationScript
+from autobox.toolbox import Toolbox
+from autobox.constants import (
     DOT, EXT, ScriptToolContentKeys, TOOL, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
     TOOL_CONTENT, TOOL_CONTENT_RC, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)
-from stoolbox.toolset import Toolset
-from stoolbox.types import ToolAttributes
+from autobox.toolset import Toolset
+from autobox.types import ToolAttributes
 
 
 @mark.parametrize('name, label, alias, description, compare_name', [

@@ -5,11 +5,11 @@ Toolset
 
 
 from typing import NoReturn, Optional, TYPE_CHECKING
-from stoolbox.util import validate_toolset_name
+from autobox.util import validate_toolset_name
 
 
 if TYPE_CHECKING:  # pragma: no cover
-    from stoolbox import ScriptTool
+    from autobox import ScriptTool
 
 
 class Toolset:

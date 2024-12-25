@@ -7,8 +7,8 @@ Package Initialization
 __version__ = '0.1.0'
 
 
-from stoolbox.toolbox import Toolbox
-from stoolbox.script import ScriptTool, ExecutionScript, ValidationScript
+from autobox.toolbox import Toolbox
+from autobox.script import ScriptTool, ExecutionScript, ValidationScript
 
 
 __all__ = ['Toolbox', 'ScriptTool', 'ExecutionScript', 'ValidationScript']

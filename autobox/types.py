@@ -10,7 +10,7 @@ from typing import NamedTuple, TYPE_CHECKING, TypeAlias, Union
 
 if TYPE_CHECKING:  # pragma: no cover
     # noinspection PyProtectedMember
-    from stoolbox.parameter import InputOutputParameter, InputParameter
+    from autobox.parameter import InputOutputParameter, InputParameter
 
 
 PATH: TypeAlias = Path | None

@@ -9,9 +9,9 @@ from re import sub
 from tempfile import mkdtemp
 from typing import NoReturn
 
-from stoolbox.constants import (
+from autobox.constants import (
     DOUBLE_SPACE, DOUBLE_UNDERSCORE, EXT, SPACE, UNDERSCORE)
-from stoolbox.types import STRING
+from autobox.types import STRING
 
 
 WINDOWS_RESERVED: set[str] = (
