@@ -1,2 +1,2 @@
-Script Generation for modern ArcGIS Pro Toolbox
 # autobox
+Automation for ArcGIS Pro toolboxes, script tools, and documentation from Python objects.
