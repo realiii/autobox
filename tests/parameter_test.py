@@ -287,6 +287,7 @@ def test_parameter_dependency():
     assert param2.dependency is not None
     content, _ = param2.serialize({})
     assert key in content
+    assert content[key] == 'FeatureClassName'
 # End test_parameter_dependency function
 
 
