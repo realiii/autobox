@@ -5,7 +5,7 @@ Types and Aliases
 
 
 from pathlib import Path
-from typing import NamedTuple, TYPE_CHECKING, TypeAlias, Union
+from typing import NamedTuple, TYPE_CHECKING, Type, TypeAlias, Union
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -16,9 +16,10 @@ if TYPE_CHECKING:  # pragma: no cover
 PATH: TypeAlias = Path | None
 BOOL: TypeAlias = bool | None
 STRING: TypeAlias = str | None
-MAP_STR: TypeAlias = dict[str, str]
+MAP_STR: TypeAlias = dict[str, STRING]
 TOOLS_MAP: TypeAlias = dict[str, dict[str, list[str]]]
 PARAMETER: TypeAlias = Union['InputOutputParameter', 'InputParameter']
+TYPE_PARAMS: TypeAlias = tuple[Type['InputOutputParameter'], ...]
 
 
 class ToolAttributes(NamedTuple):
