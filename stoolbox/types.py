@@ -5,13 +5,19 @@ Types and Aliases
 
 
 from pathlib import Path
-from typing import NamedTuple, TypeAlias
+from typing import NamedTuple, TYPE_CHECKING, TypeAlias, Union
 
 
-STRING: TypeAlias = str | None
-TOOLS_MAP: TypeAlias = dict[str, dict[str, list[str]]]
+if TYPE_CHECKING:  # pragma: no cover
+    # noinspection PyProtectedMember
+    from stoolbox.parameter import InputOutputParameter, InputParameter
+
+
 PATH: TypeAlias = Path | None
 BOOL: TypeAlias = bool | None
+STRING: TypeAlias = str | None
+TOOLS_MAP: TypeAlias = dict[str, dict[str, list[str]]]
+PARAMETER: TypeAlias = Union['InputOutputParameter', 'InputParameter']
 
 
 class ToolAttributes(NamedTuple):
