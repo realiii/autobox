@@ -4,14 +4,14 @@ Parameters
 """
 
 
-from typing import Any, ClassVar, NoReturn
+from typing import Any, ClassVar, NoReturn, Self
 
 from autobox.constants import (
     DERIVED, DOLLAR_RC, DOT, GP_FEATURE_SCHEMA, GP_MULTI_VALUE, GP_TABLE_SCHEMA,
     OPTIONAL, OUT, ParameterContentKeys, ParameterContentResourceKeys,
     SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TRUE)
-from autobox.types import BOOL, MAP_STR, STRING
+from autobox.types import BOOL, MAP_STR, STRING, TYPE_PARAMS
 from autobox.util import (
     make_parameter_name, validate_parameter_label, validate_parameter_name,
     wrap_markup)
@@ -47,6 +47,7 @@ class BaseParameter:
     Base Parameter
     """
     keyword: ClassVar[str] = ''
+    dependency_types: ClassVar[TYPE_PARAMS] = ()
 
     def __init__(self, label: str, name: STRING = None, category: STRING = None,
                  description: STRING = None, default_value: Any = None,
@@ -79,6 +80,7 @@ class BaseParameter:
         self._is_required: bool = is_required
         self._is_multi: bool = is_multi
         self._is_enabled: bool = is_enabled
+        self._dependency: InputOutputParameter | None = None
     # End init built-in
 
     @staticmethod
@@ -162,6 +164,16 @@ class BaseParameter:
             ParameterContentKeys.type: GP_MULTI_VALUE}}
     # End _build_data_type method
 
+    def _build_dependency(self) -> MAP_STR:
+        """
+        Build Dependency
+        """
+        if not self.dependency:
+            return {}
+        return {ParameterContentKeys.depends: self.dependency.name}
+    # End _build_dependency method
+
+    # noinspection PyMethodMayBeStatic
     def _build_schema(self) -> MAP_STR:
         """
         Build Schema
@@ -208,12 +220,13 @@ class BaseParameter:
         display_name_content, display_name_resource = self._build_display_name()
         category = self._build_category(categories)
         data_type = self._build_data_type()
+        dependency = self._build_dependency()
         schema = self._build_schema()
         default_value = self._build_default_value()
         description_content, description_resource = self._build_description()
         content = {**parameter_type, **direction, **display_name_content,
-                   **category, **data_type, **schema, **default_value,
-                   **description_content}
+                   **category, **data_type, **dependency, **schema,
+                   **default_value, **description_content}
         content = {k: v for k, v in content.items() if v}
         resource = {**description_resource, **display_name_resource}
         resource = {k: v for k, v in resource.items() if v}
@@ -308,6 +321,23 @@ class BaseParameter:
         self._is_enabled = value
     # End is_enabled property
 
+    @property
+    def dependency(self) -> Self | None:
+        """
+        Dependency Parameter
+        """
+        return self._dependency
+
+    @dependency.setter
+    def dependency(self, value: Self | None) -> None:
+        if value is not None:
+            if not self.dependency_types:
+                value = None
+            elif not isinstance(value, self.dependency_types):
+                value = None
+        self._dependency = value
+    # End dependency property
+
     def serialize(self, categories: dict[str, int]) \
             -> tuple[dict[str, dict], MAP_STR]:
         """
@@ -365,6 +395,29 @@ class InputOutputParameter(BaseParameter):
 # End InputOutputParameter class
 
 
+class SchemaMixin:
+    """
+    Schema Mixin
+    """
+    schema_type: ClassVar[str] = ''
+
+    def _build_schema(self) -> MAP_STR:
+        """
+        Build Schema
+        """
+        # noinspection PyUnresolvedReferences
+        if self.is_input:
+            return {}
+        # noinspection PyUnresolvedReferences
+        if self.is_required is None:  # pragma: no cover
+            return {}
+        return {ParameterContentKeys.schema: {
+            SchemaContentKeys.type: self.schema_type,
+            SchemaContentKeys.generate_output_catalog_path: TRUE}}
+    # End _build_schema method
+# End SchemaMixin class
+
+
 class AnalysisCellSizeParameter(InputParameter):
     """
     The cell size used by raster tools.
@@ -380,14 +433,6 @@ class MapDocumentParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'DEMapDocument'
 # End MapDocumentParameter class
-
-
-class ArealUnitParameter(InputParameter):
-    """
-    An areal unit type and value, such as square meter or acre.
-    """
-    keyword: ClassVar[str] = 'GPArealUnit'
-# End ArealUnitParameter class
 
 
 class BooleanParameter(InputParameter):
@@ -537,25 +582,13 @@ class ExtentParameter(InputParameter):
 # End ExtentParameter class
 
 
-class FeatureClassParameter(InputOutputParameter):
+class FeatureClassParameter(SchemaMixin, InputOutputParameter):
     """
     A collection of spatial data with the same shape type: point,
     multipoint, polyline, and polygon.
     """
     keyword: ClassVar[str] = 'DEFeatureClass'
-
-    def _build_schema(self) -> MAP_STR:
-        """
-        Build Schema
-        """
-        if self.is_input:
-            return {}
-        if self.is_required is None:  # pragma: no cover
-            return {}
-        return {ParameterContentKeys.schema: {
-            SchemaContentKeys.type: GP_FEATURE_SCHEMA,
-            SchemaContentKeys.generate_output_catalog_path: TRUE}}
-    # End _build_schema method
+    schema_type: ClassVar[str] = GP_FEATURE_SCHEMA
 # End FeatureClassParameter class
 
 
@@ -575,14 +608,6 @@ class FeatureLayerParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPFeatureLayer'
 # End FeatureLayerParameter class
-
-
-class FieldParameter(InputParameter):
-    """
-    A column in a table that stores the values for a single attribute.
-    """
-    keyword: ClassVar[str] = 'Field'
-# End FieldParameter class
 
 
 class FileParameter(InputOutputParameter):
@@ -648,14 +673,6 @@ class LayerFileParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DELayer'
 # End LayerFileParameter class
-
-
-class LinearUnitParameter(InputParameter):
-    """
-    A linear unit type and value such as meter or feet.
-    """
-    keyword: ClassVar[str] = 'GPLinearUnit'
-# End LinearUnitParameter class
 
 
 class LongParameter(InputParameter):
@@ -784,15 +801,6 @@ class SpatialReferenceParameter(InputParameter):
 # End SpatialReferenceParameter class
 
 
-class SQLExpressionParameter(InputParameter):
-    """
-    A syntax for defining and manipulating data from a relational
-    database.
-    """
-    keyword: ClassVar[str] = 'GPSQLExpression'
-# End SQLExpressionParameter class
-
-
 class StringParameter(InputOutputParameter):
     """
     A text value.
@@ -809,24 +817,12 @@ class StringHiddenParameter(InputParameter):
 # End StringHiddenParameter class
 
 
-class TableParameter(InputOutputParameter):
+class TableParameter(SchemaMixin, InputOutputParameter):
     """
     Tabular data.
     """
     keyword: ClassVar[str] = 'DETable'
-
-    def _build_schema(self) -> MAP_STR:
-        """
-        Build Schema
-        """
-        if self.is_input:
-            return {}
-        if self.is_required is None:  # pragma: no cover
-            return {}
-        return {ParameterContentKeys.schema: {
-            SchemaContentKeys.type: GP_TABLE_SCHEMA,
-            SchemaContentKeys.generate_output_catalog_path: TRUE}}
-    # End _build_schema method
+    schema_type: ClassVar[str] = GP_TABLE_SCHEMA
 # End TableParameter class
 
 
@@ -881,6 +877,50 @@ class WorkspaceParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DEWorkspace'
 # End WorkspaceParameter class
+
+
+_TABLE_TYPES: TYPE_PARAMS = TableParameter, TableViewParameter
+_GEOGRAPHIC_TYPES: TYPE_PARAMS = (
+        FeatureClassParameter, FeatureDatasetParameter,
+        RasterDatasetParameter, RasterLayerParameter
+)
+
+
+class ArealUnitParameter(InputParameter):
+    """
+    An areal unit type and value, such as square meter or acre.
+    """
+    keyword: ClassVar[str] = 'GPArealUnit'
+    dependency_types: ClassVar[TYPE_PARAMS] = _GEOGRAPHIC_TYPES
+# End ArealUnitParameter class
+
+
+class FieldParameter(InputParameter):
+    """
+    A column in a table that stores the values for a single attribute.
+    """
+    keyword: ClassVar[str] = 'Field'
+    dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+# End FieldParameter class
+
+
+class LinearUnitParameter(InputParameter):
+    """
+    A linear unit type and value such as meter or feet.
+    """
+    keyword: ClassVar[str] = 'GPLinearUnit'
+    dependency_types: ClassVar[TYPE_PARAMS] = _GEOGRAPHIC_TYPES
+# End LinearUnitParameter class
+
+
+class SQLExpressionParameter(InputParameter):
+    """
+    A syntax for defining and manipulating data from a relational
+    database.
+    """
+    keyword: ClassVar[str] = 'GPSQLExpression'
+    dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+# End SQLExpressionParameter class
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -153,6 +153,7 @@ class ParameterContentKeys(BaseContentKeys):
     direction: ClassVar[str] = 'direction'
     category: ClassVar[str] = 'category'
     data_type: ClassVar[str] = 'datatype'
+    depends: ClassVar[str] = 'depends'
     type: ClassVar[str] = 'type'
     schema: ClassVar[str] = 'schema'
     value: ClassVar[str] = 'value'
