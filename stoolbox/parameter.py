@@ -167,7 +167,9 @@ class BaseParameter:
         """
         value = self.default_value
         if self.is_multi:
-            if not isinstance(value, (list, tuple)):
+            if value is None:
+                value = ()
+            elif not isinstance(value, (list, tuple)):
                 value = value,
             value = SEMI_COLON.join(repr(v) for v in value)
         else:
