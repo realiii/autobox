@@ -16,7 +16,7 @@ from stoolbox.constants import (
     ScriptToolContentKeys, ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT,
     TOOL_CONTENT_RC, TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY, ToolAttributeKeywords)
-from stoolbox.types import PATH, STRING, ToolAttributes
+from stoolbox.types import PARAMETER, PATH, STRING, ToolAttributes
 from stoolbox.util import (
     validate_path, validate_script_folder_name, validate_script_name,
     wrap_markup)
@@ -197,6 +197,7 @@ class ScriptTool:
         self._validation: ValidationScript | None = None
         self._icon: PATH = None
         self._illustration: PATH = None
+        self._parameters: list[PARAMETER] = []
     # End init built-in
 
     @staticmethod
@@ -410,6 +411,21 @@ class ScriptTool:
     def illustration(self, value: PATH) -> None:
         self._illustration = self._validate_image(value, text=ILLUSTRATION)
     # End illustration property
+
+    @property
+    def parameters(self) -> list[PARAMETER]:
+        """
+        Parameters
+        """
+        return self._parameters
+    # End parameters property
+
+    def add_parameter(self, parameter: PARAMETER) -> None:
+        """
+        Add Parameter
+        """
+        self.parameters.append(parameter)
+    # End add_parameter method
 
     def serialize(self, source: Path, target: Path) -> Path:
         """
