@@ -6,6 +6,10 @@ Parameters
 
 from typing import Any, ClassVar, NoReturn
 
+from stoolbox.constants import (
+    DERIVED, DOLLAR_RC, DOT, GP_MULTI_VALUE, OPTIONAL, OUT,
+    ParameterContentKeys, ParameterContentResourceKeys, SEMI_COLON,
+    ScriptToolContentKeys, ScriptToolContentResourceKeys)
 from stoolbox.types import BOOL, STRING
 from stoolbox.util import (
     make_parameter_name, validate_parameter_label, validate_parameter_name,
@@ -96,6 +100,114 @@ class BaseParameter:
                 raise ValueError(f'Invalid parameter name: {name}')
         return validated_name
     # End _validate_name method
+
+    def _build_parameter_type(self) -> dict[str, STRING]:
+        """
+        Build Parameter Type
+        """
+        if self.is_required:
+            value = None
+        elif self.is_required is None:
+            value = DERIVED
+        else:
+            value = OPTIONAL
+        return {ParameterContentKeys.parameter_type: value}
+    # End _build_parameter_type method
+
+    def _build_direction(self) -> dict[str, STRING]:
+        """
+        Build Direction
+        """
+        if self.is_input:
+            value = None
+        else:
+            value = OUT
+        return {ParameterContentKeys.direction: value}
+    # End _build_direction method
+
+    def _build_display_name(self) -> tuple[dict[str, str], dict[str, str]]:
+        """
+        Build Display Name
+        """
+        suffix = ScriptToolContentResourceKeys.title
+        key = f'{self.name.casefold()}{DOT}{suffix}'
+        content = {ParameterContentKeys.display_name: f'{DOLLAR_RC}{key}'}
+        return content, {key: self.label}
+    # End _build_display_name method
+
+    def _build_category(self, categories: dict[str, int]) -> dict[str, STRING]:
+        """
+        Build Category
+        """
+        key = ParameterContentKeys.category
+        if self.category not in categories:
+            value = None
+        else:
+            id_ = categories[self.category]
+            value = f'{DOLLAR_RC}{ScriptToolContentKeys.parameters}.{key}{id_}'
+        return {key: value}
+    # End _build_category method
+
+    def _build_data_type(self) -> dict[str, str | dict[str, str]]:
+        """
+        Build Data Type with Schema
+        """
+        key = ParameterContentKeys.data_type
+        data_type = {ParameterContentKeys.type: self.keyword}
+        if not self.is_multi:
+            return {key: data_type}
+        return {key: {
+            key: data_type,
+            ParameterContentKeys.type: GP_MULTI_VALUE}}
+    # End _build_data_type method
+
+    def _build_default_value(self) -> dict[str, Any]:
+        """
+        Build Default Value
+        """
+        value = self.default_value
+        if self.is_multi:
+            if not isinstance(value, (list, tuple)):
+                value = value,
+            value = SEMI_COLON.join(repr(v) for v in value)
+        else:
+            if value is not None:
+                value = str(value)
+        return {ParameterContentKeys.value: value}
+    # End _build_default_value method
+
+    def _build_description(self) -> tuple[dict[str, str], dict[str, str]]:
+        """
+        Build Description
+        """
+        if not self.description:
+            return {}, {}
+        suffix = ParameterContentResourceKeys.description
+        key = f'{self.name.casefold()}{DOT}{suffix}'
+        content = {ParameterContentKeys.description: f'{DOLLAR_RC}{key}'}
+        return content, {key: self.description}
+    # End _build_description method
+
+    def _serialize(self, categories: dict[str, int]) \
+            -> tuple[dict[str, dict], dict[str, str]]:
+        """
+        Serialize Parameter to a content dictionary and a resource dictionary.
+        """
+        parameter_type = self._build_parameter_type()
+        direction = self._build_direction()
+        display_name_content, display_name_resource = self._build_display_name()
+        category = self._build_category(categories)
+        data_type = self._build_data_type()
+        default_value = self._build_default_value()
+        description_content, description_resource = self._build_description()
+        content = {**parameter_type, **direction, **display_name_content,
+                   **category, **data_type, **default_value,
+                   **description_content}
+        content = {k: v for k, v in content.items() if v}
+        resource = {**description_resource, **display_name_resource}
+        resource = {k: v for k, v in resource.items() if v}
+        return content, resource
+    # End _serialize method
 
     @property
     def name(self) -> str:
