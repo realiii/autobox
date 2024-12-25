@@ -16,6 +16,7 @@ if TYPE_CHECKING:  # pragma: no cover
 PATH: TypeAlias = Path | None
 BOOL: TypeAlias = bool | None
 STRING: TypeAlias = str | None
+MAP_STR: TypeAlias = dict[str, str]
 TOOLS_MAP: TypeAlias = dict[str, dict[str, list[str]]]
 PARAMETER: TypeAlias = Union['InputOutputParameter', 'InputParameter']
 
