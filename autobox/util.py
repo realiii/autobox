@@ -11,7 +11,7 @@ from typing import NoReturn
 
 from autobox.constant import (
     DOUBLE_SPACE, DOUBLE_UNDERSCORE, EXT, SPACE, UNDERSCORE)
-from autobox.types import STRING
+from autobox.type import STRING
 
 
 WINDOWS_RESERVED: set[str] = (

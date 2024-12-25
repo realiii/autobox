@@ -18,7 +18,7 @@ from autobox.constant import (
     TOOL_CONTENT, TOOL_CONTENT_RC, TOOL_ICON, TOOL_ILLUSTRATION,
     TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY,
     ToolAttributeKeywords)
-from autobox.types import MAP_STR, PARAMETER, PATH, STRING, ToolAttributes
+from autobox.type import MAP_STR, PARAMETER, PATH, STRING, ToolAttributes
 from autobox.util import (
     validate_path, validate_script_folder_name, validate_script_name,
     wrap_markup)

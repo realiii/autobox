@@ -15,7 +15,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from autobox.constant import (
     DOLLAR_RC, DOT, ENCODING, EXT, NAME, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
     TOOLSET, ToolboxContentKeys, ToolboxContentResourceKeys)
-from autobox.types import MAP_STR, PATH, STRING, TOOLS_MAP
+from autobox.type import MAP_STR, PATH, STRING, TOOLS_MAP
 from autobox.util import (
     make_temp_folder, validate_toolbox_alias, validate_toolbox_name)
 

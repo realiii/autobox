@@ -15,7 +15,7 @@ from autobox.constant import (
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)
 from helpers import DATETIME_PATTERN, read_from_zip
 from autobox.script import ExecutionScript, ValidationScript
-from autobox.types import ToolAttributes
+from autobox.type import ToolAttributes
 
 
 @mark.parametrize('name, expected', [

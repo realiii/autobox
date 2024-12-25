@@ -11,7 +11,7 @@ from autobox.constant import (
     OPTIONAL, OUT, ParameterContentKeys, ParameterContentResourceKeys,
     SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TRUE)
-from autobox.types import BOOL, MAP_STR, STRING, TYPE_PARAMS
+from autobox.type import BOOL, MAP_STR, STRING, TYPE_PARAMS
 from autobox.util import (
     make_parameter_name, validate_parameter_label, validate_parameter_name,
     wrap_markup)
