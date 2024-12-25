@@ -5,11 +5,13 @@ Parameter Test
 
 
 from pytest import mark, raises
+
+from autobox.constants import ParameterContentKeys
 from autobox.parameter import (
     DoubleParameter, FeatureClassParameter, FeatureDatasetParameter,
-    FeatureLayerParameter, InputOutputParameter, InputParameter, LongParameter,
-    RasterDatasetParameter, StringParameter, TableParameter, TinParameter,
-    WorkspaceParameter)
+    FeatureLayerParameter, FieldParameter, InputOutputParameter, InputParameter,
+    LongParameter, RasterDatasetParameter, StringParameter, TableParameter,
+    TinParameter, WorkspaceParameter)
 
 
 def test_parameter_instantiate():
@@ -261,6 +263,31 @@ def test_parameter_data_element(cls, label, name, description, is_input, is_requ
     assert content == expected_content
     assert resource == expected_resource
 # End test_parameter_workspace_multi function
+
+
+def test_parameter_dependency():
+    """
+    Test parameter dependency
+    """
+    param1 = FeatureClassParameter(name='FeatureClassName', label='Feature Class Name')
+    param2 = FieldParameter(name='FieldName', label='Field Name')
+    key = ParameterContentKeys.depends
+    content, _ = param1.serialize({})
+    assert key not in content
+    content, _ = param2.serialize({})
+    assert key not in content
+
+    param1.dependency = param2
+    assert param1.dependency is None
+
+    param2.dependency = Ellipsis
+    assert param2.dependency is None
+
+    param2.dependency = param1
+    assert param2.dependency is not None
+    content, _ = param2.serialize({})
+    assert key in content
+# End test_parameter_dependency function
 
 
 if __name__ == '__main__':  # pragma: no cover
