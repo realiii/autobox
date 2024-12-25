@@ -7,9 +7,10 @@ Parameters
 from typing import Any, ClassVar, NoReturn
 
 from stoolbox.constants import (
-    DERIVED, DOLLAR_RC, DOT, GP_MULTI_VALUE, OPTIONAL, OUT,
-    ParameterContentKeys, ParameterContentResourceKeys, SEMI_COLON,
-    ScriptToolContentKeys, ScriptToolContentResourceKeys)
+    DERIVED, DOLLAR_RC, DOT, GP_FEATURE_SCHEMA, GP_MULTI_VALUE, GP_TABLE_SCHEMA,
+    OPTIONAL, OUT, ParameterContentKeys, ParameterContentResourceKeys,
+    SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
+    ScriptToolContentResourceKeys, TRUE)
 from stoolbox.types import BOOL, STRING
 from stoolbox.util import (
     make_parameter_name, validate_parameter_label, validate_parameter_name,
@@ -161,6 +162,13 @@ class BaseParameter:
             ParameterContentKeys.type: GP_MULTI_VALUE}}
     # End _build_data_type method
 
+    def _build_schema(self) -> dict[str, str]:
+        """
+        Build Schema
+        """
+        return {}
+    # End _build_schema method
+
     def _build_default_value(self) -> dict[str, Any]:
         """
         Build Default Value
@@ -200,10 +208,11 @@ class BaseParameter:
         display_name_content, display_name_resource = self._build_display_name()
         category = self._build_category(categories)
         data_type = self._build_data_type()
+        schema = self._build_schema()
         default_value = self._build_default_value()
         description_content, description_resource = self._build_description()
         content = {**parameter_type, **direction, **display_name_content,
-                   **category, **data_type, **default_value,
+                   **category, **data_type, **schema, **default_value,
                    **description_content}
         content = {k: v for k, v in content.items() if v}
         resource = {**description_resource, **display_name_resource}
@@ -534,6 +543,19 @@ class FeatureClassParameter(InputOutputParameter):
     multipoint, polyline, and polygon.
     """
     keyword: ClassVar[str] = 'DEFeatureClass'
+
+    def _build_schema(self) -> dict[str, str]:
+        """
+        Build Schema
+        """
+        if self.is_input:
+            return {}
+        if self.is_required is None:
+            return {}
+        return {ParameterContentKeys.schema: {
+            SchemaContentKeys.type: GP_FEATURE_SCHEMA,
+            SchemaContentKeys.generate_output_catalog_path: TRUE}}
+    # End _build_schema method
 # End FeatureClassParameter class
 
 
@@ -792,6 +814,19 @@ class TableParameter(InputOutputParameter):
     Tabular data.
     """
     keyword: ClassVar[str] = 'DETable'
+
+    def _build_schema(self) -> dict[str, str]:
+        """
+        Build Schema
+        """
+        if self.is_input:
+            return {}
+        if self.is_required is None:
+            return {}
+        return {ParameterContentKeys.schema: {
+            SchemaContentKeys.type: GP_TABLE_SCHEMA,
+            SchemaContentKeys.generate_output_catalog_path: TRUE}}
+    # End _build_schema method
 # End TableParameter class
 
 

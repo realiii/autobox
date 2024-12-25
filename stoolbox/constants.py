@@ -17,9 +17,14 @@ DOUBLE_UNDERSCORE: str = f'{UNDERSCORE}{UNDERSCORE}'
 
 
 GP_MULTI_VALUE: str = 'GPMultiValue'
+GP_FEATURE_SCHEMA: str = 'GPFeatureSchema'
+GP_TABLE_SCHEMA: str = 'GPTableSchema'
+
 OUT: str = 'out'
 DERIVED: str = 'derived'
 OPTIONAL: str = 'optional'
+TRUE: str = 'true'
+
 
 ENCODING: str = 'utf-8'
 

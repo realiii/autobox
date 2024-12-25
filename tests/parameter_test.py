@@ -6,8 +6,10 @@ Parameter Test
 
 from pytest import mark, raises
 from stoolbox.parameter import (
-    DoubleParameter, InputOutputParameter, InputParameter, LongParameter,
-    StringParameter)
+    DoubleParameter, FeatureClassParameter, FeatureDatasetParameter,
+    FeatureLayerParameter, InputOutputParameter, InputParameter, LongParameter,
+    RasterDatasetParameter, StringParameter, TableParameter, TinParameter,
+    WorkspaceParameter)
 
 
 def test_parameter_instantiate():
@@ -187,109 +189,78 @@ def test_parameter_multi_string():
 # End test_parameter_multi_string function
 
 
-def test_parameter_long():
+@mark.parametrize('cls, label, name, default_value, expected_content, expected_resource', [
+    (LongParameter, 'Long', 'long_name', 123,
+     {"displayname": "$rc:long_name.title", "datatype": {"type": "GPLong"}, "value": "123"},
+     {"long_name.title": "Long"}),
+    (LongParameter, 'Long Multi', 'long_multi_name', (12, 34, 56),
+     {"displayname": "$rc:long_multi_name.title", "datatype": {"type": "GPMultiValue", "datatype": {"type": "GPLong"}}, "value": "12;34;56"},
+     {"long_multi_name.title": "Long Multi"}),
+    (DoubleParameter, 'Double', 'double_name', 123.456,
+     {"displayname": "$rc:double_name.title", "datatype": {"type": "GPDouble"}, "value": "123.456"},
+     {"double_name.title": "Double"}),
+    (DoubleParameter, 'Double Multi', 'double_multi_name', (23.456, 789.1),
+     {"displayname": "$rc:double_multi_name.title", "datatype": {"type": "GPMultiValue", "datatype": {"type": "GPDouble"}}, "value": "23.456;789.1"},
+     {"double_multi_name.title": "Double Multi"}),
+])
+def test_parameter_numeric(cls, label, name, default_value, expected_content, expected_resource):
     """
-    Test parameter long
+    Test parameter numeric
     """
-    name = "long_name"
-    expected_content = {
-        name: {
-            "displayname": "$rc:long_name.title",
-            "datatype": {"type": "GPLong"},
-            "value": "123"
-        },
-    }
-    expected_resource = {
-        "long_name.title": "Long",
-    }
-    param = LongParameter(label='Long', name=name, default_value=123)
+    param = cls(label=label, name=name, default_value=default_value,
+                is_multi=isinstance(default_value, tuple))
     content, resource = param.serialize({})
-    assert content == expected_content[name]
+    assert content == expected_content
     assert resource == expected_resource
-# End test_parameter_long function
+# End test_parameter_numeric function
 
 
-def test_parameter_double():
+@mark.parametrize('cls, label, name, description, is_input, is_required, expected_content, expected_resource', [
+    (WorkspaceParameter, 'Workspaces', 'workspaces', 'Allow for multiple workspaces', True, True,
+     {"displayname": "$rc:workspaces.title", "datatype": {"type": "GPMultiValue", "datatype": {"type": "DEWorkspace"}}, "description": "$rc:workspaces.descr"},
+     {"workspaces.descr": "Allow for multiple workspaces", "workspaces.title": "Workspaces"}),
+    (WorkspaceParameter, 'Output Workspace', 'output_workspace_name', None, False, True,
+     {"direction": "out", "displayname": "$rc:output_workspace_name.title", "datatype": {"type": "DEWorkspace"}},
+     {"output_workspace_name.title": "Output Workspace"}),
+    (FeatureDatasetParameter, 'A Feature Dataset', 'a_feature_dataset_name', None, False, True,
+     {"direction": "out", "displayname": "$rc:a_feature_dataset_name.title", "datatype": {"type": "DEFeatureDataset"}},
+     {"a_feature_dataset_name.title": "A Feature Dataset"}),
+    (FeatureClassParameter, 'Main Feature Class', 'main_feature_class_name', None, False, False,
+     {"type": "optional", "direction": "out", "displayname": "$rc:main_feature_class_name.title", "datatype": {"type": "DEFeatureClass"}, "schema": {"type": "GPFeatureSchema", "generateoutputcatalogpath": "true"}},
+     {"main_feature_class_name.title": "Main Feature Class"}),
+    (FeatureClassParameter, 'Feature Class Input', 'feature_class_input_name', None, True, True,
+     {"displayname": "$rc:feature_class_input_name.title", "datatype": {"type": "DEFeatureClass"}},
+     {"feature_class_input_name.title": "Feature Class Input"}),
+    (FeatureLayerParameter, 'Feature Layer Example', 'feature_layer_example', None, True, True,
+     {"displayname": "$rc:feature_layer_example.title", "datatype": {"type": "GPFeatureLayer"}},
+     {"feature_layer_example.title": "Feature Layer Example"}),
+    (RasterDatasetParameter, 'Raster Dataset Input', 'raster_dataset_input_name', None, True, True,
+     {"displayname": "$rc:raster_dataset_input_name.title", "datatype": {"type": "DERasterDataset"}},
+     {"raster_dataset_input_name.title": "Raster Dataset Input"}),
+    (RasterDatasetParameter, 'Raster Dataset Output', 'raster_dataset_output_name', None, False, True,
+     {"direction": "out", "displayname": "$rc:raster_dataset_output_name.title", "datatype": {"type": "DERasterDataset"}},
+     {"raster_dataset_output_name.title": "Raster Dataset Output"}),
+    (TinParameter, 'Tin Man', 'tin_man_name', None, True, True,
+     {"displayname": "$rc:tin_man_name.title", "datatype": {"type": "DETin"}},
+     {"tin_man_name.title": "Tin Man"}),
+    (TableParameter, 'Table Input', 'table_input_name', None, True, True,
+     {"displayname": "$rc:table_input_name.title", "datatype": {"type": "DETable"}},
+     {"table_input_name.title": "Table Input"}),
+    (TableParameter, 'Table Output', 'table_output_name', None, False, True,
+     {"direction": "out", "displayname": "$rc:table_output_name.title", "datatype": {"type": "DETable"}, "schema": {"type": "GPTableSchema", "generateoutputcatalogpath": "true"}},
+     {"table_output_name.title": "Table Output"}),
+])
+def test_parameter_data_element(cls, label, name, description, is_input, is_required, expected_content, expected_resource):
     """
-    Test parameter long multi
+    Test parameter data elements
     """
-    name = "double_name"
-    expected_content = {
-        name: {
-            "displayname": "$rc:double_name.title",
-            "datatype": {
-                "type": "GPDouble"
-            },
-            "value": "123.456"
-        },
-    }
-    expected_resource = {
-        "double_name.title": "Double",
-    }
-    param = DoubleParameter(
-        label='Double', name=name, default_value=123.456)
+    param = cls(label=label, name=name, description=description,
+                is_required=is_required, is_input=is_input,
+                is_multi=name.endswith('s'))
     content, resource = param.serialize({})
-    assert content == expected_content[name]
+    assert content == expected_content
     assert resource == expected_resource
-# End test_parameter_double function
-
-
-def test_parameter_long_multi():
-    """
-    Test parameter long multi
-    """
-    name = "long_multi_name"
-    expected_content = {
-        name: {
-            "displayname": "$rc:long_multi_name.title",
-            "datatype": {
-                "type": "GPMultiValue",
-                "datatype": {
-                    "type": "GPLong"
-                }
-            },
-            "value": "12;34;56"
-        },
-    }
-    expected_resource = {
-        "long_multi_name.title": "Long Multi",
-    }
-    param = LongParameter(
-        label='Long Multi', name=name, default_value=(12, 34, 56),
-        is_multi=True)
-    content, resource = param.serialize({})
-    assert content == expected_content[name]
-    assert resource == expected_resource
-# End test_parameter_long_multi function
-
-
-def test_parameter_double_multi():
-    """
-    Test parameter long multi
-    """
-    name = "double_multi_name"
-    expected_content = {
-        name: {
-            "displayname": "$rc:double_multi_name.title",
-            "datatype": {
-                "type": "GPMultiValue",
-                "datatype": {
-                    "type": "GPDouble"
-                }
-            },
-            "value": "23.456;789.1"
-        },
-    }
-    expected_resource = {
-        "double_multi_name.title": "Double Multi",
-    }
-    param = DoubleParameter(
-        label='Double Multi', name=name, default_value=(23.456, 789.1),
-        is_multi=True)
-    content, resource = param.serialize({})
-    assert content == expected_content[name]
-    assert resource == expected_resource
-# End test_parameter_double_multi function
+# End test_parameter_workspace_multi function
 
 
 if __name__ == '__main__':  # pragma: no cover
