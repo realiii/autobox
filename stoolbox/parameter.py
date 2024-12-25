@@ -11,7 +11,7 @@ from stoolbox.constants import (
     OPTIONAL, OUT, ParameterContentKeys, ParameterContentResourceKeys,
     SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TRUE)
-from stoolbox.types import BOOL, STRING
+from stoolbox.types import BOOL, MAP_STR, STRING
 from stoolbox.util import (
     make_parameter_name, validate_parameter_label, validate_parameter_name,
     wrap_markup)
@@ -126,7 +126,7 @@ class BaseParameter:
         return {ParameterContentKeys.direction: value}
     # End _build_direction method
 
-    def _build_display_name(self) -> tuple[dict[str, str], dict[str, str]]:
+    def _build_display_name(self) -> tuple[MAP_STR, MAP_STR]:
         """
         Build Display Name
         """
@@ -149,7 +149,7 @@ class BaseParameter:
         return {key: value}
     # End _build_category method
 
-    def _build_data_type(self) -> dict[str, str | dict[str, str]]:
+    def _build_data_type(self) -> dict[str, str | MAP_STR]:
         """
         Build Data Type with Schema
         """
@@ -162,7 +162,7 @@ class BaseParameter:
             ParameterContentKeys.type: GP_MULTI_VALUE}}
     # End _build_data_type method
 
-    def _build_schema(self) -> dict[str, str]:
+    def _build_schema(self) -> MAP_STR:
         """
         Build Schema
         """
@@ -186,7 +186,7 @@ class BaseParameter:
         return {ParameterContentKeys.value: value}
     # End _build_default_value method
 
-    def _build_description(self) -> tuple[dict[str, str], dict[str, str]]:
+    def _build_description(self) -> tuple[MAP_STR, MAP_STR]:
         """
         Build Description
         """
@@ -199,7 +199,7 @@ class BaseParameter:
     # End _build_description method
 
     def _serialize(self, categories: dict[str, int]) \
-            -> tuple[dict[str, dict], dict[str, str]]:
+            -> tuple[dict[str, dict], MAP_STR]:
         """
         Serialize Parameter to a content dictionary and a resource dictionary.
         """
@@ -309,7 +309,7 @@ class BaseParameter:
     # End is_enabled property
 
     def serialize(self, categories: dict[str, int]) \
-            -> tuple[dict[str, dict], dict[str, str]]:
+            -> tuple[dict[str, dict], MAP_STR]:
         """
         Serialize Parameter to a content dictionary and a resource dictionary.
         """
@@ -544,7 +544,7 @@ class FeatureClassParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DEFeatureClass'
 
-    def _build_schema(self) -> dict[str, str]:
+    def _build_schema(self) -> MAP_STR:
         """
         Build Schema
         """
@@ -815,7 +815,7 @@ class TableParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DETable'
 
-    def _build_schema(self) -> dict[str, str]:
+    def _build_schema(self) -> MAP_STR:
         """
         Build Schema
         """
