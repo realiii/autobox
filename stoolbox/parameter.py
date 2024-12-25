@@ -41,6 +41,8 @@ class BaseParameter:
     """
     Base Parameter
     """
+    keyword: ClassVar[str] = ''
+
     def __init__(self, label: str, name: STRING = None, category: STRING = None,
                  description: STRING = None, default_value: Any = None,
                  is_input: bool = True, is_required: BOOL = True,
