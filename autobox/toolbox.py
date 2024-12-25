@@ -12,17 +12,17 @@ from shutil import rmtree
 from typing import NoReturn, TYPE_CHECKING
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from stoolbox.constants import (
+from autobox.constants import (
     DOLLAR_RC, DOT, ENCODING, EXT, NAME, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
     TOOLSET, ToolboxContentKeys, ToolboxContentResourceKeys)
-from stoolbox.types import MAP_STR, PATH, STRING, TOOLS_MAP
-from stoolbox.util import (
+from autobox.types import MAP_STR, PATH, STRING, TOOLS_MAP
+from autobox.util import (
     make_temp_folder, validate_toolbox_alias, validate_toolbox_name)
 
 
 if TYPE_CHECKING:  # pragma: no cover
-    from stoolbox.script import ScriptTool
-    from stoolbox.toolset import Toolset
+    from autobox.script import ScriptTool
+    from autobox.toolset import Toolset
 
 
 class Toolbox:

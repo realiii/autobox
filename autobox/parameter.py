@@ -6,13 +6,13 @@ Parameters
 
 from typing import Any, ClassVar, NoReturn
 
-from stoolbox.constants import (
+from autobox.constants import (
     DERIVED, DOLLAR_RC, DOT, GP_FEATURE_SCHEMA, GP_MULTI_VALUE, GP_TABLE_SCHEMA,
     OPTIONAL, OUT, ParameterContentKeys, ParameterContentResourceKeys,
     SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TRUE)
-from stoolbox.types import BOOL, MAP_STR, STRING
-from stoolbox.util import (
+from autobox.types import BOOL, MAP_STR, STRING
+from autobox.util import (
     make_parameter_name, validate_parameter_label, validate_parameter_name,
     wrap_markup)
 

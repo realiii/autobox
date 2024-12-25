@@ -19,11 +19,11 @@ dependencies = []
 requires-python = "==3.11"
 
 [tool.setuptools]
-packages = ["stoolbox"]
+packages = ["autobox"]
 include-package-data = true
 
 [project.optional-dependencies]
 dev = ["pytest", "pytest-cov", "pytest-xdist", "coverage", "twine", "build"]
 
 [project.urls]
-Homepage = "https://github.com/realiii/stoolbox"
+Homepage = "https://github.com/realiii/autobox"

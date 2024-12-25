@@ -6,8 +6,8 @@ Toolset Tests
 
 from pytest import mark, raises
 
-from stoolbox import ScriptTool
-from stoolbox.toolset import Toolset
+from autobox import ScriptTool
+from autobox.toolset import Toolset
 
 
 @mark.parametrize('value, expected', [

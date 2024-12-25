@@ -5,7 +5,7 @@ Parameter Test
 
 
 from pytest import mark, raises
-from stoolbox.parameter import (
+from autobox.parameter import (
     DoubleParameter, FeatureClassParameter, FeatureDatasetParameter,
     FeatureLayerParameter, InputOutputParameter, InputParameter, LongParameter,
     RasterDatasetParameter, StringParameter, TableParameter, TinParameter,

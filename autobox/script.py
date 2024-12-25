@@ -12,14 +12,14 @@ from pathlib import Path
 from shutil import copyfile
 from typing import NoReturn, Self
 
-from stoolbox.constants import (
+from autobox.constants import (
     COLON, DOT, ENCODING, ICON, ILLUSTRATION, ParameterContentKeys, SCRIPT,
     SCRIPT_STUB, ScriptToolContentKeys, ScriptToolContentResourceKeys, TOOL,
     TOOL_CONTENT, TOOL_CONTENT_RC, TOOL_ICON, TOOL_ILLUSTRATION,
     TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY,
     ToolAttributeKeywords)
-from stoolbox.types import MAP_STR, PARAMETER, PATH, STRING, ToolAttributes
-from stoolbox.util import (
+from autobox.types import MAP_STR, PARAMETER, PATH, STRING, ToolAttributes
+from autobox.util import (
     validate_path, validate_script_folder_name, validate_script_name,
     wrap_markup)
 

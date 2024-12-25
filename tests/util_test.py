@@ -5,7 +5,7 @@ Utility Tests
 
 
 from pytest import mark
-from stoolbox.util import (
+from autobox.util import (
     _remove_leading_non_alpha, _validate_alpha_start_sans_special,
     make_parameter_name, validate_parameter_label, validate_parameter_name,
     validate_script_folder_name, validate_toolbox_name, validate_toolset_name,
