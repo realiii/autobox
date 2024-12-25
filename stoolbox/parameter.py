@@ -8,8 +8,8 @@ from typing import Any, ClassVar, NoReturn
 
 from stoolbox.types import BOOL, STRING
 from stoolbox.util import (
-    make_parameter_name, validate_parameter_label,
-    validate_parameter_name)
+    make_parameter_name, validate_parameter_label, validate_parameter_name,
+    wrap_markup)
 
 
 __all__ = [
@@ -128,7 +128,7 @@ class BaseParameter:
         """
         Description / Documentation
         """
-        return self._description
+        return wrap_markup(self._description)
 
     @description.setter
     def description(self, value: STRING) -> None:
