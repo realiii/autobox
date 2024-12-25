@@ -11,9 +11,15 @@ DOT: str = '.'
 SPACE: str = ' '
 UNDERSCORE: str = '_'
 COLON: str = ':'
+SEMI_COLON: str = ';'
 DOUBLE_SPACE: str = f'{SPACE}{SPACE}'
 DOUBLE_UNDERSCORE: str = f'{UNDERSCORE}{UNDERSCORE}'
 
+
+GP_MULTI_VALUE: str = 'GPMultiValue'
+OUT: str = 'out'
+DERIVED: str = 'derived'
+OPTIONAL: str = 'optional'
 
 ENCODING: str = 'utf-8'
 
@@ -132,6 +138,37 @@ class ScriptToolContentResourceKeys(BaseResourceKeys):
     description: ClassVar[str] = 'description'
     summary: ClassVar[str] = 'summary'
 # End ScriptToolContentResourceKeys class
+
+
+class ParameterContentKeys(BaseContentKeys):
+    """
+    Parameter Content Keys
+    """
+    parameter_type: ClassVar[str] = 'type'
+    direction: ClassVar[str] = 'direction'
+    category: ClassVar[str] = 'category'
+    data_type: ClassVar[str] = 'datatype'
+    type: ClassVar[str] = 'type'
+    schema: ClassVar[str] = 'schema'
+    value: ClassVar[str] = 'value'
+# End ParameterContentKeys class
+
+
+class ParameterContentResourceKeys(BaseResourceKeys):
+    """
+    Parameter Content Resource Keys
+    """
+    description: ClassVar[str] = 'descr'
+# End ParameterContentResourceKeys class
+
+
+class SchemaContentKeys:
+    """
+    Schema Content Keys
+    """
+    type: ClassVar[str] = 'type'
+    generate_output_catalog_path: ClassVar[str] = 'generateoutputcatalogpath'
+# End SchemaContentKeys class
 
 
 class ToolAttributeKeywords:
