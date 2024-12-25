@@ -177,7 +177,7 @@ class BaseParameter:
         if self.is_multi:
             if value is None:
                 value = ()
-            elif not isinstance(value, (list, tuple)):
+            elif not isinstance(value, (list, tuple)):  # pragma: no cover
                 value = value,
             value = SEMI_COLON.join(repr(v) for v in value)
         else:
@@ -550,7 +550,7 @@ class FeatureClassParameter(InputOutputParameter):
         """
         if self.is_input:
             return {}
-        if self.is_required is None:
+        if self.is_required is None:  # pragma: no cover
             return {}
         return {ParameterContentKeys.schema: {
             SchemaContentKeys.type: GP_FEATURE_SCHEMA,
@@ -821,7 +821,7 @@ class TableParameter(InputOutputParameter):
         """
         if self.is_input:
             return {}
-        if self.is_required is None:
+        if self.is_required is None:  # pragma: no cover
             return {}
         return {ParameterContentKeys.schema: {
             SchemaContentKeys.type: GP_TABLE_SCHEMA,
