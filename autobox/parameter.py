@@ -4,14 +4,18 @@ Parameters
 """
 
 
-from typing import Any, ClassVar, NoReturn, Self
+from typing import Any, ClassVar, NoReturn, Self, Type
 
 from autobox.constant import (
-    DERIVED, DOLLAR_RC, DOT, GP_FEATURE_SCHEMA, GP_MULTI_VALUE, GP_TABLE_SCHEMA,
-    OPTIONAL, OUT, ParameterContentKeys, ParameterContentResourceKeys,
-    SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
-    ScriptToolContentResourceKeys, TRUE)
-from autobox.type import BOOL, MAP_STR, STRING, TYPE_PARAMS
+    DERIVED, DOLLAR_RC, DOT, GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT,
+    GP_MULTI_VALUE, GP_TABLE_SCHEMA, OPTIONAL, OUT, ParameterContentKeys,
+    ParameterContentResourceKeys, SEMI_COLON, SchemaContentKeys,
+    ScriptToolContentKeys, ScriptToolContentResourceKeys, TRUE)
+from autobox.filter import (
+    AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
+    FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
+    LongRangeFilter, LongValueFilter, StringValueFilter, WorkspaceTypeFilter)
+from autobox.type import BOOL, MAP_STR, STRING, TYPE_FILTERS, TYPE_PARAMS
 from autobox.util import (
     make_parameter_name, validate_parameter_label, validate_parameter_name,
     wrap_markup)
@@ -48,6 +52,7 @@ class BaseParameter:
     """
     keyword: ClassVar[str] = ''
     dependency_types: ClassVar[TYPE_PARAMS] = ()
+    filter_types: ClassVar[TYPE_FILTERS] = ()
 
     def __init__(self, label: str, name: STRING = None, category: STRING = None,
                  description: STRING = None, default_value: Any = None,
@@ -77,10 +82,11 @@ class BaseParameter:
         self._description: STRING = description
         self._default: Any = default_value
         self._is_input: bool = is_input
-        self._is_required: bool = is_required
+        self._is_required: BOOL = is_required
         self._is_multi: bool = is_multi
         self._is_enabled: bool = is_enabled
         self._dependency: InputOutputParameter | None = None
+        self._filter: AbstractFilter | None = None
     # End init built-in
 
     @staticmethod
@@ -103,6 +109,18 @@ class BaseParameter:
                 raise ValueError(f'Invalid parameter name: {name}')
         return validated_name
     # End _validate_name method
+
+    @staticmethod
+    def _validate_type(value: Any, types: tuple[Type, ...]) -> Any:
+        """
+        Validate Type
+        """
+        if value is None or not types:
+            return
+        if not isinstance(value, types):
+            value = None
+        return value
+    # End _validate_type method
 
     def _build_parameter_type(self) -> dict[str, STRING]:
         """
@@ -164,13 +182,22 @@ class BaseParameter:
             ParameterContentKeys.type: GP_MULTI_VALUE}}
     # End _build_data_type method
 
+    def _build_filter(self) -> tuple[dict, MAP_STR]:
+        """
+        Build Filter
+        """
+        if self.filter is None:
+            return {}, {}
+        return self.filter.serialize(), {}
+    # End _build_filter method
+
     def _build_dependency(self) -> MAP_STR:
         """
         Build Dependency
         """
         if not self.dependency:
             return {}
-        return {ParameterContentKeys.depends: self.dependency.name}
+        return {ParameterContentKeys.depends: [self.dependency.name]}
     # End _build_dependency method
 
     # noinspection PyMethodMayBeStatic
@@ -220,15 +247,17 @@ class BaseParameter:
         display_name_content, display_name_resource = self._build_display_name()
         category = self._build_category(categories)
         data_type = self._build_data_type()
+        filter_content, filter_resource = self._build_filter()
         dependency = self._build_dependency()
         schema = self._build_schema()
         default_value = self._build_default_value()
         description_content, description_resource = self._build_description()
         content = {**parameter_type, **direction, **display_name_content,
-                   **category, **data_type, **dependency, **schema,
-                   **default_value, **description_content}
+                   **category, **data_type, **filter_content, **dependency,
+                   **schema, **default_value, **description_content}
         content = {k: v for k, v in content.items() if v}
-        resource = {**description_resource, **display_name_resource}
+        resource = {**filter_resource, **description_resource,
+                    **display_name_resource}
         resource = {k: v for k, v in resource.items() if v}
         return content, resource
     # End _serialize method
@@ -330,12 +359,19 @@ class BaseParameter:
 
     @dependency.setter
     def dependency(self, value: Self | None) -> None:
-        if value is not None:
-            if not self.dependency_types:
-                value = None
-            elif not isinstance(value, self.dependency_types):
-                value = None
-        self._dependency = value
+        self._dependency = self._validate_type(value, self.dependency_types)
+    # End dependency property
+
+    @property
+    def filter(self) -> AbstractFilter | None:
+        """
+        Filter Parameter
+        """
+        return self._filter
+
+    @filter.setter
+    def filter(self, value: AbstractFilter | None) -> None:
+        self._filter = self._validate_type(value, self.filter_types)
     # End dependency property
 
     def serialize(self, categories: dict[str, int]) \
@@ -552,6 +588,7 @@ class DoubleParameter(InputParameter):
     Any floating-point number stored as a double precision, 64-bit value.
     """
     keyword: ClassVar[str] = 'GPDouble'
+    filter_types: ClassVar[TYPE_FILTERS] = DoubleRangeFilter, DoubleValueFilter
 # End DoubleParameter class
 
 
@@ -589,6 +626,7 @@ class FeatureClassParameter(SchemaMixin, InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DEFeatureClass'
     schema_type: ClassVar[str] = GP_FEATURE_SCHEMA
+    filter_types: ClassVar[TYPE_FILTERS] = FeatureClassTypeFilter,
 # End FeatureClassParameter class
 
 
@@ -607,6 +645,7 @@ class FeatureLayerParameter(InputOutputParameter):
     properties.
     """
     keyword: ClassVar[str] = 'GPFeatureLayer'
+    filter_types: ClassVar[TYPE_FILTERS] = FeatureClassTypeFilter,
 # End FeatureLayerParameter class
 
 
@@ -615,6 +654,7 @@ class FileParameter(InputOutputParameter):
     A file on disk.
     """
     keyword: ClassVar[str] = 'DEFile'
+    filter_types: ClassVar[TYPE_FILTERS] = FileTypeFilter,
 # End FileParameter class
 
 
@@ -680,6 +720,7 @@ class LongParameter(InputParameter):
     An integer number value.
     """
     keyword: ClassVar[str] = 'GPLong'
+    filter_types: ClassVar[TYPE_FILTERS] = LongRangeFilter, LongValueFilter
 # End LongParameter class
 
 
@@ -806,6 +847,17 @@ class StringParameter(InputOutputParameter):
     A text value.
     """
     keyword: ClassVar[str] = 'GPString'
+    filter_types: ClassVar[TYPE_FILTERS] = StringValueFilter,
+
+    def _build_filter(self) -> tuple[dict, MAP_STR]:
+        """
+        Build Filter
+        """
+        if self.filter is None:
+            return {}, {}
+        content, resource = self.filter.serialize(self.name)
+        return content, resource
+    # End _build_filter method
 # End StringParameter class
 
 
@@ -871,17 +923,9 @@ class TopologyParameter(InputOutputParameter):
 # End TopologyParameter class
 
 
-class WorkspaceParameter(InputOutputParameter):
-    """
-    A container such as a geodatabase or folder.
-    """
-    keyword: ClassVar[str] = 'DEWorkspace'
-# End WorkspaceParameter class
-
-
 _TABLE_TYPES: TYPE_PARAMS = TableParameter, TableViewParameter
 _GEOGRAPHIC_TYPES: TYPE_PARAMS = (
-        FeatureClassParameter, FeatureDatasetParameter,
+        FeatureClassParameter, FeatureLayerParameter,
         RasterDatasetParameter, RasterLayerParameter
 )
 
@@ -890,8 +934,9 @@ class ArealUnitParameter(InputParameter):
     """
     An areal unit type and value, such as square meter or acre.
     """
-    keyword: ClassVar[str] = 'GPArealUnit'
+    keyword: ClassVar[str] = GP_AREAL_UNIT
     dependency_types: ClassVar[TYPE_PARAMS] = _GEOGRAPHIC_TYPES
+    filter_types: ClassVar[TYPE_FILTERS] = ArealUnitFilter,
 # End ArealUnitParameter class
 
 
@@ -901,6 +946,7 @@ class FieldParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'Field'
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+    filter_types: ClassVar[TYPE_FILTERS] = FieldTypeFilter,
 # End FieldParameter class
 
 
@@ -908,8 +954,9 @@ class LinearUnitParameter(InputParameter):
     """
     A linear unit type and value such as meter or feet.
     """
-    keyword: ClassVar[str] = 'GPLinearUnit'
+    keyword: ClassVar[str] = GP_LINEAR_UNIT
     dependency_types: ClassVar[TYPE_PARAMS] = _GEOGRAPHIC_TYPES
+    filter_types: ClassVar[TYPE_FILTERS] = LinearUnitFilter,
 # End LinearUnitParameter class
 
 
@@ -921,6 +968,15 @@ class SQLExpressionParameter(InputParameter):
     keyword: ClassVar[str] = 'GPSQLExpression'
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
 # End SQLExpressionParameter class
+
+
+class WorkspaceParameter(InputOutputParameter):
+    """
+    A container such as a geodatabase or folder.
+    """
+    keyword: ClassVar[str] = 'DEWorkspace'
+    filter_types: ClassVar[TYPE_FILTERS] = WorkspaceTypeFilter,
+# End WorkspaceParameter class
 
 
 if __name__ == '__main__':  # pragma: no cover
