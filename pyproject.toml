@@ -19,7 +19,7 @@ classifiers = [
 ]
 keywords = ["toolbox", "geoprocessing", "ArcGIS"]
 dependencies = []
-requires-python = "==3.11"
+requires-python = ">=3.11"
 
 [tool.setuptools]
 packages = ["autobox"]
