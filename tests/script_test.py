@@ -53,6 +53,16 @@ def test_script_tool_repr():
 # End test_script_tool_repr function
 
 
+def test_script_tool_bad_add():
+    """
+    Test Toolset Bad Add
+    """
+    tbx = ScriptTool(name='AbCdE')
+    with raises(TypeError):
+        tbx.add_parameter(1)
+# End test_toolset_bad_add function
+
+
 def test_script_parameter_repetition():
     """
     Test script parameter repetition
