@@ -5,6 +5,8 @@ Toolset
 
 
 from typing import NoReturn, Optional, TYPE_CHECKING
+
+from autobox.constant import ILLUSTRATION, PARENT
 from autobox.util import validate_toolset_name
 
 
@@ -116,6 +118,8 @@ class Toolset:
         """
         Add Script Tool
         """
+        if not hasattr(tool, ILLUSTRATION):
+            raise TypeError(f'Expected a tool, got: {tool}')
         self.tools.append(tool)
     # End add_script_tool method
 
@@ -123,6 +127,8 @@ class Toolset:
         """
         Add Toolset
         """
+        if not hasattr(toolset, PARENT):
+            raise TypeError(f'Expected a toolset, got: {toolset}')
         toolset.parent = self
         self.toolsets.append(toolset)
     # End add_toolset method

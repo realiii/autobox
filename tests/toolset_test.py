@@ -46,6 +46,18 @@ def test_toolset_repr():
 # End test_toolset_repr function
 
 
+def test_toolset_bad_add():
+    """
+    Test Toolset Bad Add
+    """
+    tbx = Toolset(name='AbCdE')
+    with raises(TypeError):
+        tbx.add_toolset(1)
+    with raises(TypeError):
+        tbx.add_script_tool('asdf')
+# End test_toolset_bad_add function
+
+
 def test_toolset_has_tools():
     """
     Test Toolset has tools

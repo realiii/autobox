@@ -13,8 +13,8 @@ from shutil import copyfile
 from typing import NoReturn, Self
 
 from autobox.constant import (
-    COLON, DOT, ENCODING, ICON, ILLUSTRATION, ParameterContentKeys, SCRIPT,
-    SCRIPT_STUB, SEMI_COLON, SPACE, ScriptToolContentKeys,
+    COLON, DEPENDENCY, DOT, ENCODING, ICON, ILLUSTRATION, ParameterContentKeys,
+    SCRIPT, SCRIPT_STUB, SEMI_COLON, SPACE, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT, TOOL_CONTENT_RC,
     TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY, ToolAttributeKeywords)
@@ -484,6 +484,8 @@ class ScriptTool:
         """
         Add Parameter
         """
+        if not hasattr(parameter, DEPENDENCY):
+            raise TypeError(f'Expected a parameter, got: {parameter}')
         self.parameters.append(parameter)
     # End add_parameter method
 
