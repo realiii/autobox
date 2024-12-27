@@ -667,5 +667,43 @@ def test_toolbox_toolset_repetition(tmp_path):
 # End test_toolbox_toolset_repetition function
 
 
+def test_toolbox_script_repetition(tmp_path):
+    """
+    Test catching script tool repetition on a toolbox
+    """
+    toolset1 = Toolset(name='A Toolset')
+    toolset2 = Toolset(name='A Toolset')
+    tool1 = ScriptTool(name='A_Tool', label='A Tool')
+    tool2 = ScriptTool(name='A_Tool', label='A Tool')
+
+    tbx = Toolbox(name='pete')
+    tbx.add_script_tool(tool1)
+    tbx.add_script_tool(tool1)
+    with raises(ValueError):
+        tbx.save(tmp_path, overwrite=True)
+
+    tbx = Toolbox(name='pete')
+    tbx.add_script_tool(tool1)
+    tbx.add_script_tool(tool2)
+    with raises(ValueError):
+        tbx.save(tmp_path, overwrite=True)
+
+    tbx = Toolbox(name='pete')
+    toolset1.add_script_tool(tool1)
+    tbx.add_toolset(toolset1)
+    tbx.add_script_tool(tool2)
+    with raises(ValueError):
+        tbx.save(tmp_path, overwrite=True)
+
+    tbx = Toolbox(name='pete')
+    toolset1.add_script_tool(tool1)
+    toolset2.add_script_tool(tool2)
+    tbx.add_toolset(toolset1)
+    tbx.add_toolset(toolset2)
+    with raises(ValueError):
+        tbx.save(tmp_path, overwrite=True)
+# End test_toolbox_script_repetition function
+
+
 if __name__ == '__main__':  # pragma: no cover
     pass

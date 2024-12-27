@@ -173,6 +173,7 @@ class Toolbox:
         has_toolset_tools = any(t.has_tools for t in self.toolsets)
         if not self.tools and not has_toolset_tools:
             return nada, {}
+        self._check_tool_repeats()
         root_mapping = self._build_root_tools(source=source, target=target)
         if not has_toolset_tools:
             return root_mapping or nada, {}
@@ -231,19 +232,41 @@ class Toolbox:
     # End _build_toolset_tools method
 
     @staticmethod
-    def _check_toolset_repeats(toolsets: list['Toolset']) -> None | NoReturn:
+    def _get_repeated_names(values: list['Toolset'] | list['ScriptTool']) -> set[str]:
+        """
+        Get Repeated Names
+        """
+        return {n for n, c in Counter(v.name for v in values).items() if c > 1}
+    # End _get_repeated_names method
+
+    def _check_toolset_repeats(self, toolsets: list['Toolset']) -> None | NoReturn:
         """
         Check for Toolset name repetitions, toolset names must be unique
         at same depth but not across the entire toolbox.
         """
-        names = {n for n, c in
-                 Counter(t.name for t in toolsets).items() if c > 1}
-        if not names:
+        if not (names := self._get_repeated_names(toolsets)):
             return
         paths = {t.qualified_name for t in toolsets if t.name in names}
         paths = f'{SEMI_COLON}{SPACE}'.join(sorted(paths))
         raise ValueError(f'Toolset name repetition detected: {paths}')
     # End _check_toolset_repeats method
+
+    def _check_tool_repeats(self) -> None | NoReturn:
+        """
+        Check for Tool name repetitions, tool names must be unique across
+        the toolbox.
+        """
+        tools = list(self.tools)
+        toolsets = list(self.toolsets)
+        while toolsets:
+            toolset = toolsets.pop(0)
+            tools.extend(toolset.tools)
+            toolsets.extend(toolset.toolsets)
+        if not (names := self._get_repeated_names(tools)):
+            return
+        names = f'{SEMI_COLON}{SPACE}'.join(sorted(names))
+        raise ValueError(f'Tool name repetition detected: {names}')
+    # End _check_tool_repeats method
 
     @property
     def name(self) -> str:
