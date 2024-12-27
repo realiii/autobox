@@ -6,22 +6,29 @@ Toolbox Class Tests
 
 from shutil import copyfile
 
-from pytest import mark, raises
+from pytest import approx, mark, raises
 
+from autobox.enum import (
+    ArealUnit, FieldType, GeometryType, LinearUnit, WorkspaceType)
+from autobox.filter import (
+    ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
+    FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
+    LongRangeFilter, LongValueFilter, StringValueFilter, WorkspaceTypeFilter)
 from helpers import DEFAULT_EXECUTION_CODE, read_from_zip
 from autobox import ScriptTool
 from autobox.parameter import (
-    DoubleParameter, FeatureClassParameter, FeatureDatasetParameter,
-    FeatureLayerParameter, LongParameter, RasterDatasetParameter,
+    ArealUnitParameter, DoubleParameter, FeatureClassParameter,
+    FeatureDatasetParameter, FeatureLayerParameter, FieldParameter,
+    FileParameter, LinearUnitParameter, LongParameter, RasterDatasetParameter,
     StringParameter, TableParameter, TinParameter, WorkspaceParameter)
 from autobox.script import ExecutionScript, ValidationScript
 from autobox.toolbox import Toolbox
-from autobox.constants import (
+from autobox.constant import (
     DOT, EXT, ScriptToolContentKeys, TOOL, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
     TOOL_CONTENT, TOOL_CONTENT_RC, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)
 from autobox.toolset import Toolset
-from autobox.types import ToolAttributes
+from autobox.type import ToolAttributes
 
 
 @mark.parametrize('name, label, alias, description, compare_name', [
@@ -505,6 +512,108 @@ def test_build_parameters_toolbox(tmp_path, data_path):
     compare_resource = read_from_zip(compare_path, name=name, as_json=True)
     assert source_resource == compare_resource
 # End test_build_parameters_toolbox function
+
+
+def test_build_filter_parameter_toolbox(tmp_path, data_path):
+    """
+    Test build filter parameter toolbox
+    """
+    compare_path = data_path.joinpath('filter.atbx')
+    assert compare_path.is_file()
+
+    workspace = WorkspaceParameter(label='Workspace', name='Workspace')
+    workspace.category = 'Elements'
+    workspace.filter = WorkspaceTypeFilter((WorkspaceType.FILE_SYSTEM,))
+    feature_class = FeatureClassParameter(label='Feature Class', name='Feature_Class')
+    feature_class.category = 'Elements'
+    feature_class.filter = FeatureClassTypeFilter((GeometryType.POLYGON, GeometryType.POLYLINE))
+    feature_layer = FeatureLayerParameter(label='Feature Layer', name='Feature_Layer')
+    feature_layer.category = 'Elements'
+    feature_layer.filter = FeatureClassTypeFilter((GeometryType.POINT, GeometryType.MULTIPOINT))
+    field = FieldParameter(label='Field Type', name='Field_Type')
+    field.category = 'Elements'
+    field.filter = FieldTypeFilter((FieldType.SHORT, FieldType.LONG, FieldType.BIG_INTEGER))
+    field.dependency = feature_layer
+    file = FileParameter(label='File Type', name='File_Type')
+    file.category = 'Elements'
+    file.filter = FileTypeFilter(('txt', 'csv'))
+
+    areal = ArealUnitParameter(label='Areal Unit', name='Areal_Unit')
+    areal.category = 'Units'
+    areal.filter = ArealUnitFilter((ArealUnit.ARES, ArealUnit.HECTARES))
+    areal.dependency = feature_class
+    linear = LinearUnitParameter(label='Linear Unit', name='Linear_Unit')
+    linear.category = 'Units'
+    linear.filter = LinearUnitFilter((LinearUnit.METERS, LinearUnit.KILOMETERS))
+    linear.dependency = feature_layer
+
+    long_value = LongParameter(label='Long Value', name='Long_Value')
+    long_value.category = 'Value Filters'
+    long_value.filter = LongValueFilter((1, 2, 3))
+    double_value = DoubleParameter(label='Double Value', name='Double_Value')
+    double_value.category = 'Value Filters'
+    double_value.filter = DoubleValueFilter((1.1, 2.22, 3.333))
+    string_value = StringParameter(label='String Value', name='String_Value')
+    string_value.category = 'Value Filters'
+    string_value.filter = StringValueFilter(('A', 'BB', 'C"""C', "D'''C"))
+
+    long_range = LongParameter(label='Long Range', name='Long_Range')
+    long_range.category = 'Range Filters'
+    long_range.filter = LongRangeFilter(-1, 9876543210)
+    double_range = DoubleParameter(label='Double Range', name='Double_Range')
+    double_range.category = 'Range Filters'
+    double_range.filter = DoubleRangeFilter(-999.999, 9876.543)
+
+    script = ScriptTool(name='ScriptWithFilters', label='Script with Filters')
+    for p in (workspace, feature_class, feature_layer, field, file,
+              areal, linear, long_value, double_value, string_value,
+              long_range, double_range):
+        script.add_parameter(p)
+    tbx = Toolbox(name='filter', label='filter', alias='filter')
+    tbx.add_script_tool(script)
+    tbx_path = tbx.save(tmp_path)
+    assert tbx_path.is_file()
+
+    source_content = read_from_zip(tbx_path, name=TOOLBOX_CONTENT, as_json=True)
+    source_resource = read_from_zip(tbx_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+    compare_content = read_from_zip(compare_path, name=TOOLBOX_CONTENT, as_json=True)
+    compare_resource = read_from_zip(compare_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+
+    assert source_content == compare_content
+    assert source_resource == compare_resource
+
+    updated = ScriptToolContentKeys.updated
+
+    name = f'{script.name}{DOT}{TOOL}/{TOOL_CONTENT}'
+    source_content = read_from_zip(tbx_path, name=name, as_json=True)
+    compare_content = read_from_zip(compare_path, name=name, as_json=True)
+    source_content.pop(updated)
+    compare_content.pop(updated)
+
+    source_params = source_content.pop('params')
+    compare_params = compare_content.pop('params')
+    source_double_range = source_params.pop(double_range.name)
+    compare_double_range = compare_params.pop(double_range.name)
+
+    source_domain = source_double_range.pop('domain')
+    _ = compare_double_range.pop('domain')
+
+    assert source_double_range == compare_double_range
+
+    assert source_domain['type'] == 'GPRangeDomain'
+    min_value = float(source_domain['min'])
+    max_value = float(source_domain['max'])
+    assert approx((-999.999, 9876.543), abs=0.001) == (min_value, max_value)
+
+    assert source_double_range == compare_double_range
+    assert source_params == compare_params
+    assert source_content == compare_content
+
+    name = f'{script.name}{DOT}{TOOL}/{TOOL_CONTENT_RC}'
+    source_resource = read_from_zip(tbx_path, name=name, as_json=True)
+    compare_resource = read_from_zip(compare_path, name=name, as_json=True)
+    assert source_resource == compare_resource
+# End test_build_filter_parameter_toolbox function
 
 
 if __name__ == '__main__':  # pragma: no cover

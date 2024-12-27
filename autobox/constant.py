@@ -19,6 +19,17 @@ DOUBLE_UNDERSCORE: str = f'{UNDERSCORE}{UNDERSCORE}'
 GP_MULTI_VALUE: str = 'GPMultiValue'
 GP_FEATURE_SCHEMA: str = 'GPFeatureSchema'
 GP_TABLE_SCHEMA: str = 'GPTableSchema'
+GP_AREAL_UNIT: str = 'GPArealUnit'
+GP_FEATURE_CLASS_DOMAIN: str = 'GPFeatureClassDomain'
+GP_WORKSPACE_DOMAIN: str = 'GPWorkspaceDomain'
+GP_CODED_VALUE_DOMAIN: str = 'GPCodedValueDomain'
+GP_RANGE_DOMAIN: str = 'GPRangeDomain'
+GP_FIELD_DOMAIN: str = 'GPFieldDomain'
+GP_FILE_DOMAIN: str = 'GPFileDomain'
+GP_LINEAR_UNIT: str = 'GPLinearUnit'
+GP_LONG: str = 'GPLong'
+GP_DOUBLE: str = 'GPDouble'
+
 
 OUT: str = 'out'
 DERIVED: str = 'derived'
@@ -153,6 +164,7 @@ class ParameterContentKeys(BaseContentKeys):
     direction: ClassVar[str] = 'direction'
     category: ClassVar[str] = 'category'
     data_type: ClassVar[str] = 'datatype'
+    domain: ClassVar[str] = 'domain'
     depends: ClassVar[str] = 'depends'
     type: ClassVar[str] = 'type'
     schema: ClassVar[str] = 'schema'
@@ -175,6 +187,32 @@ class SchemaContentKeys:
     type: ClassVar[str] = 'type'
     generate_output_catalog_path: ClassVar[str] = 'generateoutputcatalogpath'
 # End SchemaContentKeys class
+
+
+class DomainContentKeys:
+    """
+    Domain Content Keys
+    """
+    type: ClassVar[str] = 'type'
+    items: ClassVar[str] = 'items'
+    feature_type: ClassVar[str] = 'featuretype'
+    field_type: ClassVar[str] = 'fieldtype'
+    file_types: ClassVar[str] = 'filetypes'
+    geometry_type: ClassVar[str] = 'geometrytype'
+    maximum: ClassVar[str] = 'max'
+    minimum: ClassVar[str] = 'min'
+    workspace_type: ClassVar[str] = 'workspacetype'
+# End DomainContentKeys class
+
+
+class ItemsContentKeys:
+    """
+    Items Content Keys
+    """
+    type: ClassVar[str] = 'type'
+    value: ClassVar[str] = 'value'
+    code: ClassVar[str] = 'code'
+# End ItemsContentKeys class
 
 
 class ToolAttributeKeywords:

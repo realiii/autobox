@@ -9,9 +9,9 @@ from re import sub
 from tempfile import mkdtemp
 from typing import NoReturn
 
-from autobox.constants import (
+from autobox.constant import (
     DOUBLE_SPACE, DOUBLE_UNDERSCORE, EXT, SPACE, UNDERSCORE)
-from autobox.types import STRING
+from autobox.type import STRING
 
 
 WINDOWS_RESERVED: set[str] = (
@@ -209,6 +209,14 @@ def validate_path(path: Path, text: str) -> Path | NoReturn:
         raise FileNotFoundError(f'File not found: {path}')
     return path.resolve()
 # End validate_path function
+
+
+def unique(values: list | tuple) -> list:
+    """
+    Unique list of elements, order preserving
+    """
+    return list(dict.fromkeys(values))
+# End unique function
 
 
 if __name__ == '__main__':  # pragma: no cover

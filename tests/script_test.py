@@ -9,13 +9,13 @@ from json import loads
 from pytest import mark, raises
 
 from autobox import ScriptTool
-from autobox.constants import (
+from autobox.constant import (
     SCRIPT_STUB, ScriptToolContentKeys, TOOL_CONTENT, TOOL_CONTENT_RC,
     TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)
 from helpers import DATETIME_PATTERN, read_from_zip
 from autobox.script import ExecutionScript, ValidationScript
-from autobox.types import ToolAttributes
+from autobox.type import ToolAttributes
 
 
 @mark.parametrize('name, expected', [
