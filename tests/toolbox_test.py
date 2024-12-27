@@ -55,6 +55,14 @@ def test_toolbox_save(tmp_path, data_path, name, label, alias, description, comp
 # End test_toolbox_save function
 
 
+def test_toolbox_repr():
+    """
+    Test Toolbox Representation
+    """
+    assert repr(Toolbox(name='AbCdE')) == "Toolbox(name='AbCdE', label='AbCdE', alias='AbCdE', description=None)"
+# End test_toolbox_repr function
+
+
 def test_toolbox_save_with_root_script(tmp_path, data_path):
     """
     Test Toolbox save method with a fairly fleshed out script tool at root.
@@ -148,12 +156,10 @@ def test_toolbox_with_toolsets_sans_tools(tmp_path, data_path):
 # End test_toolbox_with_toolsets_sans_tools function
 
 
-def test_toolbox_with_toolsets_and_tools(tmp_path, data_path):
+def test_toolbox_with_toolsets_and_tools(tmp_path):
     """
     Test a Toolbox that has toolsets and tools, no root tools
     """
-    compare_path = data_path.joinpath('toolset_no_root.atbx')
-    assert compare_path.is_file()
     toolset1 = Toolset(name='His Tools')
     toolset2 = Toolset(name='Her Tools')
     toolset3 = Toolset(name='Another Toolset')
@@ -186,20 +192,32 @@ def test_toolbox_with_toolsets_and_tools(tmp_path, data_path):
     toolset6.add_script_tool(tool8)
 
     tbx = Toolbox(name='toolset_no_root')
-    tbx.add_toolset(toolset3)
     tbx.add_toolset(toolset2)
-    tbx.add_toolset(toolset4)
-    tbx.add_toolset(toolset5)
-    tbx.add_toolset(toolset6)
     tbx.add_toolset(toolset1)
 
     tbx_path = tbx.save(tmp_path)
     assert tbx_path.is_file()
-
     source_content = read_from_zip(tbx_path, name=TOOLBOX_CONTENT, as_json=True)
     source_resource = read_from_zip(tbx_path, name=TOOLBOX_CONTENT_RC, as_json=True)
-    compare_content = read_from_zip(compare_path, name=TOOLBOX_CONTENT, as_json=True)
-    compare_resource = read_from_zip(compare_path, name=TOOLBOX_CONTENT_RC, as_json=True)
+    compare_content = {
+        'alias': 'toolsetnoroot', 'displayname': '$rc:title', 'toolsets': {
+            '$rc:toolset1.name': {
+                'tools': ['ScriptInToolset', 'SubScriptInToolset']},
+            '$rc:toolset2.name': {'tools': ['AScript']},
+            '$rc:toolset3.name': {'tools': ['BScript']},
+            '$rc:toolset4.name': {'tools': ['CScript']}, '$rc:toolset5.name': {
+                'tools': ['Anudder', 'SecondScriptInToolset',
+                          'SecondSubScriptInToolset']}},
+        'version': '1.0'
+    }
+    compare_resource = {
+        'map': {'title': 'toolset_no_root',
+                'toolset1.name': 'His Tools',
+                'toolset2.name': 'Her Tools\\A Toolset',
+                'toolset3.name': 'Her Tools\\B Toolset',
+                'toolset4.name': 'Her Tools\\C Toolset',
+                'toolset5.name': 'His Tools\\Another Toolset'}
+    }
 
     assert source_content == compare_content
     assert source_resource == compare_resource
@@ -342,7 +360,6 @@ def test_toolbox_with_toolsets_and_tools_plus_root(tmp_path, data_path):
     tbx.add_toolset(toolset1)
     tbx.add_toolset(toolset2)
     tbx.add_toolset(toolset3)
-    tbx.add_toolset(toolset4)
 
     tbx_path = tbx.save(tmp_path)
     assert tbx_path.is_file()
@@ -614,6 +631,82 @@ def test_build_filter_parameter_toolbox(tmp_path, data_path):
     compare_resource = read_from_zip(compare_path, name=name, as_json=True)
     assert source_resource == compare_resource
 # End test_build_filter_parameter_toolbox function
+
+
+def test_toolbox_toolset_repetition(tmp_path):
+    """
+    Test catching toolset repetition on a toolbox
+    """
+    tool1 = ScriptTool(name='A_Tool', label='A Tool')
+    tool2 = ScriptTool(name='B_Tool', label='B Tool')
+
+    tbx = Toolbox(name='pete')
+    toolset1 = Toolset(name='A Toolset')
+    toolset1.add_script_tool(tool1)
+    tbx.add_toolset(toolset1)
+    tbx.add_toolset(toolset1)
+    # NOTE this actually raises the repeated tool exception
+    with raises(ValueError):
+        tbx.save(tmp_path, overwrite=True)
+
+    tbx = Toolbox(name='pete')
+    toolset1 = Toolset(name='A Toolset')
+    toolset2 = Toolset(name='A Toolset')
+    for toolset, tool in zip((toolset1, toolset2), (tool1, tool2)):
+        toolset.add_script_tool(tool)
+        tbx.add_toolset(toolset)
+    with raises(ValueError):
+        tbx.save(tmp_path, overwrite=True)
+
+    tbx = Toolbox(name='pete')
+    toolset1 = Toolset(name='A Toolset')
+    toolset2 = Toolset(name='B Toolset')
+    toolset3 = Toolset(name='B Toolset')
+    for toolset, tool in zip((toolset2, toolset3), (tool1, tool2)):
+        toolset.add_script_tool(tool)
+        toolset1.add_toolset(toolset)
+    tbx.add_toolset(toolset1)
+    with raises(ValueError):
+        tbx.save(tmp_path, overwrite=True)
+# End test_toolbox_toolset_repetition function
+
+
+def test_toolbox_script_repetition(tmp_path):
+    """
+    Test catching script tool repetition on a toolbox
+    """
+    toolset1 = Toolset(name='A Toolset')
+    toolset2 = Toolset(name='A Toolset')
+    tool1 = ScriptTool(name='A_Tool', label='A Tool')
+    tool2 = ScriptTool(name='A_Tool', label='A Tool')
+
+    tbx = Toolbox(name='pete')
+    tbx.add_script_tool(tool1)
+    tbx.add_script_tool(tool1)
+    with raises(ValueError):
+        tbx.save(tmp_path, overwrite=True)
+
+    tbx = Toolbox(name='pete')
+    tbx.add_script_tool(tool1)
+    tbx.add_script_tool(tool2)
+    with raises(ValueError):
+        tbx.save(tmp_path, overwrite=True)
+
+    tbx = Toolbox(name='pete')
+    toolset1.add_script_tool(tool1)
+    tbx.add_toolset(toolset1)
+    tbx.add_script_tool(tool2)
+    with raises(ValueError):
+        tbx.save(tmp_path, overwrite=True)
+
+    tbx = Toolbox(name='pete')
+    toolset1.add_script_tool(tool1)
+    toolset2.add_script_tool(tool2)
+    tbx.add_toolset(toolset1)
+    tbx.add_toolset(toolset2)
+    with raises(ValueError):
+        tbx.save(tmp_path, overwrite=True)
+# End test_toolbox_script_repetition function
 
 
 if __name__ == '__main__':  # pragma: no cover

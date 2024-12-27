@@ -3,7 +3,6 @@
 Toolbox
 """
 
-
 from json import dump
 from operator import attrgetter
 from os import walk
@@ -13,11 +12,12 @@ from typing import NoReturn, TYPE_CHECKING
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from autobox.constant import (
-    DOLLAR_RC, DOT, ENCODING, EXT, NAME, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
-    TOOLSET, ToolboxContentKeys, ToolboxContentResourceKeys)
+    DOLLAR_RC, DOT, ENCODING, EXT, NAME, SEMI_COLON, SPACE, TOOLBOX_CONTENT,
+    TOOLBOX_CONTENT_RC, TOOLSET, ToolboxContentKeys, ToolboxContentResourceKeys)
 from autobox.type import MAP_STR, PATH, STRING, TOOLS_MAP
 from autobox.util import (
-    make_temp_folder, validate_toolbox_alias, validate_toolbox_name)
+    get_repeated_names, make_temp_folder, validate_toolbox_alias,
+    validate_toolbox_name)
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -48,6 +48,15 @@ class Toolbox:
         self._toolsets: list['Toolset'] = []
         self._tools: list['ScriptTool'] = []
     # End init built-in
+
+    def __repr__(self) -> str:
+        """
+        Class Representation
+        """
+        return (f'{self.__class__.__name__}(name={self.name!r}, '
+                f'label={self.label!r}, alias={self.alias!r}, '
+                f'description={self.description!r})')
+    # End repr built-in
 
     @staticmethod
     def _validate_name(name: str) -> str | NoReturn:
@@ -163,6 +172,7 @@ class Toolbox:
         has_toolset_tools = any(t.has_tools for t in self.toolsets)
         if not self.tools and not has_toolset_tools:
             return nada, {}
+        self._check_tool_repeats()
         root_mapping = self._build_root_tools(source=source, target=target)
         if not has_toolset_tools:
             return root_mapping or nada, {}
@@ -203,7 +213,12 @@ class Toolbox:
         counter = 0
         toolset_tools = {}
         toolset_names = {}
-        for toolset in self.toolsets:
+        toolsets = list(self.toolsets)
+        self._check_toolset_repeats(toolsets)
+        while toolsets:
+            toolset = toolsets.pop(0)
+            self._check_toolset_repeats(toolset.toolsets)
+            toolsets.extend(toolset.toolsets)
             if not (tools := self._make_tools_list(
                     source=source, target=target, tools=toolset.tools)):
                 continue
@@ -214,6 +229,38 @@ class Toolbox:
             toolset_names[indexed_name] = toolset.qualified_name
         return toolset_tools, toolset_names
     # End _build_toolset_tools method
+
+    @staticmethod
+    def _check_toolset_repeats(toolsets: list['Toolset']) -> None | NoReturn:
+        """
+        Check for Toolset name repetitions, toolset names must be unique
+        at same depth but not across the entire toolbox regardless of case.
+        """
+        if not (names := get_repeated_names(toolsets)):
+            return
+        paths = {t.qualified_name
+                 for t in toolsets if t.name.casefold() in names}
+        paths = f'{SEMI_COLON}{SPACE}'.join(sorted(paths))
+        raise ValueError(f'Toolset name repetition detected: {paths}')
+    # End _check_toolset_repeats method
+
+    def _check_tool_repeats(self) -> None | NoReturn:
+        """
+        Check for Tool name repetitions, tool names must be unique across
+        the toolbox regardless of case.
+        """
+        tools = list(self.tools)
+        toolsets = list(self.toolsets)
+        while toolsets:
+            toolset = toolsets.pop(0)
+            tools.extend(toolset.tools)
+            toolsets.extend(toolset.toolsets)
+        if not (names := get_repeated_names(tools)):
+            return
+        names = {t.name for t in tools if t.name.casefold() in names}
+        names = f'{SEMI_COLON}{SPACE}'.join(sorted(names))
+        raise ValueError(f'Tool name repetition detected: {names}')
+    # End _check_tool_repeats method
 
     @property
     def name(self) -> str:

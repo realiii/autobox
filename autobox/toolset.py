@@ -30,6 +30,13 @@ class Toolset:
         self._parent: Optional['Toolset'] = None
     # End init built-in
 
+    def __repr__(self) -> str:
+        """
+        Class Representation
+        """
+        return f'{self.__class__.__name__}(name={self.name!r})'
+    # End repr built-in
+
     @staticmethod
     def _validate_name(name: str) -> str | NoReturn:
         """

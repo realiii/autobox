@@ -4,14 +4,21 @@ Utility Functionality
 """
 
 
+from collections import Counter
 from pathlib import Path
 from re import sub
 from tempfile import mkdtemp
-from typing import NoReturn
+from typing import NoReturn, TYPE_CHECKING
 
 from autobox.constant import (
     DOUBLE_SPACE, DOUBLE_UNDERSCORE, EXT, SPACE, UNDERSCORE)
 from autobox.type import STRING
+
+
+if TYPE_CHECKING:  # pragma: no cover
+    from autobox.parameter import BaseParameter
+    from autobox.script import ScriptTool
+    from autobox.toolset import Toolset
 
 
 WINDOWS_RESERVED: set[str] = (
@@ -217,6 +224,16 @@ def unique(values: list | tuple) -> list:
     """
     return list(dict.fromkeys(values))
 # End unique function
+
+
+def get_repeated_names(values: list['Toolset'] | list['ScriptTool'] |
+                               list['BaseParameter']) -> set[str]:
+    """
+    Get Repeated Names, case-insensitive check.
+    """
+    counter = Counter(v.name.casefold() for v in values)
+    return {n for n, c in counter.items() if c > 1}
+# End get_repeated_names method
 
 
 if __name__ == '__main__':  # pragma: no cover

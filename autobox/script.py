@@ -14,14 +14,14 @@ from typing import NoReturn, Self
 
 from autobox.constant import (
     COLON, DOT, ENCODING, ICON, ILLUSTRATION, ParameterContentKeys, SCRIPT,
-    SCRIPT_STUB, ScriptToolContentKeys, ScriptToolContentResourceKeys, TOOL,
-    TOOL_CONTENT, TOOL_CONTENT_RC, TOOL_ICON, TOOL_ILLUSTRATION,
-    TOOL_SCRIPT_EXECUTE_LINK, TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY,
-    ToolAttributeKeywords)
+    SCRIPT_STUB, SEMI_COLON, SPACE, ScriptToolContentKeys,
+    ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT, TOOL_CONTENT_RC,
+    TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
+    TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY, ToolAttributeKeywords)
 from autobox.type import MAP_STR, PARAMETER, PATH, STRING, ToolAttributes
 from autobox.util import (
-    validate_path, validate_script_folder_name, validate_script_name,
-    wrap_markup)
+    get_repeated_names, validate_path, validate_script_folder_name,
+    validate_script_name, wrap_markup)
 
 
 class AbstractScript:
@@ -202,6 +202,14 @@ class ScriptTool:
         self._parameters: list[PARAMETER] = []
     # End init built-in
 
+    def __repr__(self) -> str:
+        """
+        Class Representation
+        """
+        return (f'{self.__class__.__name__}(name={self.name!r}, '
+                f'label={self.label!r}, description={self.description!r})')
+    # End repr built-in
+
     @staticmethod
     def _validate_name(name: str) -> str | NoReturn:
         """
@@ -265,6 +273,7 @@ class ScriptTool:
             return '', {}
         parameters = {}
         resources = {}
+        self._check_parameter_repeats()
         categories = self._build_categories()
         for parameter in self.parameters:
             content, resource = parameter.serialize(categories)
@@ -316,6 +325,18 @@ class ScriptTool:
                 continue
             copyfile(path, source.joinpath(f'{name}{path.suffix}'))
     # End _copy_images method
+
+    def _check_parameter_repeats(self) -> None | NoReturn:
+        """
+        Check for Parameter name repetitions, must be unique on a tool
+        regardless of case.
+        """
+        if not (names := get_repeated_names(self.parameters)):
+            return
+        names = {t.name for t in self.parameters if t.name.casefold() in names}
+        names = f'{SEMI_COLON}{SPACE}'.join(sorted(names))
+        raise ValueError(f'Parameter name repetition detected: {names}')
+    # End _check_parameter_repeats method
 
     @staticmethod
     def _validate_image(path: PATH, text: str) -> PATH:
