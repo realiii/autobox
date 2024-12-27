@@ -211,5 +211,13 @@ def validate_path(path: Path, text: str) -> Path | NoReturn:
 # End validate_path function
 
 
+def unique(values: list | tuple) -> list:
+    """
+    Unique list of elements, order preserving
+    """
+    return list(dict.fromkeys(values))
+# End unique function
+
+
 if __name__ == '__main__':  # pragma: no cover
     pass
