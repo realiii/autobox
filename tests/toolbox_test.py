@@ -637,18 +637,22 @@ def test_toolbox_toolset_repetition(tmp_path):
     """
     Test catching toolset repetition on a toolbox
     """
-    tool = ScriptTool(name='A_Tool', label='A Tool')
+    tool1 = ScriptTool(name='A_Tool', label='A Tool')
+    tool2 = ScriptTool(name='B_Tool', label='B Tool')
+
     tbx = Toolbox(name='pete')
     toolset1 = Toolset(name='A Toolset')
-    toolset1.add_script_tool(tool)
+    toolset1.add_script_tool(tool1)
     tbx.add_toolset(toolset1)
     tbx.add_toolset(toolset1)
+    # NOTE this actually raises the repeated tool exception
     with raises(ValueError):
         tbx.save(tmp_path, overwrite=True)
 
     tbx = Toolbox(name='pete')
+    toolset1 = Toolset(name='A Toolset')
     toolset2 = Toolset(name='A Toolset')
-    for toolset in toolset1, toolset2:
+    for toolset, tool in zip((toolset1, toolset2), (tool1, tool2)):
         toolset.add_script_tool(tool)
         tbx.add_toolset(toolset)
     with raises(ValueError):
@@ -658,7 +662,7 @@ def test_toolbox_toolset_repetition(tmp_path):
     toolset1 = Toolset(name='A Toolset')
     toolset2 = Toolset(name='B Toolset')
     toolset3 = Toolset(name='B Toolset')
-    for toolset in toolset2, toolset3:
+    for toolset, tool in zip((toolset2, toolset3), (tool1, tool2)):
         toolset.add_script_tool(tool)
         toolset1.add_toolset(toolset)
     tbx.add_toolset(toolset1)

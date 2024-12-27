@@ -13,6 +13,7 @@ from autobox.constant import (
     SCRIPT_STUB, ScriptToolContentKeys, TOOL_CONTENT, TOOL_CONTENT_RC,
     TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY)
+from autobox.parameter import FeatureClassParameter
 from helpers import DATETIME_PATTERN, read_from_zip
 from autobox.script import ExecutionScript, ValidationScript
 from autobox.type import ToolAttributes
@@ -50,6 +51,20 @@ def test_script_tool_repr():
     """
     assert repr(ScriptTool(name='AbCdE')) == "ScriptTool(name='AbCdE', label='AbCdE', description=None)"
 # End test_script_tool_repr function
+
+
+def test_script_parameter_repetition():
+    """
+    Test script parameter repetition
+    """
+    fc1 = FeatureClassParameter(label='asdf', name='ASDF123')
+    fc2 = FeatureClassParameter(label='asdf', name='asdf123')
+    tool = ScriptTool(name='A_Tool', label='A Tool')
+    tool.add_parameter(fc1)
+    tool.add_parameter(fc2)
+    with raises(ValueError):
+        tool._check_parameter_repeats()
+# End test_script_parameter_repetition function
 
 
 @mark.parametrize('label, expected', [

@@ -3,8 +3,6 @@
 Toolbox
 """
 
-
-from collections import Counter
 from json import dump
 from operator import attrgetter
 from os import walk
@@ -18,7 +16,8 @@ from autobox.constant import (
     TOOLBOX_CONTENT_RC, TOOLSET, ToolboxContentKeys, ToolboxContentResourceKeys)
 from autobox.type import MAP_STR, PATH, STRING, TOOLS_MAP
 from autobox.util import (
-    make_temp_folder, validate_toolbox_alias, validate_toolbox_name)
+    get_repeated_names, make_temp_folder, validate_toolbox_alias,
+    validate_toolbox_name)
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -232,21 +231,15 @@ class Toolbox:
     # End _build_toolset_tools method
 
     @staticmethod
-    def _get_repeated_names(values: list['Toolset'] | list['ScriptTool']) -> set[str]:
-        """
-        Get Repeated Names
-        """
-        return {n for n, c in Counter(v.name for v in values).items() if c > 1}
-    # End _get_repeated_names method
-
-    def _check_toolset_repeats(self, toolsets: list['Toolset']) -> None | NoReturn:
+    def _check_toolset_repeats(toolsets: list['Toolset']) -> None | NoReturn:
         """
         Check for Toolset name repetitions, toolset names must be unique
-        at same depth but not across the entire toolbox.
+        at same depth but not across the entire toolbox regardless of case.
         """
-        if not (names := self._get_repeated_names(toolsets)):
+        if not (names := get_repeated_names(toolsets)):
             return
-        paths = {t.qualified_name for t in toolsets if t.name in names}
+        paths = {t.qualified_name
+                 for t in toolsets if t.name.casefold() in names}
         paths = f'{SEMI_COLON}{SPACE}'.join(sorted(paths))
         raise ValueError(f'Toolset name repetition detected: {paths}')
     # End _check_toolset_repeats method
@@ -254,7 +247,7 @@ class Toolbox:
     def _check_tool_repeats(self) -> None | NoReturn:
         """
         Check for Tool name repetitions, tool names must be unique across
-        the toolbox.
+        the toolbox regardless of case.
         """
         tools = list(self.tools)
         toolsets = list(self.toolsets)
@@ -262,8 +255,9 @@ class Toolbox:
             toolset = toolsets.pop(0)
             tools.extend(toolset.tools)
             toolsets.extend(toolset.toolsets)
-        if not (names := self._get_repeated_names(tools)):
+        if not (names := get_repeated_names(tools)):
             return
+        names = {t.name for t in tools if t.name.casefold() in names}
         names = f'{SEMI_COLON}{SPACE}'.join(sorted(names))
         raise ValueError(f'Tool name repetition detected: {names}')
     # End _check_tool_repeats method
