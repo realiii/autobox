@@ -12,8 +12,9 @@ from typing import NoReturn, TYPE_CHECKING
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from autobox.constant import (
-    DOLLAR_RC, DOT, ENCODING, EXT, NAME, SEMI_COLON, SPACE, TOOLBOX_CONTENT,
-    TOOLBOX_CONTENT_RC, TOOLSET, ToolboxContentKeys, ToolboxContentResourceKeys)
+    DOLLAR_RC, DOT, ENCODING, EXT, ILLUSTRATION, NAME, PARENT, SEMI_COLON,
+    SPACE, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC, TOOLSET, ToolboxContentKeys,
+    ToolboxContentResourceKeys)
 from autobox.type import MAP_STR, PATH, STRING, TOOLS_MAP
 from autobox.util import (
     get_repeated_names, make_temp_folder, validate_toolbox_alias,
@@ -314,6 +315,8 @@ class Toolbox:
         """
         Add Script Tool
         """
+        if not hasattr(tool, ILLUSTRATION):
+            raise TypeError(f'Expected a tool, got: {tool}')
         self.tools.append(tool)
     # End add_script_tool method
 
@@ -321,6 +324,8 @@ class Toolbox:
         """
         Add Toolset
         """
+        if not hasattr(toolset, PARENT):
+            raise TypeError(f'Expected a toolset, got: {toolset}')
         self.toolsets.append(toolset)
     # End add_toolset method
 

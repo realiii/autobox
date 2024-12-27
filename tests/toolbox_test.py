@@ -63,6 +63,18 @@ def test_toolbox_repr():
 # End test_toolbox_repr function
 
 
+def test_toolbox_bad_add():
+    """
+    Test Toolbox Bad Add
+    """
+    tbx = Toolbox(name='AbCdE')
+    with raises(TypeError):
+        tbx.add_toolset(1)
+    with raises(TypeError):
+        tbx.add_script_tool('asdf')
+# End test_toolbox_bad_add function
+
+
 def test_toolbox_save_with_root_script(tmp_path, data_path):
     """
     Test Toolbox save method with a fairly fleshed out script tool at root.
