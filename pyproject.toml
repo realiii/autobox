@@ -2,7 +2,8 @@
 name = "autobox"
 version = "0.1.0"
 description = """\
-    Automation for ArcGIS Pro toolboxes, script tools, and documentation from Python objects.
+    Automation for ArcGIS Pro toolboxes, script tools, and \
+    documentation from Python objects.\
     """
 readme = "README.md"
 authors = [{ name = "Integrated Informatics (USA) Inc.", email = "contact@integrated-informatics.com" }]
