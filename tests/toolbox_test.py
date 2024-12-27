@@ -663,8 +663,7 @@ def test_toolbox_toolset_repetition(tmp_path):
         toolset1.add_toolset(toolset)
     tbx.add_toolset(toolset1)
     with raises(ValueError):
-        p = tbx.save(tmp_path, overwrite=True)
-        print(p)
+        tbx.save(tmp_path, overwrite=True)
 # End test_toolbox_toolset_repetition function
 
 
