@@ -286,7 +286,7 @@ def test_toolbox_with_execution_scripts(tmp_path, data_path):
     assert source_resource == compare_resource
 
     exe1 = read_from_zip(tbx_path, name=f'{tool1.name}{DOT}{TOOL}/{TOOL_SCRIPT_EXECUTE_PY}', as_json=False)
-    assert exe1 == DEFAULT_EXECUTION_CODE
+    assert exe1.replace('\r\n', '\n') == DEFAULT_EXECUTION_CODE
     exe2 = read_from_zip(tbx_path, name=f'{tool2.name}{DOT}{TOOL}/{TOOL_SCRIPT_EXECUTE_LINK}', as_json=False)
     assert exe2.startswith('..\\..') and exe2.endswith(example_name)
     exe3 = read_from_zip(tbx_path, name=f'{tool3.name}{DOT}{TOOL}/{TOOL_SCRIPT_EXECUTE_PY}', as_json=False)
