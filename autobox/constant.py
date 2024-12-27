@@ -189,6 +189,32 @@ class SchemaContentKeys:
 # End SchemaContentKeys class
 
 
+class DomainContentKeys:
+    """
+    Domain Content Keys
+    """
+    type: ClassVar[str] = 'type'
+    items: ClassVar[str] = 'items'
+    feature_type: ClassVar[str] = 'featuretype'
+    field_type: ClassVar[str] = 'fieldtype'
+    file_types: ClassVar[str] = 'filetypes'
+    geometry_type: ClassVar[str] = 'geometrytype'
+    maximum: ClassVar[str] = 'max'
+    minimum: ClassVar[str] = 'min'
+    workspace_type: ClassVar[str] = 'workspacetype'
+# End DomainContentKeys class
+
+
+class ItemsContentKeys:
+    """
+    Items Content Keys
+    """
+    type: ClassVar[str] = 'type'
+    value: ClassVar[str] = 'value'
+    code: ClassVar[str] = 'code'
+# End ItemsContentKeys class
+
+
 class ToolAttributeKeywords:
     """
     Tool Attribute Keywords
