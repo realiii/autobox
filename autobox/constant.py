@@ -55,6 +55,9 @@ ICON: str = 'icon'
 ILLUSTRATION: str = 'illustration'
 TOOLSET: str = f'{TOOL}set'
 TOOLBOX: str = f'{TOOL}box'
+PARAMETER: str = 'parameter'
+FILTER: str = 'filter'
+
 
 TOOL_DOT: str = f'{TOOL}{DOT}'
 TOOL_ICON: str = f'{TOOL_DOT}{ICON}'

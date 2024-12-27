@@ -7,8 +7,10 @@ Parameters
 from typing import Any, ClassVar, NoReturn, Self, Type
 
 from autobox.constant import (
-    DERIVED, DOLLAR_RC, DOT, GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT,
-    GP_MULTI_VALUE, GP_TABLE_SCHEMA, OPTIONAL, OUT, ParameterContentKeys,
+    DERIVED, DOLLAR_RC, DOT, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA,
+    GP_LINEAR_UNIT,
+    GP_MULTI_VALUE, GP_TABLE_SCHEMA, OPTIONAL, OUT, PARAMETER,
+    ParameterContentKeys,
     ParameterContentResourceKeys, SEMI_COLON, SchemaContentKeys,
     ScriptToolContentKeys, ScriptToolContentResourceKeys, TRUE)
 from autobox.filter import (
@@ -111,14 +113,14 @@ class BaseParameter:
     # End _validate_name method
 
     @staticmethod
-    def _validate_type(value: Any, types: tuple[Type, ...]) -> Any:
+    def _validate_type(value: Any, types: tuple[Type, ...], text: str) -> Any:
         """
         Validate Type
         """
         if value is None or not types:
             return
         if not isinstance(value, types):
-            value = None
+            raise TypeError(f'Invalid {text} type: {value}')
         return value
     # End _validate_type method
 
@@ -359,7 +361,8 @@ class BaseParameter:
 
     @dependency.setter
     def dependency(self, value: Self | None) -> None:
-        self._dependency = self._validate_type(value, self.dependency_types)
+        self._dependency = self._validate_type(
+            value, types=self.dependency_types, text=PARAMETER)
     # End dependency property
 
     @property
@@ -371,7 +374,8 @@ class BaseParameter:
 
     @filter.setter
     def filter(self, value: AbstractFilter | None) -> None:
-        self._filter = self._validate_type(value, self.filter_types)
+        self._filter = self._validate_type(
+            value, types=self.filter_types, text=FILTER)
     # End dependency property
 
     def serialize(self, categories: dict[str, int]) \

@@ -287,8 +287,8 @@ def test_parameter_dependency():
     param1.dependency = param2
     assert param1.dependency is None
 
-    param2.dependency = Ellipsis
-    assert param2.dependency is None
+    with raises(TypeError):
+        param2.dependency = Ellipsis
 
     param2.dependency = param1
     assert param2.dependency is not None
