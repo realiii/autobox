@@ -4,6 +4,7 @@ Toolbox
 """
 
 
+from collections import Counter
 from json import dump
 from operator import attrgetter
 from os import walk
@@ -13,8 +14,8 @@ from typing import NoReturn, TYPE_CHECKING
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from autobox.constant import (
-    DOLLAR_RC, DOT, ENCODING, EXT, NAME, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC,
-    TOOLSET, ToolboxContentKeys, ToolboxContentResourceKeys)
+    DOLLAR_RC, DOT, ENCODING, EXT, NAME, SEMI_COLON, SPACE, TOOLBOX_CONTENT,
+    TOOLBOX_CONTENT_RC, TOOLSET, ToolboxContentKeys, ToolboxContentResourceKeys)
 from autobox.type import MAP_STR, PATH, STRING, TOOLS_MAP
 from autobox.util import (
     make_temp_folder, validate_toolbox_alias, validate_toolbox_name)
@@ -212,7 +213,12 @@ class Toolbox:
         counter = 0
         toolset_tools = {}
         toolset_names = {}
-        for toolset in self.toolsets:
+        toolsets = list(self.toolsets)
+        self._check_toolset_repeats(toolsets)
+        while toolsets:
+            toolset = toolsets.pop(0)
+            self._check_toolset_repeats(toolset.toolsets)
+            toolsets.extend(toolset.toolsets)
             if not (tools := self._make_tools_list(
                     source=source, target=target, tools=toolset.tools)):
                 continue
@@ -223,6 +229,21 @@ class Toolbox:
             toolset_names[indexed_name] = toolset.qualified_name
         return toolset_tools, toolset_names
     # End _build_toolset_tools method
+
+    @staticmethod
+    def _check_toolset_repeats(toolsets: list['Toolset']) -> None | NoReturn:
+        """
+        Check for Toolset name repetitions, toolset names must be unique
+        at same depth but not across the entire toolbox.
+        """
+        names = {n for n, c in
+                 Counter(t.name for t in toolsets).items() if c > 1}
+        if not names:
+            return
+        paths = {t.qualified_name for t in toolsets if t.name in names}
+        paths = f'{SEMI_COLON}{SPACE}'.join(sorted(paths))
+        raise ValueError(f'Toolset name repetition detected: {paths}')
+    # End _check_toolset_repeats method
 
     @property
     def name(self) -> str:
