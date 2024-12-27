@@ -55,6 +55,14 @@ def test_toolbox_save(tmp_path, data_path, name, label, alias, description, comp
 # End test_toolbox_save function
 
 
+def test_toolbox_repr():
+    """
+    Test Toolbox Representation
+    """
+    assert repr(Toolbox(name='AbCdE')) == "Toolbox(name='AbCdE', label='AbCdE', alias='AbCdE', description=None)"
+# End test_toolbox_repr function
+
+
 def test_toolbox_save_with_root_script(tmp_path, data_path):
     """
     Test Toolbox save method with a fairly fleshed out script tool at root.

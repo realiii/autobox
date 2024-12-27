@@ -44,6 +44,14 @@ def test_script_tool_validate_name(name, expected):
 # End test_script_tool_validate_name function
 
 
+def test_script_tool_repr():
+    """
+    Test Script Tool Representation
+    """
+    assert repr(ScriptTool(name='AbCdE')) == "ScriptTool(name='AbCdE', label='AbCdE', description=None)"
+# End test_script_tool_repr function
+
+
 @mark.parametrize('label, expected', [
     ('good', 'good'),
     ('not good', 'not good'),

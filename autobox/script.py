@@ -202,6 +202,14 @@ class ScriptTool:
         self._parameters: list[PARAMETER] = []
     # End init built-in
 
+    def __repr__(self) -> str:
+        """
+        Class Representation
+        """
+        return (f'{self.__class__.__name__}(name={self.name!r}, '
+                f'label={self.label!r}, description={self.description!r})')
+    # End repr built-in
+
     @staticmethod
     def _validate_name(name: str) -> str | NoReturn:
         """

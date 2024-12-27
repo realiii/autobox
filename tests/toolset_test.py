@@ -38,6 +38,14 @@ def test_toolset_validate_name(value, expected):
 # End test_toolset_validate_name function
 
 
+def test_toolset_repr():
+    """
+    Test Toolset Representation
+    """
+    assert repr(Toolset(name='AbCdE')) == "Toolset(name='AbCdE')"
+# End test_toolset_repr function
+
+
 def test_toolset_has_tools():
     """
     Test Toolset has tools
