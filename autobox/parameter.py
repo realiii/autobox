@@ -9,14 +9,15 @@ from typing import Any, ClassVar, NoReturn, Self, Type
 from autobox.constant import (
     DERIVED, DOLLAR_RC, DOT, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA,
     GP_LINEAR_UNIT,
-    GP_MULTI_VALUE, GP_TABLE_SCHEMA, OPTIONAL, OUT, PARAMETER,
+    GP_MULTI_VALUE, GP_TABLE_SCHEMA, GP_TIME_UNIT, OPTIONAL, OUT, PARAMETER,
     ParameterContentKeys,
     ParameterContentResourceKeys, SEMI_COLON, SchemaContentKeys,
     ScriptToolContentKeys, ScriptToolContentResourceKeys, TRUE)
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
-    LongRangeFilter, LongValueFilter, StringValueFilter, WorkspaceTypeFilter)
+    LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
+    TravelModeUnitTypeFilter, WorkspaceTypeFilter)
 from autobox.type import BOOL, MAP_STR, STRING, TYPE_FILTERS, TYPE_PARAMS
 from autobox.util import (
     make_parameter_name, validate_parameter_label, validate_parameter_name,
@@ -964,6 +965,17 @@ class LinearUnitParameter(InputParameter):
 # End LinearUnitParameter class
 
 
+
+
+class NetworkTravelModeParameter(InputParameter):
+    """
+    A dictionary of travel mode objects.
+    """
+    keyword: ClassVar[str] = 'NetworkTravelMode'
+    filter_types: ClassVar[TYPE_FILTERS] = TravelModeUnitTypeFilter,
+# End NetworkTravelModeParameter class
+
+
 class SQLExpressionParameter(InputParameter):
     """
     A syntax for defining and manipulating data from a relational
@@ -972,6 +984,17 @@ class SQLExpressionParameter(InputParameter):
     keyword: ClassVar[str] = 'GPSQLExpression'
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
 # End SQLExpressionParameter class
+
+
+
+
+class TimeUnitParameter(InputParameter):
+    """
+    A time unit type and value such as minutes or hours.
+    """
+    keyword: ClassVar[str] = GP_TIME_UNIT
+    filter_types: ClassVar[TYPE_FILTERS] = TimeUnitFilter,
+# End TimeUnitParameter class
 
 
 class WorkspaceParameter(InputOutputParameter):
