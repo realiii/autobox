@@ -468,15 +468,6 @@ class AnalysisCellSizeParameter(InputParameter):
 # End AnalysisCellSizeParameter class
 
 
-class MapDocumentParameter(InputParameter):
-    """
-    A file that contains one map, its layout, and its associated layers,
-    tables, charts, and reports.
-    """
-    keyword: ClassVar[str] = 'DEMapDocument'
-# End MapDocumentParameter class
-
-
 class BooleanParameter(InputParameter):
     """
     A Boolean value.
@@ -510,14 +501,6 @@ class CatalogLayerParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPCatalogLayer'
 # End CatalogLayerParameter class
-
-
-class SACellSizeParameter(InputParameter):
-    """
-    The cell size used by the ArcGIS Spatial Analyst extension.
-    """
-    keyword: ClassVar[str] = 'GPSACellSize'
-# End SACellSizeParameter class
 
 
 class CellSizeXYParameter(InputParameter):
@@ -672,6 +655,16 @@ class FolderParameter(InputOutputParameter):
 # End FolderParameter class
 
 
+class GPLayerParameter(InputOutputParameter):
+    """
+    A reference to a data source, such as a shapefile, coverage,
+    geodatabase feature class, or raster, including symbology and
+    rendering properties.
+    """
+    keyword: ClassVar[str] = 'GPLayer'
+# End GPLayerParameter class
+
+
 class GroupLayerParameter(InputOutputParameter):
     """
     A collection of layers that appear and act as a single layer. Group
@@ -702,16 +695,6 @@ class LasDatasetLayerParameter(InputOutputParameter):
 # End LasDatasetLayerParameter class
 
 
-class GPLayerParameter(InputOutputParameter):
-    """
-    A reference to a data source, such as a shapefile, coverage,
-    geodatabase feature class, or raster, including symbology and
-    rendering properties.
-    """
-    keyword: ClassVar[str] = 'GPLayer'
-# End GPLayerParameter class
-
-
 class LayerFileParameter(InputOutputParameter):
     """
     A layer file stores a layer definition, including symbology and
@@ -721,13 +704,13 @@ class LayerFileParameter(InputOutputParameter):
 # End LayerFileParameter class
 
 
-class LongParameter(InputParameter):
+class MapDocumentParameter(InputParameter):
     """
-    An integer number value.
+    A file that contains one map, its layout, and its associated layers,
+    tables, charts, and reports.
     """
-    keyword: ClassVar[str] = 'GPLong'
-    filter_types: ClassVar[TYPE_FILTERS] = LongRangeFilter, LongValueFilter
-# End LongParameter class
+    keyword: ClassVar[str] = 'DEMapDocument'
+# End MapDocumentParameter class
 
 
 class MapParameter(InputOutputParameter):
@@ -829,6 +812,14 @@ class RelationshipClassParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DERelationshipClass'
 # End RelationshipClassParameter class
+
+
+class SACellSizeParameter(InputParameter):
+    """
+    The cell size used by the ArcGIS Spatial Analyst extension.
+    """
+    keyword: ClassVar[str] = 'GPSACellSize'
+# End SACellSizeParameter class
 
 
 class ShapeFileParameter(InputOutputParameter):
