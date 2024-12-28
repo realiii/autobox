@@ -8,7 +8,8 @@ from enum import StrEnum
 
 
 __all__ = [
-    'ArealUnit', 'FieldType', 'GeometryType', 'LinearUnit', 'WorkspaceType'
+    'ArealUnit', 'FieldType', 'GeometryType', 'LinearUnit',
+    'TimeUnit', 'TravelModeUnitType', 'WorkspaceType'
 ]
 
 
@@ -99,6 +100,34 @@ class LinearUnit(StrEnum):
     DECIMAL_DEGREES = 'DecimalDegrees'
     DECIMETERS = 'Decimeters'
 # End LinearUnit class
+
+
+class TimeUnit(StrEnum):
+    """
+    Time Unit Enumeration
+    """
+    UNKNOWN = 'Unknown'
+    MILLISECONDS = 'Milliseconds'
+    SECONDS = 'Seconds'
+    MINUTES = 'Minutes'
+    HOURS = 'Hours'
+    DAYS = 'Days'
+    WEEKS = 'Weeks'
+    MONTHS = 'Months'
+    YEARS = 'Years'
+    DECADES = 'Decades'
+    CENTURIES = 'Centuries'
+# End TimeUnit class
+
+
+class TravelModeUnitType(StrEnum):
+    """
+    Travel Mode Unit Type
+    """
+    TIME = 'esriNetworkTravelModeUnitsDomainTypeTime'
+    DISTANCE = 'esriNetworkTravelModeUnitsDomainTypeDistance'
+    OTHER = 'esriNetworkTravelModeUnitsDomainTypeOther'
+# End TravelModeUnitType class
 
 
 class WorkspaceType(StrEnum):
