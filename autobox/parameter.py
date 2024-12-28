@@ -29,26 +29,45 @@ __all__ = [
     'CadDrawingDatasetParameter', 'CalculatorExpressionParameter',
     'CatalogLayerParameter', 'CellSizeXYParameter', 'CoordinateSystemParameter',
     'CoverageFeatureClassParameter', 'CoverageParameter',
-    'DataElementParameter', 'DatasetTypeParameter', 'DateParameter',
-    'DbaseTableParameter', 'DoubleParameter', 'EncryptedStringParameter',
-    'EnvelopeParameter', 'ExtentParameter', 'FeatureClassParameter',
-    'FeatureDatasetParameter', 'FeatureLayerParameter',
-    'FeatureRecordSetLayerParameter', 'FieldParameter', 'FileParameter',
-    'FolderParameter', 'GALayerParameter', 'GPLayerParameter',
-    'GroupLayerParameter', 'LasDatasetLayerParameter', 'LasDatasetParameter',
-    'LayerFileParameter', 'LinearUnitParameter', 'LongParameter',
-    'MapDocumentParameter', 'MapParameter', 'MosaicDatasetParameter',
-    'MosaicLayerParameter', 'NetworkDataSourceParameter',
+    'DataElementParameter', 'DataFileParameter', 'DatasetTypeParameter',
+    'DateParameter', 'DbaseTableParameter', 'DiagramLayerParameter',
+    'DoubleParameter', 'EncryptedStringParameter', 'EnvelopeParameter',
+    'ExtentParameter', 'FeatureClassParameter', 'FeatureDatasetParameter',
+    'FeatureLayerParameter', 'FeatureRecordSetLayerParameter',
+    'FieldInfoParameter', 'FieldMappingParameter', 'FieldParameter',
+    'FileParameter', 'FolderParameter', 'GALayerParameter',
+    'GASearchNeighborhoodParameter', 'GAValueTableParameter',
+    'GPLayerParameter', 'GeodatasetTypeParameter', 'GeometricNetworkParameter',
+    'GroupLayerParameter', 'KMLLayerParameter', 'LasDatasetLayerParameter',
+    'LasDatasetParameter', 'LayerFileParameter', 'LinearUnitParameter',
+    'LongParameter', 'MDomainParameter', 'MapDocumentParameter', 'MapParameter',
+    'MosaicDatasetParameter', 'MosaicLayerParameter',
+    'NAClassFieldMapParameter', 'NAHierarchySettingsParameter',
+    'NALayerParameter', 'NetworkDataSourceParameter',
     'NetworkDatasetLayerParameter', 'NetworkDatasetParameter',
     'NetworkTravelModeParameter', 'PointParameter', 'PrjFileParameter',
-    'RasterBandParameter', 'RasterCalculatorExpressionParameter',
+    'RandomNumberGeneratorParameter', 'RasterBandParameter',
+    'RasterBuilderParameter', 'RasterCalculatorExpressionParameter',
     'RasterDataLayerParameter', 'RasterDatasetParameter',
     'RasterLayerParameter', 'RecordSetParameter', 'RelationshipClassParameter',
-    'SACellSizeParameter', 'SQLExpressionParameter', 'ShapeFileParameter',
+    'SACellSizeParameter', 'SAExtractValuesParameter',
+    'SAFuzzyFunctionParameter', 'SAGDBEnvCompressionParameter',
+    'SAGDBEnvPyramidParameter', 'SAGDBEnvStatisticsParameter',
+    'SAGDBEnvTileSizeParameter', 'SAHorizontalFactorParameter',
+    'SANeighborhoodParameter', 'SARadiusParameter', 'SARemapParameter',
+    'SASemiVariogramParameter', 'SATimeConfigurationParameter',
+    'SATopoFeaturesParameter', 'SATransformationFunctionParameter',
+    'SAVerticalFactorParameter', 'SAWeightedOverlayTableParameter',
+    'SAWeightedSumParameter', 'SQLExpressionParameter',
+    'SchematicDatasetParameter', 'SchematicDiagramClassParameter',
+    'SchematicDiagramParameter', 'SchematicFolderParameter',
+    'SchematicLayerParameter', 'ShapeFileParameter',
     'SpatialReferenceParameter', 'StringHiddenParameter', 'StringParameter',
-    'TableParameter', 'TableViewParameter', 'TextfileParameter',
-    'TimeUnitParameter', 'TinLayerParameter', 'TinParameter',
-    'TopologyParameter', 'WorkspaceParameter',
+    'TableParameter', 'TableViewParameter', 'TerrainLayerParameter',
+    'TextfileParameter', 'TimeUnitParameter', 'TinLayerParameter',
+    'TinParameter', 'TopologyLayerParameter', 'TopologyParameter',
+    'ValueTableParameter', 'VectorLayerParameter', 'WorkspaceParameter',
+    'XYDomainParameter', 'ZDomainParameter',
 ]
 
 
@@ -550,6 +569,14 @@ class DataElementParameter(InputOutputParameter):
 # End DataElementParameter class
 
 
+class DataFileParameter(InputOutputParameter):
+    """
+    A data file.
+    """
+    keyword: ClassVar[str] = 'GPDataFile'
+# End DataFileParameter class
+
+
 class DatasetTypeParameter(InputParameter):
     """
     A collection of related data, usually grouped or stored together.
@@ -572,6 +599,14 @@ class DbaseTableParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DEDbaseTable'
 # End DbaseTableParameter class
+
+
+class DiagramLayerParameter(InputOutputParameter):
+    """
+    A diagram layer.
+    """
+    keyword: ClassVar[str] = 'GPDiagramLayer'
+# End DiagramLayerParameter class
 
 
 class EncryptedStringParameter(InputParameter):
@@ -610,12 +645,64 @@ class FeatureDatasetParameter(InputOutputParameter):
 # End FeatureDatasetParameter class
 
 
+class FieldInfoParameter(InputParameter):
+    """
+    The details about a field in a field map.
+    """
+    keyword: ClassVar[str] = 'GPFieldInfo'
+# End FieldInfoParameter class
+
+
+class FieldMappingParameter(InputParameter):
+    """
+    A collection of fields in one or more input tables.
+    """
+    keyword: ClassVar[str] = 'GPFieldMapping'
+# End FieldMappingParameter class
+
+
 class FolderParameter(InputOutputParameter):
     """
     A location on disk where data is stored.
     """
     keyword: ClassVar[str] = 'DEFolder'
 # End FolderParameter class
+
+
+class GASearchNeighborhoodParameter(InputParameter):
+    """
+    The searching neighborhood parameters for a geostatistical layer are
+    defined.
+    """
+    keyword: ClassVar[str] = 'GPGASearchNeighborhood'
+# End GASearchNeighborhoodParameter class
+
+
+class GAValueTableParameter(InputParameter):
+    """
+    A collection of data sources and fields that define a geostatistical
+    layer.
+    """
+    keyword: ClassVar[str] = 'GPGAValueTable'
+# End GAValueTableParameter class
+
+
+class GeodatasetTypeParameter(InputParameter):
+    """
+    A collection of data with a common theme in a geodatabase.
+    """
+    keyword: ClassVar[str] = 'DEGeodatasetType'
+# End GeodatasetTypeParameter class
+
+
+class GeometricNetworkParameter(InputOutputParameter):
+    """
+    A linear network represented by topologically connected edge and
+    junction features. Feature connectivity is based on their geometric
+    coincidence.
+    """
+    keyword: ClassVar[str] = 'DEGeometricNetwork'
+# End GeometricNetworkParameter class
 
 
 class GPLayerParameter(InputOutputParameter):
@@ -636,6 +723,14 @@ class GroupLayerParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPGroupLayer'
 # End GroupLayerParameter class
+
+
+class KMLLayerParameter(InputOutputParameter):
+    """
+    A KML layer.
+    """
+    keyword: ClassVar[str] = 'GPKMLLayer'
+# End KMLLayerParameter class
 
 
 class LasDatasetParameter(InputOutputParameter):
@@ -684,6 +779,14 @@ class MapParameter(InputOutputParameter):
 # End MapParameter class
 
 
+class MDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible value for m-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPMDomain'
+# End MDomainParameter class
+
+
 class MosaicDatasetParameter(InputOutputParameter):
     """
     A collection of raster and image data that allows you to store, view,
@@ -701,6 +804,36 @@ class MosaicLayerParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPMosaicLayer'
 # End MosaicLayerParameter class
+
+
+class NAClassFieldMapParameter(InputParameter):
+    """
+    Mapping between location properties in a Network Analyst layer (such
+    as stops, facilities, and incidents) and a point feature class.
+    """
+    keyword: ClassVar[str] = 'NAClassFieldMap'
+# End NAClassFieldMapParameter class
+
+
+class NAHierarchySettingsParameter(InputParameter):
+    """
+    A hierarchy attribute that divides hierarchy values of a network
+    dataset into three groups using two integers. The first integer sets
+    the ending value of the first group; the second number sets the
+    beginning value of the third group.
+    """
+    keyword: ClassVar[str] = 'GPNAHierarchySettings'
+# End NAHierarchySettingsParameter class
+
+
+class NALayerParameter(InputOutputParameter):
+    """
+    A group layer used to express and solve network routing problems. Each
+    sublayer held in memory in a Network Analyst layer represents some
+    aspect of the routing problem and the routing solution.
+    """
+    keyword: ClassVar[str] = 'GPNALayer'
+# End NALayerParameter class
 
 
 class NetworkDatasetParameter(InputOutputParameter):
@@ -729,12 +862,30 @@ class PrjFileParameter(InputOutputParameter):
 # End PrjFileParameter class
 
 
+class RandomNumberGeneratorParameter(InputParameter):
+    """
+    The seed and the generator to use when creating random values.
+    """
+    keyword: ClassVar[str] = 'GPRandomNumberGenerator'
+# End RandomNumberGeneratorParameter class
+
+
 class RasterBandParameter(InputOutputParameter):
     """
     A layer in a raster dataset.
     """
     keyword: ClassVar[str] = 'DERasterBand'
 # End RasterBandParameter class
+
+
+class RasterBuilderParameter(InputParameter):
+    """
+    Raster data is added to a mosaic dataset by specifying a raster type.
+    The raster type identifies metadata, such as georeferencing,
+    acquisition date, and sensor type, with a raster format.
+    """
+    keyword: ClassVar[str] = 'GPRasterBuilder'
+# End RasterBuilderParameter class
 
 
 class RasterCalculatorExpressionParameter(InputParameter):
@@ -785,6 +936,193 @@ class SACellSizeParameter(InputParameter):
 # End SACellSizeParameter class
 
 
+class SAExtractValuesParameter(InputParameter):
+    """
+    An extract values parameter.
+    """
+    keyword: ClassVar[str] = 'GPSAExtractValues'
+# End SAExtractValuesParameter class
+
+
+class SAFuzzyFunctionParameter(InputParameter):
+    """
+    The algorithm used in fuzzification of an input raster.
+    """
+    keyword: ClassVar[str] = 'GPSAFuzzyFunction'
+# End SAFuzzyFunctionParameter class
+
+
+class SAGDBEnvCompressionParameter(InputParameter):
+    """
+    The type of compression used for a raster.
+    """
+    keyword: ClassVar[str] = 'GPSAGDBEnvCompression'
+# End SAGDBEnvCompressionParameter class
+
+
+class SAGDBEnvPyramidParameter(InputParameter):
+    """
+    Specifies whether pyramids are built.
+    """
+    keyword: ClassVar[str] = 'GPSAGDBEnvPyramid'
+# End SAGDBEnvPyramidParameter class
+
+
+class SAGDBEnvStatisticsParameter(InputParameter):
+    """
+    Specifies whether raster statistics build.
+    """
+    keyword: ClassVar[str] = 'GPSAGDBEnvStatistics'
+# End SAGDBEnvStatisticsParameter class
+
+
+class SAGDBEnvTileSizeParameter(InputParameter):
+    """
+    The width and height of data stored in block.
+    """
+    keyword: ClassVar[str] = 'GPSAGDBEnvTileSize'
+# End SAGDBEnvTileSizeParameter class
+
+
+class SAHorizontalFactorParameter(InputParameter):
+    """
+    The relationship between the horizontal cost factor and the horizontal
+    relative moving angle.
+    """
+    keyword: ClassVar[str] = 'GPSAHorizontalFactor'
+# End SAHorizontalFactorParameter class
+
+
+class SANeighborhoodParameter(InputParameter):
+    """
+    The shape of the area around each cell used to calculate statistics.
+    """
+    keyword: ClassVar[str] = 'GPSANeighborhood'
+# End SANeighborhoodParameter class
+
+
+class SARadiusParameter(InputParameter):
+    """
+    The surrounding points that are used for interpolation.
+    """
+    keyword: ClassVar[str] = 'GPSARadius'
+# End SARadiusParameter class
+
+
+class SARemapParameter(InputParameter):
+    """
+    A table that defines how raster cell values are reclassified.
+    """
+    keyword: ClassVar[str] = 'GPSARemap'
+# End SARemapParameter class
+
+
+class SASemiVariogramParameter(InputParameter):
+    """
+    The distance and direction representing two locations used to quantify
+    autocorrelation.
+    """
+    keyword: ClassVar[str] = 'GPSASemiVariogram'
+# End SASemiVariogramParameter class
+
+
+class SATimeConfigurationParameter(InputParameter):
+    """
+    The time periods used for calculating solar radiation at specific
+    locations.
+    """
+    keyword: ClassVar[str] = 'GPSATimeConfiguration'
+# End SATimeConfigurationParameter class
+
+
+class SATopoFeaturesParameter(InputParameter):
+    """
+    Features that are input to the interpolation.
+    """
+    keyword: ClassVar[str] = 'GPSATopoFeatures'
+# End SATopoFeaturesParameter class
+
+
+class SATransformationFunctionParameter(InputParameter):
+    """
+    A Spatial Analyst transformation function.
+    """
+    keyword: ClassVar[str] = 'GPSATransformationFunction'
+# End SATransformationFunctionParameter class
+
+
+class SAVerticalFactorParameter(InputParameter):
+    """
+    The relationship between the vertical cost factor and the vertical,
+    relative moving angle.
+    """
+    keyword: ClassVar[str] = 'GPSAVerticalFactor'
+# End SAVerticalFactorParameter class
+
+
+class SAWeightedOverlayTableParameter(InputParameter):
+    """
+    A table with data to combine multiple rasters by applying a common
+    measurement scale of values to each raster, weighing each according to
+    its importance.
+    """
+    keyword: ClassVar[str] = 'GPSAWeightedOverlayTable'
+# End SAWeightedOverlayTableParameter class
+
+
+class SAWeightedSumParameter(InputParameter):
+    """
+    Data for overlaying several rasters, each multiplied by their given
+    weight and summed.
+    """
+    keyword: ClassVar[str] = 'GPSAWeightedSum'
+# End SAWeightedSumParameter class
+
+
+class SchematicDatasetParameter(InputOutputParameter):
+    """
+    A collection of schematic diagram templates and schematic feature
+    classes that share the same application domain, for example, water or
+    electrical.
+    """
+    keyword: ClassVar[str] = 'DESchematicDataset'
+# End SchematicDatasetParameter class
+
+
+class SchematicDiagramParameter(InputOutputParameter):
+    """
+    A schematic diagram.
+    """
+    keyword: ClassVar[str] = 'DESchematicDiagram'
+# End SchematicDiagramParameter class
+
+
+class SchematicDiagramClassParameter(InputOutputParameter):
+    """
+    A schematic diagram class.
+    """
+    keyword: ClassVar[str] = 'DESchematicDiagramClass'
+# End SchematicDiagramClassParameter class
+
+
+class SchematicFolderParameter(InputOutputParameter):
+    """
+    A schematic folder.
+    """
+    keyword: ClassVar[str] = 'DESchematicFolder'
+# End SchematicFolderParameter class
+
+
+class SchematicLayerParameter(InputOutputParameter):
+    """
+    A composite layer composed of feature layers based on the schematic
+    feature classes associated with the template on which the schematic
+    diagram is based.
+    """
+    keyword: ClassVar[str] = 'GPSchematicLayer'
+# End SchematicLayerParameter class
+
+
 class ShapeFileParameter(InputOutputParameter):
     """
     Spatial data in shapefile format.
@@ -819,6 +1157,15 @@ class TableViewParameter(InputOutputParameter):
 # End TableViewParameter class
 
 
+class TerrainLayerParameter(InputOutputParameter):
+    """
+    A reference to a terrain, including symbology and rendering
+    properties. It’s used to draw a terrain.
+    """
+    keyword: ClassVar[str] = 'GPTerrainLayer'
+# End TerrainLayerParameter class
+
+
 class TextfileParameter(InputOutputParameter):
     """
     A text file.
@@ -846,6 +1193,15 @@ class TinLayerParameter(InputOutputParameter):
 # End TinLayerParameter class
 
 
+class TopologyLayerParameter(InputOutputParameter):
+    """
+    A reference to a topology, including symbology and rendering
+    properties.
+    """
+    keyword: ClassVar[str] = 'GPTopologyLayer'
+# End TopologyLayerParameter class
+
+
 class TopologyParameter(InputOutputParameter):
     """
     A topology that defines and enforces data integrity rules for spatial
@@ -853,6 +1209,38 @@ class TopologyParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DETopology'
 # End TopologyParameter class
+
+
+class ValueTableParameter(InputParameter):
+    """
+    A collection of columns of values.
+    """
+    keyword: ClassVar[str] = 'GPValueTable'
+# End ValueTableParameter class
+
+
+class VectorLayerParameter(InputOutputParameter):
+    """
+    A vector tile layer.
+    """
+    keyword: ClassVar[str] = 'GPVectorLayer'
+# End VectorLayerParameter class
+
+
+class XYDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible values for x,y-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPXYDomain'
+# End XYDomainParameter class
+
+
+class ZDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible values for z-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPZDomain'
+# End ZDomainParameter class
 
 
 class FeatureClassParameter(SchemaMixin, InputOutputParameter):
