@@ -669,6 +669,15 @@ class FolderParameter(InputOutputParameter):
 # End FolderParameter class
 
 
+class GALayerParameter(InputOutputParameter):
+    """
+    A reference to a geostatistical data source, including symbology and
+    rendering properties.
+    """
+    keyword: ClassVar[str] = 'GPGALayer'
+# End GALayerParameter class
+
+
 class GASearchNeighborhoodParameter(InputParameter):
     """
     The searching neighborhood parameters for a geostatistical layer are
@@ -836,6 +845,15 @@ class NALayerParameter(InputOutputParameter):
 # End NALayerParameter class
 
 
+class NetworkDatasetLayerParameter(InputOutputParameter):
+    """
+    A reference to a network dataset, including symbology and rendering
+    properties.
+    """
+    keyword: ClassVar[str] = 'GPNetworkDatasetLayer'
+# End NetworkDatasetLayerParameter class
+
+
 class NetworkDatasetParameter(InputOutputParameter):
     """
     A collection of topologically connected network elements (edges,
@@ -844,6 +862,16 @@ class NetworkDatasetParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DENetworkDataset'
 # End NetworkDatasetParameter class
+
+
+class NetworkDataSourceParameter(InputOutputParameter):
+    """
+    A network data source can be a local dataset specified either using
+    its catalog path or a layer from a map, or it can be a URL to a
+    portal.
+    """
+    keyword: ClassVar[str] = 'GPNetworkDataSource'
+# End NetworkDataSourceParameter class
 
 
 class PointParameter(InputParameter):
