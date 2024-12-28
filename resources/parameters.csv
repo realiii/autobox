@@ -83,7 +83,7 @@
 82,Network Data Source,GPNetworkDataSource,NetworkDataSource,,N,Y,"A network data source can be a local dataset specified either using its catalog path or a layer from a map, or it can be a URL to a portal."
 83,Network Dataset,DENetworkDataset,NetworkDataset,v0.1.0,Y,Y,"A collection of topologically connected network elements (edges, junctions, and turns), derived from network sources and associated with a collection of network attributes."
 84,Network Dataset Layer,GPNetworkDatasetLayer,NetworkDatasetLayer,,N,Y,"A reference to a network dataset, including symbology and rendering properties."
-85,Network Travel Mode,NetworkTravelMode,NetworkTravelMode,,N,N,A dictionary of travel mode objects.
+85,Network Travel Mode,NetworkTravelMode,NetworkTravelMode,v0.2.0,Y,N,A dictionary of travel mode objects.
 86,Oriented Imagery Layer,GPOrientedImageryLayer,OrientedImageryLayer,,N,Y,A collection of camera locations with image metadata.
 87,Parcel Fabric For ArcMap,DECadastralFabric,CadastralFabric,,N,Y,"A dataset used for the storage, maintenance, and editing of a continuous surface of connected parcels or parcel network."
 88,Parcel Fabric Layer,GPCadastralFabricLayer,CadastralFabricLayer,,N,Y,A layer referencing a parcel fabric on disk. This layer works as a group layer organizing a set of related layers under a single layer.
@@ -123,7 +123,7 @@
 122,Text File,DETextfile,Textfile,v0.1.0,Y,Y,A text file.
 123,Tile Size,GPSAGDBEnvTileSize,SAGDBEnvTileSize,,N,N,The width and height of data stored in block.
 124,Time configuration,GPSATimeConfiguration,SATimeConfiguration,,N,N,The time periods used for calculating solar radiation at specific locations.
-125,Time Unit,GPTimeUnit,TimeUnit,,N,N,A time unit type and value such as minutes or hours.
+125,Time Unit,GPTimeUnit,TimeUnit,v0.2.0,Y,N,A time unit type and value such as minutes or hours.
 126,TIN,DETin,Tin,v0.1.0,Y,Y,"A vector data structure that partitions geographic space into contiguous, nonoverlapping triangles. The vertices of each triangle are sample data points with x-, y-, and z-values."
 127,Tin Layer,GPTinLayer,TinLayer,v0.1.0,Y,Y,"A reference to a TIN, including topological relationships, symbology, and rendering properties."
 128,Tool,DETool,Tool,,N,Y,A geoprocessing tool.
