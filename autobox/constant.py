@@ -187,6 +187,7 @@ class ParameterContentKeys(BaseContentKeys):
     domain: ClassVar[str] = 'domain'
     depends: ClassVar[str] = 'depends'
     type: ClassVar[str] = 'type'
+    symbology: ClassVar[str] = 'symbologylayer'
     schema: ClassVar[str] = 'schema'
     value: ClassVar[str] = 'value'
 # End ParameterContentKeys class
