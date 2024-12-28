@@ -8,11 +8,10 @@ from typing import Any, ClassVar, NoReturn, Self, Type
 
 from autobox.constant import (
     DERIVED, DOLLAR_RC, DOT, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA,
-    GP_LINEAR_UNIT,
-    GP_MULTI_VALUE, GP_TABLE_SCHEMA, GP_TIME_UNIT, OPTIONAL, OUT, PARAMETER,
-    ParameterContentKeys,
-    ParameterContentResourceKeys, SEMI_COLON, SchemaContentKeys,
-    ScriptToolContentKeys, ScriptToolContentResourceKeys, TRUE)
+    GP_LINEAR_UNIT, GP_MULTI_VALUE, GP_TABLE_SCHEMA, GP_TIME_UNIT, OPTIONAL,
+    OUT, PARAMETER, ParameterContentKeys, ParameterContentResourceKeys,
+    SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
+    ScriptToolContentResourceKeys, TRUE)
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
