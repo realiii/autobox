@@ -572,15 +572,6 @@ class DbaseTableParameter(InputOutputParameter):
 # End DbaseTableParameter class
 
 
-class DoubleParameter(InputParameter):
-    """
-    Any floating-point number stored as a double precision, 64-bit value.
-    """
-    keyword: ClassVar[str] = 'GPDouble'
-    filter_types: ClassVar[TYPE_FILTERS] = DoubleRangeFilter, DoubleValueFilter
-# End DoubleParameter class
-
-
 class EncryptedStringParameter(InputParameter):
     """
     An encrypted string for passwords.
@@ -608,17 +599,6 @@ class ExtentParameter(InputParameter):
 # End ExtentParameter class
 
 
-class FeatureClassParameter(SchemaMixin, InputOutputParameter):
-    """
-    A collection of spatial data with the same shape type: point,
-    multipoint, polyline, and polygon.
-    """
-    keyword: ClassVar[str] = 'DEFeatureClass'
-    schema_type: ClassVar[str] = GP_FEATURE_SCHEMA
-    filter_types: ClassVar[TYPE_FILTERS] = FeatureClassTypeFilter,
-# End FeatureClassParameter class
-
-
 class FeatureDatasetParameter(InputOutputParameter):
     """
     A collection of feature classes that share a common geographic area
@@ -626,25 +606,6 @@ class FeatureDatasetParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DEFeatureDataset'
 # End FeatureDatasetParameter class
-
-
-class FeatureLayerParameter(InputOutputParameter):
-    """
-    A reference to a feature class, including symbology and rendering
-    properties.
-    """
-    keyword: ClassVar[str] = 'GPFeatureLayer'
-    filter_types: ClassVar[TYPE_FILTERS] = FeatureClassTypeFilter,
-# End FeatureLayerParameter class
-
-
-class FileParameter(InputOutputParameter):
-    """
-    A file on disk.
-    """
-    keyword: ClassVar[str] = 'DEFile'
-    filter_types: ClassVar[TYPE_FILTERS] = FileTypeFilter,
-# End FileParameter class
 
 
 class FolderParameter(InputOutputParameter):
@@ -839,40 +800,12 @@ class SpatialReferenceParameter(InputParameter):
 # End SpatialReferenceParameter class
 
 
-class StringParameter(InputOutputParameter):
-    """
-    A text value.
-    """
-    keyword: ClassVar[str] = 'GPString'
-    filter_types: ClassVar[TYPE_FILTERS] = StringValueFilter,
-
-    def _build_filter(self) -> tuple[dict, MAP_STR]:
-        """
-        Build Filter
-        """
-        if self.filter is None:
-            return {}, {}
-        content, resource = self.filter.serialize(self.name)
-        return content, resource
-    # End _build_filter method
-# End StringParameter class
-
-
 class StringHiddenParameter(InputParameter):
     """
     A string that is masked by asterisk characters.
     """
     keyword: ClassVar[str] = 'GPStringHidden'
 # End StringHiddenParameter class
-
-
-class TableParameter(SchemaMixin, InputOutputParameter):
-    """
-    Tabular data.
-    """
-    keyword: ClassVar[str] = 'DETable'
-    schema_type: ClassVar[str] = GP_TABLE_SCHEMA
-# End TableParameter class
 
 
 class TableViewParameter(InputOutputParameter):
@@ -920,6 +853,36 @@ class TopologyParameter(InputOutputParameter):
 # End TopologyParameter class
 
 
+class FeatureClassParameter(SchemaMixin, InputOutputParameter):
+    """
+    A collection of spatial data with the same shape type: point,
+    multipoint, polyline, and polygon.
+    """
+    keyword: ClassVar[str] = 'DEFeatureClass'
+    schema_type: ClassVar[str] = GP_FEATURE_SCHEMA
+    filter_types: ClassVar[TYPE_FILTERS] = FeatureClassTypeFilter,
+# End FeatureClassParameter class
+
+
+class FeatureLayerParameter(InputOutputParameter):
+    """
+    A reference to a feature class, including symbology and rendering
+    properties.
+    """
+    keyword: ClassVar[str] = 'GPFeatureLayer'
+    filter_types: ClassVar[TYPE_FILTERS] = FeatureClassTypeFilter,
+# End FeatureLayerParameter class
+
+
+class TableParameter(SchemaMixin, InputOutputParameter):
+    """
+    Tabular data.
+    """
+    keyword: ClassVar[str] = 'DETable'
+    schema_type: ClassVar[str] = GP_TABLE_SCHEMA
+# End TableParameter class
+
+
 _TABLE_TYPES: TYPE_PARAMS = TableParameter, TableViewParameter
 _GEOGRAPHIC_TYPES: TYPE_PARAMS = (
         FeatureClassParameter, FeatureLayerParameter,
@@ -937,6 +900,15 @@ class ArealUnitParameter(InputParameter):
 # End ArealUnitParameter class
 
 
+class DoubleParameter(InputParameter):
+    """
+    Any floating-point number stored as a double precision, 64-bit value.
+    """
+    keyword: ClassVar[str] = 'GPDouble'
+    filter_types: ClassVar[TYPE_FILTERS] = DoubleRangeFilter, DoubleValueFilter
+# End DoubleParameter class
+
+
 class FieldParameter(InputParameter):
     """
     A column in a table that stores the values for a single attribute.
@@ -945,6 +917,15 @@ class FieldParameter(InputParameter):
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = FieldTypeFilter,
 # End FieldParameter class
+
+
+class FileParameter(InputOutputParameter):
+    """
+    A file on disk.
+    """
+    keyword: ClassVar[str] = 'DEFile'
+    filter_types: ClassVar[TYPE_FILTERS] = FileTypeFilter,
+# End FileParameter class
 
 
 class LinearUnitParameter(InputParameter):
@@ -957,6 +938,13 @@ class LinearUnitParameter(InputParameter):
 # End LinearUnitParameter class
 
 
+class LongParameter(InputParameter):
+    """
+    An integer number value.
+    """
+    keyword: ClassVar[str] = 'GPLong'
+    filter_types: ClassVar[TYPE_FILTERS] = LongRangeFilter, LongValueFilter
+# End LongParameter class
 
 
 class NetworkTravelModeParameter(InputParameter):
@@ -978,6 +966,23 @@ class SQLExpressionParameter(InputParameter):
 # End SQLExpressionParameter class
 
 
+class StringParameter(InputOutputParameter):
+    """
+    A text value.
+    """
+    keyword: ClassVar[str] = 'GPString'
+    filter_types: ClassVar[TYPE_FILTERS] = StringValueFilter,
+
+    def _build_filter(self) -> tuple[dict, MAP_STR]:
+        """
+        Build Filter
+        """
+        if self.filter is None:
+            return {}, {}
+        content, resource = self.filter.serialize(self.name)
+        return content, resource
+    # End _build_filter method
+# End StringParameter class
 
 
 class TimeUnitParameter(InputParameter):
