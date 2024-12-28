@@ -1303,7 +1303,7 @@ class ArealUnitParameter(InputParameter):
     An areal unit type and value, such as square meter or acre.
     """
     keyword: ClassVar[str] = GP_AREAL_UNIT
-    dependency_types: ClassVar[TYPE_PARAMS] = _GEOGRAPHIC_TYPES
+    dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = ArealUnitFilter,
 # End ArealUnitParameter class
 
@@ -1350,7 +1350,7 @@ class LinearUnitParameter(InputParameter):
     A linear unit type and value such as meter or feet.
     """
     keyword: ClassVar[str] = GP_LINEAR_UNIT
-    dependency_types: ClassVar[TYPE_PARAMS] = _GEOGRAPHIC_TYPES
+    dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = LinearUnitFilter,
 # End LinearUnitParameter class
 
