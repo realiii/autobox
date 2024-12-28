@@ -297,6 +297,18 @@ class DoubleParameter(InputParameter):
 # End DoubleParameter class
 
 
+class FieldMappingParameter(InputParameter):
+    """
+    A collection of fields in one or more input tables.
+    """
+    @property
+    def dependency(self) -> _TABLE_AND_GEOGRAPHIC_TYPES: ...
+    # noinspection PyUnresolvedReferences
+    @dependency.setter
+    def dependency(self, value: _TABLE_AND_GEOGRAPHIC_TYPES) -> None: ...
+# End FieldMappingParameter class
+
+
 class FieldParameter(InputParameter):
     """
     A column in a table that stores the values for a single attribute.
@@ -325,7 +337,17 @@ class FileParameter(InputOutputParameter):
 # End FileParameter class
 
 
-class GALayerParameter(InputOutputParameter): ...
+class GAValueTableParameter(InputParameter):
+    """
+    A collection of data sources and fields that define a geostatistical
+    layer.
+    """
+    @property
+    def dependency(self) -> GALayerParameter | None: ...
+    # noinspection PyUnresolvedReferences
+    @dependency.setter
+    def dependency(self, value: GALayerParameter | None) -> None: ...
+# End GAValueTableParameter class
 
 
 class LinearUnitParameter(InputParameter):
@@ -357,20 +379,36 @@ class LongParameter(InputParameter):
 # End LongParameter class
 
 
-class NetworkDataSourceParameter(InputOutputParameter): ...
-class NetworkDatasetLayerParameter(InputOutputParameter): ...
-
-
 class NetworkTravelModeParameter(InputParameter):
     """
     A dictionary of travel mode objects.
     """
+    @property
+    def dependency(self) -> _NETWORK_TYPES: ...
+    # noinspection PyUnresolvedReferences
+    @dependency.setter
+    def dependency(self, value: _NETWORK_TYPES) -> None: ...
     @property
     def filter(self) -> TravelModeUnitTypeFilter | None: ...
     # noinspection PyUnresolvedReferences
     @filter.setter
     def filter(self, value: TravelModeUnitTypeFilter | None) -> None: ...
 # End NetworkTravelModeParameter class
+
+
+class NAHierarchySettingsParameter(InputParameter):
+    """
+    A hierarchy attribute that divides hierarchy values of a network
+    dataset into three groups using two integers. The first integer sets
+    the ending value of the first group; the second number sets the
+    beginning value of the third group.
+    """
+    @property
+    def dependency(self) -> NetworkDatasetParameter | None: ...
+    # noinspection PyUnresolvedReferences
+    @dependency.setter
+    def dependency(self, value: NetworkDatasetParameter | None) -> None: ...
+# End NAHierarchySettingsParameter class
 
 
 class StringParameter(InputOutputParameter):
