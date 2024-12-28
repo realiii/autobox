@@ -254,11 +254,13 @@ class TableParameter(SchemaMixin, InputOutputParameter): ...
 
 _GEOG_TYPES: TYPE_PARAMS = (
         FeatureClassParameter | FeatureLayerParameter |
+        FeatureRecordSetLayerParameter |
         RasterDatasetParameter | RasterLayerParameter
 )
 _TABLE_AND_GEOGRAPHIC_TYPES: TYPE_PARAMS = (
-    TableParameter | TableViewParameter |
+    TableParameter | TableViewParameter | RecordSetParameter |
     FeatureClassParameter | FeatureLayerParameter |
+    FeatureRecordSetLayerParameter |
     RasterDatasetParameter | RasterLayerParameter
 )
 
@@ -268,10 +270,10 @@ class ArealUnitParameter(InputParameter):
     An areal unit type and value, such as square meter or acre.
     """
     @property
-    def dependency(self) -> _GEOG_TYPES: ...
+    def dependency(self) -> _TABLE_AND_GEOGRAPHIC_TYPES: ...
     # noinspection PyUnresolvedReferences
     @dependency.setter
-    def dependency(self, value: _GEOG_TYPES) -> None: ...
+    def dependency(self, value: _TABLE_AND_GEOGRAPHIC_TYPES) -> None: ...
     def filter(self) -> ArealUnitFilter | None: ...
     # noinspection PyUnresolvedReferences
     @filter.setter
@@ -327,10 +329,10 @@ class LinearUnitParameter(InputParameter):
     A linear unit type and value such as meter or feet.
     """
     @property
-    def dependency(self) -> _GEOG_TYPES: ...
+    def dependency(self) -> _TABLE_AND_GEOGRAPHIC_TYPES: ...
     # noinspection PyUnresolvedReferences
     @dependency.setter
-    def dependency(self, value: _GEOG_TYPES) -> None: ...
+    def dependency(self, value: _TABLE_AND_GEOGRAPHIC_TYPES) -> None: ...
     @property
     def filter(self) -> LinearUnitFilter | None: ...
     # noinspection PyUnresolvedReferences
