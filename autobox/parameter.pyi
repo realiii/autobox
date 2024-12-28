@@ -263,6 +263,10 @@ _TABLE_AND_GEOGRAPHIC_TYPES: TypeAlias = (
     FeatureRecordSetLayerParameter |
     RasterDatasetParameter | RasterLayerParameter | None
 )
+_NETWORK_TYPES: TypeAlias = (
+    NetworkDatasetParameter | NetworkDatasetLayerParameter |
+    NetworkDataSourceParameter | None
+)
 
 
 class ArealUnitParameter(InputParameter):
