@@ -6,13 +6,14 @@ Filter Tests
 from pytest import approx, mark
 
 from autobox.enum import (
-    ArealUnit, FieldType, GeometryType, LinearUnit, WorkspaceType)
+    ArealUnit, FieldType, GeometryType, LinearUnit, TimeUnit,
+    TravelModeUnitType, WorkspaceType)
 from autobox.filter import (
     AbstractNumberValueFilter, AbstractRangeFilter, ArealUnitFilter,
-    DoubleRangeFilter, DoubleValueFilter,
-    FeatureClassTypeFilter, FieldTypeFilter,
-    FileTypeFilter, LinearUnitFilter, LongRangeFilter, LongValueFilter,
-    StringValueFilter, WorkspaceTypeFilter)
+    DoubleRangeFilter, DoubleValueFilter, FeatureClassTypeFilter,
+    FieldTypeFilter, FileTypeFilter, LinearUnitFilter, LongRangeFilter,
+    LongValueFilter, StringValueFilter, TimeUnitFilter,
+    TravelModeUnitTypeFilter, WorkspaceTypeFilter)
 
 
 def test_areal_unit_filter():
@@ -145,6 +146,42 @@ def test_linear_unit_filter():
     ftr = LinearUnitFilter(list(LinearUnit))
     assert ftr.serialize() == expected
 # End test_linear_unit_filter function
+
+
+def test_travel_mode_unit_type():
+    """
+    Test Travel Mode Unit Type
+    """
+    expected = {
+        "domain": {"type": "xmlserialize",
+                   "xml": "<GPNetworkTravelModeDomain xsi:type='typens:GPNetworkTravelModeDomain' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xs='http://www.w3.org/2001/XMLSchema' xmlns:typens='http://www.esri.com/schemas/ArcGIS/3.4.0'><TypeArray xsi:type='typens:ArrayOfString'><String>esriNetworkTravelModeUnitsDomainTypeTime</String><String>esriNetworkTravelModeUnitsDomainTypeDistance</String><String>esriNetworkTravelModeUnitsDomainTypeOther</String></TypeArray></GPNetworkTravelModeDomain>"
+    }}
+    ftr = TravelModeUnitTypeFilter(list(TravelModeUnitType))
+    assert ftr.serialize() == expected
+    ftr = TravelModeUnitTypeFilter([])
+    assert ftr.serialize() == {}
+# End test_travel_mode_unit_type function
+
+
+def test_time_unit_filter():
+    """
+    Test Time Unit Filter
+    """
+    expected = {"domain": {"type": "GPCodedValueDomain", "items": [
+        {"type": "GPTimeUnit", "value": "Unknown", "code": "Unknown"},
+        {"type": "GPTimeUnit", "value": "Milliseconds", "code": "Milliseconds"},
+        {"type": "GPTimeUnit", "value": "Seconds", "code": "Seconds"},
+        {"type": "GPTimeUnit", "value": "Minutes", "code": "Minutes"},
+        {"type": "GPTimeUnit", "value": "Hours", "code": "Hours"},
+        {"type": "GPTimeUnit", "value": "Days", "code": "Days"},
+        {"type": "GPTimeUnit", "value": "Weeks", "code": "Weeks"},
+        {"type": "GPTimeUnit", "value": "Months", "code": "Months"},
+        {"type": "GPTimeUnit", "value": "Years", "code": "Years"},
+        {"type": "GPTimeUnit", "value": "Decades", "code": "Decades"},
+        {"type": "GPTimeUnit", "value": "Centuries", "code": "Centuries"}]}}
+    ftr = TimeUnitFilter(list(TimeUnit))
+    assert ftr.serialize() == expected
+# End test_time_unit_filter function
 
 
 def test_workspace_type_filter():
