@@ -14,6 +14,7 @@ COLON: str = ':'
 SEMI_COLON: str = ';'
 DOUBLE_SPACE: str = f'{SPACE}{SPACE}'
 DOUBLE_UNDERSCORE: str = f'{UNDERSCORE}{UNDERSCORE}'
+RELATIVE: str = '..\\..\\'
 
 
 GP_MULTI_VALUE: str = 'GPMultiValue'

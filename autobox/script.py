@@ -14,7 +14,7 @@ from typing import NoReturn, Self
 
 from autobox.constant import (
     COLON, DEPENDENCY, DOT, ENCODING, ICON, ILLUSTRATION, ParameterContentKeys,
-    SCRIPT, SCRIPT_STUB, SEMI_COLON, SPACE, ScriptToolContentKeys,
+    RELATIVE, SCRIPT, SCRIPT_STUB, SEMI_COLON, SPACE, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT, TOOL_CONTENT_RC,
     TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY, ToolAttributeKeywords)
@@ -65,7 +65,7 @@ class AbstractScript:
             path = self._path.relative_to(target.resolve())
         except ValueError:
             return str(self._path)
-        return f'..\\..\\{path}'
+        return f'{RELATIVE}{path}'
     # End _get_content method
 
     @staticmethod
