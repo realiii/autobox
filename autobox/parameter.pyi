@@ -245,6 +245,10 @@ class FeatureLayerParameter(InputOutputParameter):
 # End FeatureLayerParameter class
 
 
+class FeatureRecordSetLayerParameter(InputParameter): ...
+class RecordSetParameter(InputParameter): ...
+
+
 class TableParameter(SchemaMixin, InputOutputParameter): ...
 
 
@@ -285,9 +289,6 @@ class DoubleParameter(InputParameter):
     @filter.setter
     def filter(self, value: DoubleRangeFilter | DoubleValueFilter | None) -> None: ...
 # End DoubleParameter class
-
-
-class FeatureRecordSetLayerParameter(InputParameter): ...
 
 
 class FieldParameter(InputParameter):
@@ -364,9 +365,6 @@ class NetworkTravelModeParameter(InputParameter):
     @filter.setter
     def filter(self, value: TravelModeUnitTypeFilter | None) -> None: ...
 # End NetworkTravelModeParameter class
-
-
-class RecordSetParameter(InputParameter): ...
 
 
 class StringParameter(InputOutputParameter):
