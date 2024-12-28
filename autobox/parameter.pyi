@@ -4,7 +4,7 @@ Parameter Stubs
 """
 
 
-from typing import Any, ClassVar, NoReturn, Self, Type
+from typing import Any, ClassVar, NoReturn, Self, Type, TypeAlias
 
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
@@ -252,16 +252,16 @@ class RecordSetParameter(InputParameter): ...
 class TableParameter(SchemaMixin, InputOutputParameter): ...
 
 
-_GEOG_TYPES: TYPE_PARAMS = (
+_GEOG_TYPES: TypeAlias = (
         FeatureClassParameter | FeatureLayerParameter |
         FeatureRecordSetLayerParameter |
-        RasterDatasetParameter | RasterLayerParameter
+        RasterDatasetParameter | RasterLayerParameter | None
 )
-_TABLE_AND_GEOGRAPHIC_TYPES: TYPE_PARAMS = (
+_TABLE_AND_GEOGRAPHIC_TYPES: TypeAlias = (
     TableParameter | TableViewParameter | RecordSetParameter |
     FeatureClassParameter | FeatureLayerParameter |
     FeatureRecordSetLayerParameter |
-    RasterDatasetParameter | RasterLayerParameter
+    RasterDatasetParameter | RasterLayerParameter | None
 )
 
 
