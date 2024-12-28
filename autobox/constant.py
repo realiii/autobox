@@ -27,8 +27,11 @@ GP_RANGE_DOMAIN: str = 'GPRangeDomain'
 GP_FIELD_DOMAIN: str = 'GPFieldDomain'
 GP_FILE_DOMAIN: str = 'GPFileDomain'
 GP_LINEAR_UNIT: str = 'GPLinearUnit'
+GP_TIME_UNIT: str = 'GPTimeUnit'
 GP_LONG: str = 'GPLong'
 GP_DOUBLE: str = 'GPDouble'
+XML: str = 'xml'
+XML_SERIALIZE: str = f'{XML}serialize'
 
 
 OUT: str = 'out'
@@ -73,6 +76,17 @@ TOOL_SCRIPT_VALIDATE_PY: str = f'{TOOL_SCRIPT}validate{PY}'
 TOOL_SCRIPT_EXECUTE_LINK: str = f'{TOOL_SCRIPT_EXECUTE}{DOT}link'
 TOOLBOX_CONTENT: str = f'{TOOLBOX}{DOT}{CONTENT}'
 TOOLBOX_CONTENT_RC: str = f'{TOOLBOX_CONTENT}{DOT}{RC}'
+
+
+TRAVEL_MODES_STUB: str = (
+    "<GPNetworkTravelModeDomain xsi:type='typens:GPNetworkTravelModeDomain' "
+    "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' "
+    "xmlns:xs='http://www.w3.org/2001/XMLSchema' "
+    "xmlns:typens='http://www.esri.com/schemas/ArcGIS/3.4.0'>"
+    "<TypeArray xsi:type='typens:ArrayOfString'>"
+    "{}"
+    "</TypeArray></GPNetworkTravelModeDomain>"
+)
 
 
 SCRIPT_STUB: str = '''

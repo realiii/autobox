@@ -14,10 +14,12 @@ from typing import ClassVar, Type
 from autobox.constant import (
     DOLLAR_RC, DOT, DomainContentKeys, GP_AREAL_UNIT, GP_CODED_VALUE_DOMAIN,
     GP_DOUBLE, GP_FEATURE_CLASS_DOMAIN, GP_FIELD_DOMAIN, GP_FILE_DOMAIN,
-    GP_LINEAR_UNIT, GP_LONG, GP_RANGE_DOMAIN, GP_WORKSPACE_DOMAIN,
-    ItemsContentKeys, ParameterContentKeys)
+    GP_LINEAR_UNIT, GP_LONG, GP_RANGE_DOMAIN, GP_TIME_UNIT, GP_WORKSPACE_DOMAIN,
+    ItemsContentKeys, ParameterContentKeys, TRAVEL_MODES_STUB, XML,
+    XML_SERIALIZE)
 from autobox.enum import (
-    ArealUnit, FieldType, GeometryType, LinearUnit, WorkspaceType)
+    ArealUnit, FieldType, GeometryType, LinearUnit, TimeUnit,
+    TravelModeUnitType, WorkspaceType)
 from autobox.type import (
     MAP_DICT_STR_LIST, MAP_STR, MAP_STR_LIST, STRING, STRINGS)
 from autobox.util import unique
@@ -220,6 +222,36 @@ class LinearUnitFilter(BaseCodedDomainFilter):
     keyword: ClassVar[str] = GP_LINEAR_UNIT
     enumeration: ClassVar[Type[LinearUnit]] = LinearUnit
 # End LinearUnitFilter class
+
+
+class TimeUnitFilter(BaseCodedDomainFilter):
+    """
+    Time Unit Filter
+    """
+    keyword: ClassVar[str] = GP_TIME_UNIT
+    enumeration: ClassVar[Type[TimeUnit]] = TimeUnit
+# End TimeUnitFilter class
+
+
+class TravelModeUnitTypeFilter(BaseTypeListFilter):
+    """
+    Travel Mode Unit Type Filter
+    """
+    keyword: ClassVar[str] = XML_SERIALIZE
+    enumeration: ClassVar[Type[TravelModeUnitType]] = TravelModeUnitType
+
+    def _serialize(self, name: STRING = None) -> MAP_STR_LIST:
+        """
+        Serialize
+        """
+        if not self.values:
+            return {}
+        items = ''.join(f'<String>{v.value}</String>' for v in self.values)
+        return {ParameterContentKeys.domain: {
+            DomainContentKeys.type: self.keyword,
+            XML: TRAVEL_MODES_STUB.format(items)}}
+    # End _serialize method
+# End TravelModeUnitTypeFilter class
 
 
 class WorkspaceTypeFilter(BaseTypeListFilter):

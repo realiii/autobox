@@ -10,10 +10,12 @@ from numbers import Real
 from typing import ClassVar, Type
 
 from autobox.enum import (
-    ArealUnit, FieldType, GeometryType, LinearUnit, WorkspaceType)
+    ArealUnit, FieldType, GeometryType, LinearUnit, TimeUnit,
+    TravelModeUnitType, WorkspaceType)
 from autobox.type import (
     AREAL_UNITS, FIELD_TYPES, GEOMETRY_TYPES, LINEAR_UNITS, MAP_DICT_STR_LIST,
-    MAP_STR, MAP_STR_LIST, STRING, STRINGS, WORKSPACE_TYPES)
+    MAP_STR, MAP_STR_LIST, STRING, STRINGS, TIME_UNITS, TRAVEL_MODES,
+    WORKSPACE_TYPES)
 
 
 class AbstractFilter:
@@ -168,6 +170,40 @@ class LinearUnitFilter(BaseCodedDomainFilter):
     def values(self) -> list[LinearUnit]: ...
     def serialize(self, name: STRING = None) -> dict[str, MAP_STR_LIST]: ...
 # End LinearUnitFilter class
+
+
+class TimeUnitFilter(BaseCodedDomainFilter):
+    """
+    Time Unit Filter
+    """
+    keyword: ClassVar[str]
+    enumeration: ClassVar[Type[TimeUnit]]
+    _values: list[TimeUnit]
+
+    def __init__(self, values: TIME_UNITS) -> None: ...
+    def _validate_values(self, values: TIME_UNITS) -> list[TimeUnit]: ...
+    def _serialize(self, name: STRING = None) -> dict[str, MAP_STR_LIST]: ...
+    @property
+    def values(self) -> list[TimeUnit]: ...
+    def serialize(self, name: STRING = None) -> dict[str, MAP_STR_LIST]: ...
+# End TimeUnitFilter class
+
+
+class TravelModeUnitTypeFilter(BaseTypeListFilter):
+    """
+    Travel Mode Unit Type Filter
+    """
+    keyword: ClassVar[str]
+    enumeration: ClassVar[Type[TravelModeUnitType]]
+    _values: list[TravelModeUnitType]
+
+    def __init__(self, values: TRAVEL_MODES) -> None: ...
+    def _validate_values(self, values: TRAVEL_MODES) -> list[TravelModeUnitType]: ...
+    def _serialize(self, name: STRING = None) -> dict[str, MAP_STR_LIST]: ...
+    @property
+    def values(self) -> list[TravelModeUnitType]: ...
+    def serialize(self, name: STRING = None) -> dict[str, MAP_STR_LIST]: ...
+# End TravelModeUnitTypeFilter class
 
 
 class WorkspaceTypeFilter(BaseTypeListFilter):

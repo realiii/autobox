@@ -9,14 +9,15 @@ from typing import Any, ClassVar, NoReturn, Self, Type
 from autobox.constant import (
     DERIVED, DOLLAR_RC, DOT, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA,
     GP_LINEAR_UNIT,
-    GP_MULTI_VALUE, GP_TABLE_SCHEMA, OPTIONAL, OUT, PARAMETER,
+    GP_MULTI_VALUE, GP_TABLE_SCHEMA, GP_TIME_UNIT, OPTIONAL, OUT, PARAMETER,
     ParameterContentKeys,
     ParameterContentResourceKeys, SEMI_COLON, SchemaContentKeys,
     ScriptToolContentKeys, ScriptToolContentResourceKeys, TRUE)
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
-    LongRangeFilter, LongValueFilter, StringValueFilter, WorkspaceTypeFilter)
+    LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
+    TravelModeUnitTypeFilter, WorkspaceTypeFilter)
 from autobox.type import BOOL, MAP_STR, STRING, TYPE_FILTERS, TYPE_PARAMS
 from autobox.util import (
     make_parameter_name, validate_parameter_label, validate_parameter_name,
@@ -24,27 +25,28 @@ from autobox.util import (
 
 
 __all__ = [
-    'AnalysisCellSizeParameter', 'MapDocumentParameter', 'ArealUnitParameter',
-    'BooleanParameter', 'CadDrawingDatasetParameter',
-    'CalculatorExpressionParameter', 'CatalogLayerParameter',
-    'SACellSizeParameter', 'CellSizeXYParameter', 'CoordinateSystemParameter',
-    'CoverageParameter', 'CoverageFeatureClassParameter',
+    'AnalysisCellSizeParameter', 'ArealUnitParameter', 'BooleanParameter',
+    'CadDrawingDatasetParameter', 'CalculatorExpressionParameter',
+    'CatalogLayerParameter', 'CellSizeXYParameter', 'CoordinateSystemParameter',
+    'CoverageFeatureClassParameter', 'CoverageParameter',
     'DataElementParameter', 'DatasetTypeParameter', 'DateParameter',
     'DbaseTableParameter', 'DoubleParameter', 'EncryptedStringParameter',
     'EnvelopeParameter', 'ExtentParameter', 'FeatureClassParameter',
     'FeatureDatasetParameter', 'FeatureLayerParameter', 'FieldParameter',
-    'FileParameter', 'FolderParameter', 'GroupLayerParameter',
-    'LasDatasetParameter', 'LasDatasetLayerParameter', 'GPLayerParameter',
+    'FileParameter', 'FolderParameter', 'GPLayerParameter',
+    'GroupLayerParameter', 'LasDatasetLayerParameter', 'LasDatasetParameter',
     'LayerFileParameter', 'LinearUnitParameter', 'LongParameter',
-    'MapParameter', 'MosaicDatasetParameter', 'MosaicLayerParameter',
-    'NetworkDatasetParameter', 'PointParameter', 'PrjFileParameter',
+    'MapDocumentParameter', 'MapParameter', 'MosaicDatasetParameter',
+    'MosaicLayerParameter', 'NetworkDatasetParameter',
+    'NetworkTravelModeParameter', 'PointParameter', 'PrjFileParameter',
     'RasterBandParameter', 'RasterCalculatorExpressionParameter',
     'RasterDataLayerParameter', 'RasterDatasetParameter',
-    'RasterLayerParameter', 'RelationshipClassParameter', 'ShapeFileParameter',
-    'SpatialReferenceParameter', 'SQLExpressionParameter', 'StringParameter',
-    'StringHiddenParameter', 'TableParameter', 'TableViewParameter',
-    'TextfileParameter', 'TinParameter', 'TinLayerParameter',
-    'TopologyParameter', 'WorkspaceParameter',
+    'RasterLayerParameter', 'RelationshipClassParameter', 'SACellSizeParameter',
+    'SQLExpressionParameter', 'ShapeFileParameter', 'SpatialReferenceParameter',
+    'StringHiddenParameter', 'StringParameter', 'TableParameter',
+    'TableViewParameter', 'TextfileParameter', 'TimeUnitParameter',
+    'TinLayerParameter', 'TinParameter', 'TopologyParameter',
+    'WorkspaceParameter',
 ]
 
 
@@ -466,15 +468,6 @@ class AnalysisCellSizeParameter(InputParameter):
 # End AnalysisCellSizeParameter class
 
 
-class MapDocumentParameter(InputParameter):
-    """
-    A file that contains one map, its layout, and its associated layers,
-    tables, charts, and reports.
-    """
-    keyword: ClassVar[str] = 'DEMapDocument'
-# End MapDocumentParameter class
-
-
 class BooleanParameter(InputParameter):
     """
     A Boolean value.
@@ -508,14 +501,6 @@ class CatalogLayerParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPCatalogLayer'
 # End CatalogLayerParameter class
-
-
-class SACellSizeParameter(InputParameter):
-    """
-    The cell size used by the ArcGIS Spatial Analyst extension.
-    """
-    keyword: ClassVar[str] = 'GPSACellSize'
-# End SACellSizeParameter class
 
 
 class CellSizeXYParameter(InputParameter):
@@ -587,15 +572,6 @@ class DbaseTableParameter(InputOutputParameter):
 # End DbaseTableParameter class
 
 
-class DoubleParameter(InputParameter):
-    """
-    Any floating-point number stored as a double precision, 64-bit value.
-    """
-    keyword: ClassVar[str] = 'GPDouble'
-    filter_types: ClassVar[TYPE_FILTERS] = DoubleRangeFilter, DoubleValueFilter
-# End DoubleParameter class
-
-
 class EncryptedStringParameter(InputParameter):
     """
     An encrypted string for passwords.
@@ -623,17 +599,6 @@ class ExtentParameter(InputParameter):
 # End ExtentParameter class
 
 
-class FeatureClassParameter(SchemaMixin, InputOutputParameter):
-    """
-    A collection of spatial data with the same shape type: point,
-    multipoint, polyline, and polygon.
-    """
-    keyword: ClassVar[str] = 'DEFeatureClass'
-    schema_type: ClassVar[str] = GP_FEATURE_SCHEMA
-    filter_types: ClassVar[TYPE_FILTERS] = FeatureClassTypeFilter,
-# End FeatureClassParameter class
-
-
 class FeatureDatasetParameter(InputOutputParameter):
     """
     A collection of feature classes that share a common geographic area
@@ -643,31 +608,22 @@ class FeatureDatasetParameter(InputOutputParameter):
 # End FeatureDatasetParameter class
 
 
-class FeatureLayerParameter(InputOutputParameter):
-    """
-    A reference to a feature class, including symbology and rendering
-    properties.
-    """
-    keyword: ClassVar[str] = 'GPFeatureLayer'
-    filter_types: ClassVar[TYPE_FILTERS] = FeatureClassTypeFilter,
-# End FeatureLayerParameter class
-
-
-class FileParameter(InputOutputParameter):
-    """
-    A file on disk.
-    """
-    keyword: ClassVar[str] = 'DEFile'
-    filter_types: ClassVar[TYPE_FILTERS] = FileTypeFilter,
-# End FileParameter class
-
-
 class FolderParameter(InputOutputParameter):
     """
     A location on disk where data is stored.
     """
     keyword: ClassVar[str] = 'DEFolder'
 # End FolderParameter class
+
+
+class GPLayerParameter(InputOutputParameter):
+    """
+    A reference to a data source, such as a shapefile, coverage,
+    geodatabase feature class, or raster, including symbology and
+    rendering properties.
+    """
+    keyword: ClassVar[str] = 'GPLayer'
+# End GPLayerParameter class
 
 
 class GroupLayerParameter(InputOutputParameter):
@@ -700,16 +656,6 @@ class LasDatasetLayerParameter(InputOutputParameter):
 # End LasDatasetLayerParameter class
 
 
-class GPLayerParameter(InputOutputParameter):
-    """
-    A reference to a data source, such as a shapefile, coverage,
-    geodatabase feature class, or raster, including symbology and
-    rendering properties.
-    """
-    keyword: ClassVar[str] = 'GPLayer'
-# End GPLayerParameter class
-
-
 class LayerFileParameter(InputOutputParameter):
     """
     A layer file stores a layer definition, including symbology and
@@ -719,13 +665,13 @@ class LayerFileParameter(InputOutputParameter):
 # End LayerFileParameter class
 
 
-class LongParameter(InputParameter):
+class MapDocumentParameter(InputParameter):
     """
-    An integer number value.
+    A file that contains one map, its layout, and its associated layers,
+    tables, charts, and reports.
     """
-    keyword: ClassVar[str] = 'GPLong'
-    filter_types: ClassVar[TYPE_FILTERS] = LongRangeFilter, LongValueFilter
-# End LongParameter class
+    keyword: ClassVar[str] = 'DEMapDocument'
+# End MapDocumentParameter class
 
 
 class MapParameter(InputOutputParameter):
@@ -829,6 +775,14 @@ class RelationshipClassParameter(InputOutputParameter):
 # End RelationshipClassParameter class
 
 
+class SACellSizeParameter(InputParameter):
+    """
+    The cell size used by the ArcGIS Spatial Analyst extension.
+    """
+    keyword: ClassVar[str] = 'GPSACellSize'
+# End SACellSizeParameter class
+
+
 class ShapeFileParameter(InputOutputParameter):
     """
     Spatial data in shapefile format.
@@ -846,40 +800,12 @@ class SpatialReferenceParameter(InputParameter):
 # End SpatialReferenceParameter class
 
 
-class StringParameter(InputOutputParameter):
-    """
-    A text value.
-    """
-    keyword: ClassVar[str] = 'GPString'
-    filter_types: ClassVar[TYPE_FILTERS] = StringValueFilter,
-
-    def _build_filter(self) -> tuple[dict, MAP_STR]:
-        """
-        Build Filter
-        """
-        if self.filter is None:
-            return {}, {}
-        content, resource = self.filter.serialize(self.name)
-        return content, resource
-    # End _build_filter method
-# End StringParameter class
-
-
 class StringHiddenParameter(InputParameter):
     """
     A string that is masked by asterisk characters.
     """
     keyword: ClassVar[str] = 'GPStringHidden'
 # End StringHiddenParameter class
-
-
-class TableParameter(SchemaMixin, InputOutputParameter):
-    """
-    Tabular data.
-    """
-    keyword: ClassVar[str] = 'DETable'
-    schema_type: ClassVar[str] = GP_TABLE_SCHEMA
-# End TableParameter class
 
 
 class TableViewParameter(InputOutputParameter):
@@ -927,6 +853,36 @@ class TopologyParameter(InputOutputParameter):
 # End TopologyParameter class
 
 
+class FeatureClassParameter(SchemaMixin, InputOutputParameter):
+    """
+    A collection of spatial data with the same shape type: point,
+    multipoint, polyline, and polygon.
+    """
+    keyword: ClassVar[str] = 'DEFeatureClass'
+    schema_type: ClassVar[str] = GP_FEATURE_SCHEMA
+    filter_types: ClassVar[TYPE_FILTERS] = FeatureClassTypeFilter,
+# End FeatureClassParameter class
+
+
+class FeatureLayerParameter(InputOutputParameter):
+    """
+    A reference to a feature class, including symbology and rendering
+    properties.
+    """
+    keyword: ClassVar[str] = 'GPFeatureLayer'
+    filter_types: ClassVar[TYPE_FILTERS] = FeatureClassTypeFilter,
+# End FeatureLayerParameter class
+
+
+class TableParameter(SchemaMixin, InputOutputParameter):
+    """
+    Tabular data.
+    """
+    keyword: ClassVar[str] = 'DETable'
+    schema_type: ClassVar[str] = GP_TABLE_SCHEMA
+# End TableParameter class
+
+
 _TABLE_TYPES: TYPE_PARAMS = TableParameter, TableViewParameter
 _GEOGRAPHIC_TYPES: TYPE_PARAMS = (
         FeatureClassParameter, FeatureLayerParameter,
@@ -944,6 +900,15 @@ class ArealUnitParameter(InputParameter):
 # End ArealUnitParameter class
 
 
+class DoubleParameter(InputParameter):
+    """
+    Any floating-point number stored as a double precision, 64-bit value.
+    """
+    keyword: ClassVar[str] = 'GPDouble'
+    filter_types: ClassVar[TYPE_FILTERS] = DoubleRangeFilter, DoubleValueFilter
+# End DoubleParameter class
+
+
 class FieldParameter(InputParameter):
     """
     A column in a table that stores the values for a single attribute.
@@ -952,6 +917,15 @@ class FieldParameter(InputParameter):
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = FieldTypeFilter,
 # End FieldParameter class
+
+
+class FileParameter(InputOutputParameter):
+    """
+    A file on disk.
+    """
+    keyword: ClassVar[str] = 'DEFile'
+    filter_types: ClassVar[TYPE_FILTERS] = FileTypeFilter,
+# End FileParameter class
 
 
 class LinearUnitParameter(InputParameter):
@@ -964,6 +938,24 @@ class LinearUnitParameter(InputParameter):
 # End LinearUnitParameter class
 
 
+class LongParameter(InputParameter):
+    """
+    An integer number value.
+    """
+    keyword: ClassVar[str] = 'GPLong'
+    filter_types: ClassVar[TYPE_FILTERS] = LongRangeFilter, LongValueFilter
+# End LongParameter class
+
+
+class NetworkTravelModeParameter(InputParameter):
+    """
+    A dictionary of travel mode objects.
+    """
+    keyword: ClassVar[str] = 'NetworkTravelMode'
+    filter_types: ClassVar[TYPE_FILTERS] = TravelModeUnitTypeFilter,
+# End NetworkTravelModeParameter class
+
+
 class SQLExpressionParameter(InputParameter):
     """
     A syntax for defining and manipulating data from a relational
@@ -972,6 +964,34 @@ class SQLExpressionParameter(InputParameter):
     keyword: ClassVar[str] = 'GPSQLExpression'
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
 # End SQLExpressionParameter class
+
+
+class StringParameter(InputOutputParameter):
+    """
+    A text value.
+    """
+    keyword: ClassVar[str] = 'GPString'
+    filter_types: ClassVar[TYPE_FILTERS] = StringValueFilter,
+
+    def _build_filter(self) -> tuple[dict, MAP_STR]:
+        """
+        Build Filter
+        """
+        if self.filter is None:
+            return {}, {}
+        content, resource = self.filter.serialize(self.name)
+        return content, resource
+    # End _build_filter method
+# End StringParameter class
+
+
+class TimeUnitParameter(InputParameter):
+    """
+    A time unit type and value such as minutes or hours.
+    """
+    keyword: ClassVar[str] = GP_TIME_UNIT
+    filter_types: ClassVar[TYPE_FILTERS] = TimeUnitFilter,
+# End TimeUnitParameter class
 
 
 class WorkspaceParameter(InputOutputParameter):
