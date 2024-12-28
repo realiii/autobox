@@ -1264,6 +1264,22 @@ class FeatureLayerParameter(InputOutputParameter):
 # End FeatureLayerParameter class
 
 
+class FeatureRecordSetLayerParameter(InputParameter):
+    """
+    Interactive features that draw the features when the tool is run.
+    """
+    keyword: ClassVar[str] = 'GPFeatureRecordSetLayer'
+# End FeatureRecordSetLayerParameter class
+
+
+class RecordSetParameter(InputParameter):
+    """
+    An interactive table. Type the table values when the tool is run.
+    """
+    keyword: ClassVar[str] = 'GPRecordSet'
+# End RecordSetParameter class
+
+
 class TableParameter(SchemaMixin, InputOutputParameter):
     """
     Tabular data.
@@ -1273,10 +1289,12 @@ class TableParameter(SchemaMixin, InputOutputParameter):
 # End TableParameter class
 
 
-_TABLE_TYPES: TYPE_PARAMS = TableParameter, TableViewParameter
+_TABLE_TYPES: TYPE_PARAMS = (
+    TableParameter, TableViewParameter, RecordSetParameter)
 _GEOGRAPHIC_TYPES: TYPE_PARAMS = (
-        FeatureClassParameter, FeatureLayerParameter,
-        RasterDatasetParameter, RasterLayerParameter
+    FeatureClassParameter, FeatureLayerParameter,
+    FeatureRecordSetLayerParameter,
+    RasterDatasetParameter, RasterLayerParameter
 )
 
 
@@ -1297,14 +1315,6 @@ class DoubleParameter(InputParameter):
     keyword: ClassVar[str] = 'GPDouble'
     filter_types: ClassVar[TYPE_FILTERS] = DoubleRangeFilter, DoubleValueFilter
 # End DoubleParameter class
-
-
-class FeatureRecordSetLayerParameter(InputParameter):
-    """
-    Interactive features that draw the features when the tool is run.
-    """
-    keyword: ClassVar[str] = 'GPFeatureRecordSetLayer'
-# End FeatureRecordSetLayerParameter class
 
 
 class FieldParameter(InputParameter):
@@ -1380,14 +1390,6 @@ class NetworkTravelModeParameter(InputParameter):
     keyword: ClassVar[str] = 'NetworkTravelMode'
     filter_types: ClassVar[TYPE_FILTERS] = TravelModeUnitTypeFilter,
 # End NetworkTravelModeParameter class
-
-
-class RecordSetParameter(InputParameter):
-    """
-    An interactive table. Type the table values when the tool is run.
-    """
-    keyword: ClassVar[str] = 'GPRecordSet'
-# End RecordSetParameter class
 
 
 class SQLExpressionParameter(InputParameter):
