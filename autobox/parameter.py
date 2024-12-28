@@ -1391,6 +1391,9 @@ class NetworkTravelModeParameter(InputParameter):
     A dictionary of travel mode objects.
     """
     keyword: ClassVar[str] = 'NetworkTravelMode'
+    dependency_types: ClassVar[TYPE_PARAMS] = (
+        NetworkDatasetParameter, NetworkDatasetLayerParameter,
+        NetworkDataSourceParameter)
     filter_types: ClassVar[TYPE_FILTERS] = TravelModeUnitTypeFilter,
 # End NetworkTravelModeParameter class
 
