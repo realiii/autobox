@@ -653,14 +653,6 @@ class FieldInfoParameter(InputParameter):
 # End FieldInfoParameter class
 
 
-class FieldMappingParameter(InputParameter):
-    """
-    A collection of fields in one or more input tables.
-    """
-    keyword: ClassVar[str] = 'GPFieldMapping'
-# End FieldMappingParameter class
-
-
 class FolderParameter(InputOutputParameter):
     """
     A location on disk where data is stored.
@@ -685,15 +677,6 @@ class GASearchNeighborhoodParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPGASearchNeighborhood'
 # End GASearchNeighborhoodParameter class
-
-
-class GAValueTableParameter(InputParameter):
-    """
-    A collection of data sources and fields that define a geostatistical
-    layer.
-    """
-    keyword: ClassVar[str] = 'GPGAValueTable'
-# End GAValueTableParameter class
 
 
 class GeodatasetTypeParameter(InputParameter):
@@ -822,17 +805,6 @@ class NAClassFieldMapParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'NAClassFieldMap'
 # End NAClassFieldMapParameter class
-
-
-class NAHierarchySettingsParameter(InputParameter):
-    """
-    A hierarchy attribute that divides hierarchy values of a network
-    dataset into three groups using two integers. The first integer sets
-    the ending value of the first group; the second number sets the
-    beginning value of the third group.
-    """
-    keyword: ClassVar[str] = 'GPNAHierarchySettings'
-# End NAHierarchySettingsParameter class
 
 
 class NALayerParameter(InputOutputParameter):
@@ -1345,6 +1317,15 @@ class DoubleParameter(InputParameter):
 # End DoubleParameter class
 
 
+class FieldMappingParameter(InputParameter):
+    """
+    A collection of fields in one or more input tables.
+    """
+    keyword: ClassVar[str] = 'GPFieldMapping'
+    dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+# End FieldMappingParameter class
+
+
 class FieldParameter(InputParameter):
     """
     A column in a table that stores the values for a single attribute.
@@ -1364,13 +1345,14 @@ class FileParameter(InputOutputParameter):
 # End FileParameter class
 
 
-class GALayerParameter(InputOutputParameter):
+class GAValueTableParameter(InputParameter):
     """
-    A reference to a geostatistical data source, including symbology and
-    rendering properties.
+    A collection of data sources and fields that define a geostatistical
+    layer.
     """
-    keyword: ClassVar[str] = 'GPGALayer'
-# End GALayerParameter class
+    keyword: ClassVar[str] = 'GPGAValueTable'
+    dependency_types: ClassVar[TYPE_PARAMS] = GALayerParameter,
+# End GAValueTableParameter class
 
 
 class LinearUnitParameter(InputParameter):
@@ -1392,23 +1374,16 @@ class LongParameter(InputParameter):
 # End LongParameter class
 
 
-class NetworkDataSourceParameter(InputOutputParameter):
+class NAHierarchySettingsParameter(InputParameter):
     """
-    A network data source can be a local dataset specified either using
-    its catalog path or a layer from a map, or it can be a URL to a
-    portal.
+    A hierarchy attribute that divides hierarchy values of a network
+    dataset into three groups using two integers. The first integer sets
+    the ending value of the first group; the second number sets the
+    beginning value of the third group.
     """
-    keyword: ClassVar[str] = 'GPNetworkDataSource'
-# End NetworkDataSourceParameter class
-
-
-class NetworkDatasetLayerParameter(InputOutputParameter):
-    """
-    A reference to a network dataset, including symbology and rendering
-    properties.
-    """
-    keyword: ClassVar[str] = 'GPNetworkDatasetLayer'
-# End NetworkDatasetLayerParameter class
+    keyword: ClassVar[str] = 'GPNAHierarchySettings'
+    dependency_types: ClassVar[TYPE_PARAMS] = NetworkDatasetParameter,
+# End NAHierarchySettingsParameter class
 
 
 class NetworkTravelModeParameter(InputParameter):
