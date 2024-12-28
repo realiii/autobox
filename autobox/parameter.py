@@ -32,21 +32,23 @@ __all__ = [
     'DataElementParameter', 'DatasetTypeParameter', 'DateParameter',
     'DbaseTableParameter', 'DoubleParameter', 'EncryptedStringParameter',
     'EnvelopeParameter', 'ExtentParameter', 'FeatureClassParameter',
-    'FeatureDatasetParameter', 'FeatureLayerParameter', 'FieldParameter',
-    'FileParameter', 'FolderParameter', 'GPLayerParameter',
+    'FeatureDatasetParameter', 'FeatureLayerParameter',
+    'FeatureRecordSetLayerParameter', 'FieldParameter', 'FileParameter',
+    'FolderParameter', 'GALayerParameter', 'GPLayerParameter',
     'GroupLayerParameter', 'LasDatasetLayerParameter', 'LasDatasetParameter',
     'LayerFileParameter', 'LinearUnitParameter', 'LongParameter',
     'MapDocumentParameter', 'MapParameter', 'MosaicDatasetParameter',
-    'MosaicLayerParameter', 'NetworkDatasetParameter',
+    'MosaicLayerParameter', 'NetworkDataSourceParameter',
+    'NetworkDatasetLayerParameter', 'NetworkDatasetParameter',
     'NetworkTravelModeParameter', 'PointParameter', 'PrjFileParameter',
     'RasterBandParameter', 'RasterCalculatorExpressionParameter',
     'RasterDataLayerParameter', 'RasterDatasetParameter',
-    'RasterLayerParameter', 'RelationshipClassParameter', 'SACellSizeParameter',
-    'SQLExpressionParameter', 'ShapeFileParameter', 'SpatialReferenceParameter',
-    'StringHiddenParameter', 'StringParameter', 'TableParameter',
-    'TableViewParameter', 'TextfileParameter', 'TimeUnitParameter',
-    'TinLayerParameter', 'TinParameter', 'TopologyParameter',
-    'WorkspaceParameter',
+    'RasterLayerParameter', 'RecordSetParameter', 'RelationshipClassParameter',
+    'SACellSizeParameter', 'SQLExpressionParameter', 'ShapeFileParameter',
+    'SpatialReferenceParameter', 'StringHiddenParameter', 'StringParameter',
+    'TableParameter', 'TableViewParameter', 'TextfileParameter',
+    'TimeUnitParameter', 'TinLayerParameter', 'TinParameter',
+    'TopologyParameter', 'WorkspaceParameter',
 ]
 
 
@@ -909,6 +911,14 @@ class DoubleParameter(InputParameter):
 # End DoubleParameter class
 
 
+class FeatureRecordSetLayerParameter(InputParameter):
+    """
+    Interactive features that draw the features when the tool is run.
+    """
+    keyword: ClassVar[str] = 'GPFeatureRecordSetLayer'
+# End FeatureRecordSetLayerParameter class
+
+
 class FieldParameter(InputParameter):
     """
     A column in a table that stores the values for a single attribute.
@@ -926,6 +936,15 @@ class FileParameter(InputOutputParameter):
     keyword: ClassVar[str] = 'DEFile'
     filter_types: ClassVar[TYPE_FILTERS] = FileTypeFilter,
 # End FileParameter class
+
+
+class GALayerParameter(InputOutputParameter):
+    """
+    A reference to a geostatistical data source, including symbology and
+    rendering properties.
+    """
+    keyword: ClassVar[str] = 'GPGALayer'
+# End GALayerParameter class
 
 
 class LinearUnitParameter(InputParameter):
@@ -947,6 +966,25 @@ class LongParameter(InputParameter):
 # End LongParameter class
 
 
+class NetworkDataSourceParameter(InputOutputParameter):
+    """
+    A network data source can be a local dataset specified either using
+    its catalog path or a layer from a map, or it can be a URL to a
+    portal.
+    """
+    keyword: ClassVar[str] = 'GPNetworkDataSource'
+# End NetworkDataSourceParameter class
+
+
+class NetworkDatasetLayerParameter(InputOutputParameter):
+    """
+    A reference to a network dataset, including symbology and rendering
+    properties.
+    """
+    keyword: ClassVar[str] = 'GPNetworkDatasetLayer'
+# End NetworkDatasetLayerParameter class
+
+
 class NetworkTravelModeParameter(InputParameter):
     """
     A dictionary of travel mode objects.
@@ -954,6 +992,14 @@ class NetworkTravelModeParameter(InputParameter):
     keyword: ClassVar[str] = 'NetworkTravelMode'
     filter_types: ClassVar[TYPE_FILTERS] = TravelModeUnitTypeFilter,
 # End NetworkTravelModeParameter class
+
+
+class RecordSetParameter(InputParameter):
+    """
+    An interactive table. Type the table values when the tool is run.
+    """
+    keyword: ClassVar[str] = 'GPRecordSet'
+# End RecordSetParameter class
 
 
 class SQLExpressionParameter(InputParameter):

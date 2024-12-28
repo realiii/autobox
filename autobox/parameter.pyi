@@ -244,6 +244,9 @@ class DoubleParameter(InputParameter):
 # End DoubleParameter class
 
 
+class FeatureRecordSetLayerParameter(InputParameter): ...
+
+
 class FieldParameter(InputParameter):
     """
     A column in a table that stores the values for a single attribute.
@@ -270,6 +273,9 @@ class FileParameter(InputOutputParameter):
     @filter.setter
     def filter(self, value: FileTypeFilter | None) -> None: ...
 # End FileParameter class
+
+
+class GALayerParameter(InputOutputParameter): ...
 
 
 class LinearUnitParameter(InputParameter):
@@ -301,6 +307,10 @@ class LongParameter(InputParameter):
 # End LongParameter class
 
 
+class NetworkDataSourceParameter(InputOutputParameter): ...
+class NetworkDatasetLayerParameter(InputOutputParameter): ...
+
+
 class NetworkTravelModeParameter(InputParameter):
     """
     A dictionary of travel mode objects.
@@ -311,6 +321,9 @@ class NetworkTravelModeParameter(InputParameter):
     @filter.setter
     def filter(self, value: TravelModeUnitTypeFilter | None) -> None: ...
 # End NetworkTravelModeParameter class
+
+
+class RecordSetParameter(InputParameter): ...
 
 
 class StringParameter(InputOutputParameter):

@@ -36,7 +36,7 @@
 35,Feature Class,DEFeatureClass,FeatureClass,v0.1.0,Y,Y,"A collection of spatial data with the same shape type: point, multipoint, polyline, and polygon."
 36,Feature Dataset,DEFeatureDataset,FeatureDataset,v0.1.0,Y,Y,A collection of feature classes that share a common geographic area and the same spatial reference system.
 37,Feature Layer,GPFeatureLayer,FeatureLayer,v0.1.0,Y,Y,"A reference to a feature class, including symbology and rendering properties."
-38,Feature Set,GPFeatureRecordSetLayer,FeatureRecordSetLayer,,N,N,Interactive features that draw the features when the tool is run.
+38,Feature Set,GPFeatureRecordSetLayer,FeatureRecordSetLayer,v0.2.0,Y,N,Interactive features that draw the features when the tool is run.
 39,Field,Field,Field,v0.1.0,Y,N,A column in a table that stores the values for a single attribute.
 40,Field Info,GPFieldInfo,FieldInfo,,N,N,The details about a field in a field map.
 41,Field Mappings,GPFieldMapping,FieldMapping,,N,N,A collection of fields in one or more input tables.
@@ -47,7 +47,7 @@
 46,Geodataset,DEGeodatasetType,GeodatasetType,,N,N,A collection of data with a common theme in a geodatabase.
 47,GeoDataServer,DEGeoDataServer,GeoDataServer,,N,N,A coarse-grained object that references a geodatabase.
 48,Geometric Network,DEGeometricNetwork,GeometricNetwork,,N,Y,A linear network represented by topologically connected edge and junction features. Feature connectivity is based on their geometric coincidence.
-49,Geostatistical Layer,GPGALayer,GALayer,,N,Y,"A reference to a geostatistical data source, including symbology and rendering properties."
+49,Geostatistical Layer,GPGALayer,GALayer,v0.2.0,Y,Y,"A reference to a geostatistical data source, including symbology and rendering properties."
 50,Geostatistical Search Neighborhood,GPGASearchNeighborhood,GASearchNeighborhood,,N,N,The searching neighborhood parameters for a geostatistical layer are defined.
 51,Geostatistical Value Table,GPGAValueTable,GAValueTable,,N,N,A collection of data sources and fields that define a geostatistical layer.
 52,GlobeServer,DEGlobeServer,GlobeServer,,N,N,A Globe server.
@@ -80,9 +80,9 @@
 79,Network Analyst Class FieldMap,NAClassFieldMap,NAClassFieldMap,,N,N,"Mapping between location properties in a Network Analyst layer (such as stops, facilities, and incidents) and a point feature class."
 80,Network Analyst Hierarchy Settings,GPNAHierarchySettings,NAHierarchySettings,,N,N,A hierarchy attribute that divides hierarchy values of a network dataset into three groups using two integers. The first integer sets the ending value of the first group; the second number sets the beginning value of the third group.
 81,Network Analyst Layer,GPNALayer,NALayer,,N,Y,A group layer used to express and solve network routing problems. Each sublayer held in memory in a Network Analyst layer represents some aspect of the routing problem and the routing solution.
-82,Network Data Source,GPNetworkDataSource,NetworkDataSource,,N,Y,"A network data source can be a local dataset specified either using its catalog path or a layer from a map, or it can be a URL to a portal."
+82,Network Data Source,GPNetworkDataSource,NetworkDataSource,v0.2.0,Y,Y,"A network data source can be a local dataset specified either using its catalog path or a layer from a map, or it can be a URL to a portal."
 83,Network Dataset,DENetworkDataset,NetworkDataset,v0.1.0,Y,Y,"A collection of topologically connected network elements (edges, junctions, and turns), derived from network sources and associated with a collection of network attributes."
-84,Network Dataset Layer,GPNetworkDatasetLayer,NetworkDatasetLayer,,N,Y,"A reference to a network dataset, including symbology and rendering properties."
+84,Network Dataset Layer,GPNetworkDatasetLayer,NetworkDatasetLayer,v0.2.0,Y,Y,"A reference to a network dataset, including symbology and rendering properties."
 85,Network Travel Mode,NetworkTravelMode,NetworkTravelMode,v0.2.0,Y,N,A dictionary of travel mode objects.
 86,Oriented Imagery Layer,GPOrientedImageryLayer,OrientedImageryLayer,,N,Y,A collection of camera locations with image metadata.
 87,Parcel Fabric For ArcMap,DECadastralFabric,CadastralFabric,,N,Y,"A dataset used for the storage, maintenance, and editing of a continuous surface of connected parcels or parcel network."
@@ -100,7 +100,7 @@
 99,Raster Layer,GPRasterLayer,RasterLayer,v0.1.0,Y,Y,"A reference to a raster, including symbology and rendering properties."
 100,Raster Statistics,GPSAGDBEnvStatistics,SAGDBEnvStatistics,,N,N,Specifies whether raster statistics build.
 101,Raster Type,GPRasterBuilder,RasterBuilder,,N,N,"Raster data is added to a mosaic dataset by specifying a raster type. The raster type identifies metadata, such as georeferencing, acquisition date, and sensor type, with a raster format."
-102,Record Set,GPRecordSet,RecordSet,,N,N,An interactive table. Type the table values when the tool is run.
+102,Record Set,GPRecordSet,RecordSet,v0.2.0,Y,N,An interactive table. Type the table values when the tool is run.
 103,Relationship Class,DERelationshipClass,RelationshipClass,v0.1.0,Y,Y,The details about the relationship between objects in the geodatabase.
 104,Remap,GPSARemap,SARemap,,N,N,A table that defines how raster cell values are reclassified.
 105,Route Measure Event Properties,GPRouteMeasureEventProperties,RouteMeasureEventProperties,,N,N,The fields on a table that describe events measured by a linear reference route system.
