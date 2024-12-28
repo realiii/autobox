@@ -653,20 +653,21 @@ class FieldInfoParameter(InputParameter):
 # End FieldInfoParameter class
 
 
-class FieldMappingParameter(InputParameter):
-    """
-    A collection of fields in one or more input tables.
-    """
-    keyword: ClassVar[str] = 'GPFieldMapping'
-# End FieldMappingParameter class
-
-
 class FolderParameter(InputOutputParameter):
     """
     A location on disk where data is stored.
     """
     keyword: ClassVar[str] = 'DEFolder'
 # End FolderParameter class
+
+
+class GALayerParameter(InputOutputParameter):
+    """
+    A reference to a geostatistical data source, including symbology and
+    rendering properties.
+    """
+    keyword: ClassVar[str] = 'GPGALayer'
+# End GALayerParameter class
 
 
 class GASearchNeighborhoodParameter(InputParameter):
@@ -676,15 +677,6 @@ class GASearchNeighborhoodParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPGASearchNeighborhood'
 # End GASearchNeighborhoodParameter class
-
-
-class GAValueTableParameter(InputParameter):
-    """
-    A collection of data sources and fields that define a geostatistical
-    layer.
-    """
-    keyword: ClassVar[str] = 'GPGAValueTable'
-# End GAValueTableParameter class
 
 
 class GeodatasetTypeParameter(InputParameter):
@@ -815,17 +807,6 @@ class NAClassFieldMapParameter(InputParameter):
 # End NAClassFieldMapParameter class
 
 
-class NAHierarchySettingsParameter(InputParameter):
-    """
-    A hierarchy attribute that divides hierarchy values of a network
-    dataset into three groups using two integers. The first integer sets
-    the ending value of the first group; the second number sets the
-    beginning value of the third group.
-    """
-    keyword: ClassVar[str] = 'GPNAHierarchySettings'
-# End NAHierarchySettingsParameter class
-
-
 class NALayerParameter(InputOutputParameter):
     """
     A group layer used to express and solve network routing problems. Each
@@ -836,6 +817,15 @@ class NALayerParameter(InputOutputParameter):
 # End NALayerParameter class
 
 
+class NetworkDatasetLayerParameter(InputOutputParameter):
+    """
+    A reference to a network dataset, including symbology and rendering
+    properties.
+    """
+    keyword: ClassVar[str] = 'GPNetworkDatasetLayer'
+# End NetworkDatasetLayerParameter class
+
+
 class NetworkDatasetParameter(InputOutputParameter):
     """
     A collection of topologically connected network elements (edges,
@@ -844,6 +834,16 @@ class NetworkDatasetParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DENetworkDataset'
 # End NetworkDatasetParameter class
+
+
+class NetworkDataSourceParameter(InputOutputParameter):
+    """
+    A network data source can be a local dataset specified either using
+    its catalog path or a layer from a map, or it can be a URL to a
+    portal.
+    """
+    keyword: ClassVar[str] = 'GPNetworkDataSource'
+# End NetworkDataSourceParameter class
 
 
 class PointParameter(InputParameter):
@@ -1264,6 +1264,22 @@ class FeatureLayerParameter(InputOutputParameter):
 # End FeatureLayerParameter class
 
 
+class FeatureRecordSetLayerParameter(InputParameter):
+    """
+    Interactive features that draw the features when the tool is run.
+    """
+    keyword: ClassVar[str] = 'GPFeatureRecordSetLayer'
+# End FeatureRecordSetLayerParameter class
+
+
+class RecordSetParameter(InputParameter):
+    """
+    An interactive table. Type the table values when the tool is run.
+    """
+    keyword: ClassVar[str] = 'GPRecordSet'
+# End RecordSetParameter class
+
+
 class TableParameter(SchemaMixin, InputOutputParameter):
     """
     Tabular data.
@@ -1273,10 +1289,12 @@ class TableParameter(SchemaMixin, InputOutputParameter):
 # End TableParameter class
 
 
-_TABLE_TYPES: TYPE_PARAMS = TableParameter, TableViewParameter
+_TABLE_TYPES: TYPE_PARAMS = (
+    TableParameter, TableViewParameter, RecordSetParameter)
 _GEOGRAPHIC_TYPES: TYPE_PARAMS = (
-        FeatureClassParameter, FeatureLayerParameter,
-        RasterDatasetParameter, RasterLayerParameter
+    FeatureClassParameter, FeatureLayerParameter,
+    FeatureRecordSetLayerParameter,
+    RasterDatasetParameter, RasterLayerParameter
 )
 
 
@@ -1285,7 +1303,7 @@ class ArealUnitParameter(InputParameter):
     An areal unit type and value, such as square meter or acre.
     """
     keyword: ClassVar[str] = GP_AREAL_UNIT
-    dependency_types: ClassVar[TYPE_PARAMS] = _GEOGRAPHIC_TYPES
+    dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = ArealUnitFilter,
 # End ArealUnitParameter class
 
@@ -1299,12 +1317,13 @@ class DoubleParameter(InputParameter):
 # End DoubleParameter class
 
 
-class FeatureRecordSetLayerParameter(InputParameter):
+class FieldMappingParameter(InputParameter):
     """
-    Interactive features that draw the features when the tool is run.
+    A collection of fields in one or more input tables.
     """
-    keyword: ClassVar[str] = 'GPFeatureRecordSetLayer'
-# End FeatureRecordSetLayerParameter class
+    keyword: ClassVar[str] = 'GPFieldMapping'
+    dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+# End FieldMappingParameter class
 
 
 class FieldParameter(InputParameter):
@@ -1326,13 +1345,14 @@ class FileParameter(InputOutputParameter):
 # End FileParameter class
 
 
-class GALayerParameter(InputOutputParameter):
+class GAValueTableParameter(InputParameter):
     """
-    A reference to a geostatistical data source, including symbology and
-    rendering properties.
+    A collection of data sources and fields that define a geostatistical
+    layer.
     """
-    keyword: ClassVar[str] = 'GPGALayer'
-# End GALayerParameter class
+    keyword: ClassVar[str] = 'GPGAValueTable'
+    dependency_types: ClassVar[TYPE_PARAMS] = GALayerParameter,
+# End GAValueTableParameter class
 
 
 class LinearUnitParameter(InputParameter):
@@ -1340,7 +1360,7 @@ class LinearUnitParameter(InputParameter):
     A linear unit type and value such as meter or feet.
     """
     keyword: ClassVar[str] = GP_LINEAR_UNIT
-    dependency_types: ClassVar[TYPE_PARAMS] = _GEOGRAPHIC_TYPES
+    dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = LinearUnitFilter,
 # End LinearUnitParameter class
 
@@ -1354,23 +1374,16 @@ class LongParameter(InputParameter):
 # End LongParameter class
 
 
-class NetworkDataSourceParameter(InputOutputParameter):
+class NAHierarchySettingsParameter(InputParameter):
     """
-    A network data source can be a local dataset specified either using
-    its catalog path or a layer from a map, or it can be a URL to a
-    portal.
+    A hierarchy attribute that divides hierarchy values of a network
+    dataset into three groups using two integers. The first integer sets
+    the ending value of the first group; the second number sets the
+    beginning value of the third group.
     """
-    keyword: ClassVar[str] = 'GPNetworkDataSource'
-# End NetworkDataSourceParameter class
-
-
-class NetworkDatasetLayerParameter(InputOutputParameter):
-    """
-    A reference to a network dataset, including symbology and rendering
-    properties.
-    """
-    keyword: ClassVar[str] = 'GPNetworkDatasetLayer'
-# End NetworkDatasetLayerParameter class
+    keyword: ClassVar[str] = 'GPNAHierarchySettings'
+    dependency_types: ClassVar[TYPE_PARAMS] = NetworkDatasetParameter,
+# End NAHierarchySettingsParameter class
 
 
 class NetworkTravelModeParameter(InputParameter):
@@ -1378,16 +1391,11 @@ class NetworkTravelModeParameter(InputParameter):
     A dictionary of travel mode objects.
     """
     keyword: ClassVar[str] = 'NetworkTravelMode'
+    dependency_types: ClassVar[TYPE_PARAMS] = (
+        NetworkDatasetParameter, NetworkDatasetLayerParameter,
+        NetworkDataSourceParameter)
     filter_types: ClassVar[TYPE_FILTERS] = TravelModeUnitTypeFilter,
 # End NetworkTravelModeParameter class
-
-
-class RecordSetParameter(InputParameter):
-    """
-    An interactive table. Type the table values when the tool is run.
-    """
-    keyword: ClassVar[str] = 'GPRecordSet'
-# End RecordSetParameter class
 
 
 class SQLExpressionParameter(InputParameter):

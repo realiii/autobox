@@ -4,7 +4,7 @@ Parameter Stubs
 """
 
 
-from typing import Any, ClassVar, NoReturn, Self, Type
+from typing import Any, ClassVar, NoReturn, Self, Type, TypeAlias
 
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
@@ -149,10 +149,9 @@ class EnvelopeParameter(InputParameter): ...
 class ExtentParameter(InputParameter): ...
 class FeatureDatasetParameter(InputOutputParameter): ...
 class FieldInfoParameter(InputParameter): ...
-class FieldMappingParameter(InputParameter): ...
 class FolderParameter(InputOutputParameter): ...
+class GALayerParameter(InputOutputParameter): ...
 class GASearchNeighborhoodParameter(InputParameter): ...
-class GAValueTableParameter(InputParameter): ...
 class GPLayerParameter(InputOutputParameter): ...
 class GeodatasetTypeParameter(InputParameter): ...
 class GeometricNetworkParameter(InputOutputParameter): ...
@@ -167,9 +166,10 @@ class MapParameter(InputOutputParameter): ...
 class MosaicDatasetParameter(InputOutputParameter): ...
 class MosaicLayerParameter(InputOutputParameter): ...
 class NAClassFieldMapParameter(InputParameter): ...
-class NAHierarchySettingsParameter(InputParameter): ...
 class NALayerParameter(InputOutputParameter): ...
+class NetworkDatasetLayerParameter(InputOutputParameter): ...
 class NetworkDatasetParameter(InputOutputParameter): ...
+class NetworkDataSourceParameter(InputOutputParameter): ...
 class PointParameter(InputParameter): ...
 class PrjFileParameter(InputOutputParameter): ...
 class RandomNumberGeneratorParameter(InputParameter): ...
@@ -245,17 +245,27 @@ class FeatureLayerParameter(InputOutputParameter):
 # End FeatureLayerParameter class
 
 
+class FeatureRecordSetLayerParameter(InputParameter): ...
+class RecordSetParameter(InputParameter): ...
+
+
 class TableParameter(SchemaMixin, InputOutputParameter): ...
 
 
-_GEOG_TYPES: TYPE_PARAMS = (
+_GEOG_TYPES: TypeAlias = (
         FeatureClassParameter | FeatureLayerParameter |
-        RasterDatasetParameter | RasterLayerParameter
+        FeatureRecordSetLayerParameter |
+        RasterDatasetParameter | RasterLayerParameter | None
 )
-_TABLE_AND_GEOGRAPHIC_TYPES: TYPE_PARAMS = (
-    TableParameter | TableViewParameter |
+_TABLE_AND_GEOGRAPHIC_TYPES: TypeAlias = (
+    TableParameter | TableViewParameter | RecordSetParameter |
     FeatureClassParameter | FeatureLayerParameter |
-    RasterDatasetParameter | RasterLayerParameter
+    FeatureRecordSetLayerParameter |
+    RasterDatasetParameter | RasterLayerParameter | None
+)
+_NETWORK_TYPES: TypeAlias = (
+    NetworkDatasetParameter | NetworkDatasetLayerParameter |
+    NetworkDataSourceParameter | None
 )
 
 
@@ -264,10 +274,10 @@ class ArealUnitParameter(InputParameter):
     An areal unit type and value, such as square meter or acre.
     """
     @property
-    def dependency(self) -> _GEOG_TYPES: ...
+    def dependency(self) -> _TABLE_AND_GEOGRAPHIC_TYPES: ...
     # noinspection PyUnresolvedReferences
     @dependency.setter
-    def dependency(self, value: _GEOG_TYPES) -> None: ...
+    def dependency(self, value: _TABLE_AND_GEOGRAPHIC_TYPES) -> None: ...
     def filter(self) -> ArealUnitFilter | None: ...
     # noinspection PyUnresolvedReferences
     @filter.setter
@@ -287,7 +297,16 @@ class DoubleParameter(InputParameter):
 # End DoubleParameter class
 
 
-class FeatureRecordSetLayerParameter(InputParameter): ...
+class FieldMappingParameter(InputParameter):
+    """
+    A collection of fields in one or more input tables.
+    """
+    @property
+    def dependency(self) -> _TABLE_AND_GEOGRAPHIC_TYPES: ...
+    # noinspection PyUnresolvedReferences
+    @dependency.setter
+    def dependency(self, value: _TABLE_AND_GEOGRAPHIC_TYPES) -> None: ...
+# End FieldMappingParameter class
 
 
 class FieldParameter(InputParameter):
@@ -318,7 +337,17 @@ class FileParameter(InputOutputParameter):
 # End FileParameter class
 
 
-class GALayerParameter(InputOutputParameter): ...
+class GAValueTableParameter(InputParameter):
+    """
+    A collection of data sources and fields that define a geostatistical
+    layer.
+    """
+    @property
+    def dependency(self) -> GALayerParameter | None: ...
+    # noinspection PyUnresolvedReferences
+    @dependency.setter
+    def dependency(self, value: GALayerParameter | None) -> None: ...
+# End GAValueTableParameter class
 
 
 class LinearUnitParameter(InputParameter):
@@ -326,10 +355,10 @@ class LinearUnitParameter(InputParameter):
     A linear unit type and value such as meter or feet.
     """
     @property
-    def dependency(self) -> _GEOG_TYPES: ...
+    def dependency(self) -> _TABLE_AND_GEOGRAPHIC_TYPES: ...
     # noinspection PyUnresolvedReferences
     @dependency.setter
-    def dependency(self, value: _GEOG_TYPES) -> None: ...
+    def dependency(self, value: _TABLE_AND_GEOGRAPHIC_TYPES) -> None: ...
     @property
     def filter(self) -> LinearUnitFilter | None: ...
     # noinspection PyUnresolvedReferences
@@ -350,14 +379,15 @@ class LongParameter(InputParameter):
 # End LongParameter class
 
 
-class NetworkDataSourceParameter(InputOutputParameter): ...
-class NetworkDatasetLayerParameter(InputOutputParameter): ...
-
-
 class NetworkTravelModeParameter(InputParameter):
     """
     A dictionary of travel mode objects.
     """
+    @property
+    def dependency(self) -> _NETWORK_TYPES: ...
+    # noinspection PyUnresolvedReferences
+    @dependency.setter
+    def dependency(self, value: _NETWORK_TYPES) -> None: ...
     @property
     def filter(self) -> TravelModeUnitTypeFilter | None: ...
     # noinspection PyUnresolvedReferences
@@ -366,7 +396,19 @@ class NetworkTravelModeParameter(InputParameter):
 # End NetworkTravelModeParameter class
 
 
-class RecordSetParameter(InputParameter): ...
+class NAHierarchySettingsParameter(InputParameter):
+    """
+    A hierarchy attribute that divides hierarchy values of a network
+    dataset into three groups using two integers. The first integer sets
+    the ending value of the first group; the second number sets the
+    beginning value of the third group.
+    """
+    @property
+    def dependency(self) -> NetworkDatasetParameter | None: ...
+    # noinspection PyUnresolvedReferences
+    @dependency.setter
+    def dependency(self, value: NetworkDatasetParameter | None) -> None: ...
+# End NAHierarchySettingsParameter class
 
 
 class StringParameter(InputOutputParameter):
