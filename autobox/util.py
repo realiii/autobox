@@ -11,7 +11,8 @@ from tempfile import mkdtemp
 from typing import NoReturn, TYPE_CHECKING
 
 from autobox.constant import (
-    DOUBLE_SPACE, DOUBLE_UNDERSCORE, EXT, SPACE, UNDERSCORE)
+    DOT_DOT_SLASH, DOUBLE_SPACE, DOUBLE_UNDERSCORE, EXT, RELATIVE, SPACE,
+    UNDERSCORE)
 from autobox.type import STRING
 
 
@@ -234,6 +235,46 @@ def get_repeated_names(values: list['Toolset'] | list['ScriptTool'] |
     counter = Counter(v.name.casefold() for v in values)
     return {n for n, c in counter.items() if c > 1}
 # End get_repeated_names method
+
+
+def resolve_layer_path(layer_file: Path, toolbox_folder: Path) -> str:
+    """
+    Resolve Layer Path, return relative if possible, absolute if necessary.
+    """
+    layer_file = layer_file.resolve()
+    layer_folder = layer_file.parent
+    toolbox_folder = toolbox_folder.resolve()
+    # NOTE on different drives, need full path
+    if layer_folder.drive != toolbox_folder.drive:  # pragma: no cover
+        return str(layer_file)
+    # NOTE layer file alongside toolbox
+    if layer_folder == toolbox_folder:
+        return f'{RELATIVE}{layer_file.name}'
+    try:
+        path = layer_file.relative_to(toolbox_folder)
+    except ValueError:
+        for i, (lyr, box) in enumerate(zip(
+                layer_folder.parts, toolbox_folder.parts)):
+            if lyr == box:
+                continue
+            return _build_relative(layer_parts=layer_file.parts[i:],
+                                   toolbox_parts=toolbox_folder.parts[i:])
+    else:
+        return f'{RELATIVE}{path}'
+    return _build_relative(layer_parts=layer_file.parts[1:],
+                           toolbox_parts=toolbox_folder.parts[1:])
+# End resolve_layer_path function
+
+
+def _build_relative(layer_parts: tuple[str, ...],
+                    toolbox_parts: tuple[str, ...]) -> str:
+    """
+    Build Relative Path, index is the number of common parts between the
+    """
+    tail = '/'.join(layer_parts)
+    count = len(toolbox_parts)
+    return f'{(DOT_DOT_SLASH * count)}{RELATIVE}{tail}'
+# End _build_relative function
 
 
 if __name__ == '__main__':  # pragma: no cover
