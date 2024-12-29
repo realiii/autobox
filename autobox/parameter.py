@@ -3,24 +3,24 @@
 Parameters
 """
 
-
+from pathlib import Path
 from typing import Any, ClassVar, NoReturn, Self, Type
 
 from autobox.constant import (
     DERIVED, DOLLAR_RC, DOT, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA,
     GP_LINEAR_UNIT, GP_MULTI_VALUE, GP_TABLE_SCHEMA, GP_TIME_UNIT, OPTIONAL,
     OUT, PARAMETER, ParameterContentKeys, ParameterContentResourceKeys,
-    SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
+    RELATIVE, SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TRUE)
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
     LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
     TravelModeUnitTypeFilter, WorkspaceTypeFilter)
-from autobox.type import BOOL, MAP_STR, STRING, TYPE_FILTERS, TYPE_PARAMS
+from autobox.type import BOOL, MAP_STR, PATH, STRING, TYPE_FILTERS, TYPE_PARAMS
 from autobox.util import (
-    make_parameter_name, validate_parameter_label, validate_parameter_name,
-    wrap_markup)
+    make_parameter_name, resolve_layer_path, validate_parameter_label,
+    validate_parameter_name, validate_path, wrap_markup)
 
 
 __all__ = [
@@ -111,6 +111,7 @@ class BaseParameter:
         self._is_enabled: bool = is_enabled
         self._dependency: InputOutputParameter | None = None
         self._filter: AbstractFilter | None = None
+        self._symbology: PATH = None
     # End init built-in
 
     @staticmethod
@@ -145,6 +146,20 @@ class BaseParameter:
             raise TypeError(f'Invalid {text} type: {value}')
         return value
     # End _validate_type method
+
+    @staticmethod
+    def _validate_layer_file(path: PATH) -> PATH:
+        """
+        Validate Layer File
+        """
+        if not path:
+            return
+        text = 'layer file'
+        path = validate_path(path, text=text)
+        if path.suffix.casefold() not in ('.lyrx', '.lyr'):
+            raise TypeError(f'Invalid {text} type: {path.suffix}')
+        return path
+    # End _validate_layer_file method
 
     def _build_parameter_type(self) -> dict[str, STRING]:
         """
@@ -224,6 +239,21 @@ class BaseParameter:
         return {ParameterContentKeys.depends: [self.dependency.name]}
     # End _build_dependency method
 
+    def _build_symbology(self, target: Path) -> MAP_STR:
+        """
+        Build Symbology
+        """
+        if self.is_input or not target or not self.symbology:
+            return {}
+        if not self.symbology.is_file():  # pragma: no cover
+            return {}
+        path = resolve_layer_path(
+            layer_file=self.symbology, toolbox_folder=target)
+        if not path or path == RELATIVE:  # pragma: no cover
+            return {}
+        return {ParameterContentKeys.symbology: path}
+    # End _build_symbology method
+
     # noinspection PyMethodMayBeStatic
     def _build_schema(self) -> MAP_STR:
         """
@@ -261,7 +291,7 @@ class BaseParameter:
         return content, {key: self.description}
     # End _build_description method
 
-    def _serialize(self, categories: dict[str, int]) \
+    def _serialize(self, categories: dict[str, int], target: Path) \
             -> tuple[dict[str, dict], MAP_STR]:
         """
         Serialize Parameter to a content dictionary and a resource dictionary.
@@ -273,12 +303,14 @@ class BaseParameter:
         data_type = self._build_data_type()
         filter_content, filter_resource = self._build_filter()
         dependency = self._build_dependency()
+        symbology = self._build_symbology(target)
         schema = self._build_schema()
         default_value = self._build_default_value()
         description_content, description_resource = self._build_description()
         content = {**parameter_type, **direction, **display_name_content,
                    **category, **data_type, **filter_content, **dependency,
-                   **schema, **default_value, **description_content}
+                   **symbology, **schema, **default_value,
+                   **description_content}
         content = {k: v for k, v in content.items() if v}
         resource = {**filter_resource, **description_resource,
                     **display_name_resource}
@@ -400,12 +432,24 @@ class BaseParameter:
             value, types=self.filter_types, text=FILTER)
     # End dependency property
 
-    def serialize(self, categories: dict[str, int]) \
+    @property
+    def symbology(self) -> PATH:
+        """
+        Symbology (path to layer file)
+        """
+        return self._symbology
+
+    @symbology.setter
+    def symbology(self, value: PATH) -> None:
+        self._symbology = self._validate_layer_file(value)
+    # End symbology property
+
+    def serialize(self, categories: dict[str, int], target: Path) \
             -> tuple[dict[str, dict], MAP_STR]:
         """
         Serialize Parameter to a content dictionary and a resource dictionary.
         """
-        return self._serialize(categories)
+        return self._serialize(categories, target=target)
     # End serialize method
 # End BaseParameter class
 

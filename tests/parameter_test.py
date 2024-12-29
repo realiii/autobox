@@ -120,7 +120,7 @@ def test_parameter_simple_string():
         description='plain text description',
         default_value='the quick brown fox')
     categories = {category: 1}
-    content, resource = param.serialize(categories)
+    content, resource = param.serialize(categories, target=None)
     assert content == expected_content[name]
     assert resource == expected_resource
 # End test_parameter_simple_string function
@@ -153,7 +153,7 @@ def test_parameter_derived_string():
         default_value='lazy dog')
     param.set_derived()
     categories = {category: 2}
-    content, resource = param.serialize(categories)
+    content, resource = param.serialize(categories, target=None)
     assert content == expected_content[name]
     assert resource == expected_resource
 # End test_parameter_derived_string function
@@ -192,7 +192,7 @@ def test_parameter_multi_string():
         description='<p><b>all bold</b></p>',
         default_value=defaults, is_required=False, is_multi=True)
     categories = {category: 1}
-    content, resource = param.serialize(categories)
+    content, resource = param.serialize(categories, target=None)
     assert content == expected_content[name]
     assert resource == expected_resource
 # End test_parameter_multi_string function
@@ -218,7 +218,7 @@ def test_parameter_numeric(cls, label, name, default_value, expected_content, ex
     """
     param = cls(label=label, name=name, default_value=default_value,
                 is_multi=isinstance(default_value, tuple))
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content
     assert resource == expected_resource
 # End test_parameter_numeric function
@@ -266,7 +266,7 @@ def test_parameter_data_element(cls, label, name, description, is_input, is_requ
     param = cls(label=label, name=name, description=description,
                 is_required=is_required, is_input=is_input,
                 is_multi=name.endswith('s'))
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content
     assert resource == expected_resource
 # End test_parameter_workspace_multi function
@@ -279,9 +279,9 @@ def test_parameter_dependency():
     param1 = FeatureClassParameter(name='FeatureClassName', label='Feature Class Name')
     param2 = FieldParameter(name='FieldName', label='Field Name')
     key = ParameterContentKeys.depends
-    content, _ = param1.serialize({})
+    content, _ = param1.serialize({}, target=None)
     assert key not in content
-    content, _ = param2.serialize({})
+    content, _ = param2.serialize({}, target=None)
     assert key not in content
 
     param1.dependency = param2
@@ -292,7 +292,7 @@ def test_parameter_dependency():
 
     param2.dependency = param1
     assert param2.dependency is not None
-    content, _ = param2.serialize({})
+    content, _ = param2.serialize({}, target=None)
     assert key in content
     assert content[key] == ['FeatureClassName']
 # End test_parameter_dependency function
@@ -345,7 +345,7 @@ def test_areal_unit_parameter_filter():
     }
     param = ArealUnitParameter(label='Areal Unit', name='Areal_Unit')
     param.filter = ArealUnitFilter(list(ArealUnit))
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content[param.name]
     assert resource == expected_resource
 # End test_areal_unit_parameter_filter function
@@ -393,7 +393,7 @@ def test_linear_unit_parameter_filter():
     }
     param = LinearUnitParameter(label='Linear Unit', name='Linear_Unit')
     param.filter = LinearUnitFilter(list(LinearUnit))
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content[param.name]
     assert resource == expected_resource
 # End test_linear_unit_parameter_filter function
@@ -430,7 +430,7 @@ def test_feature_class_parameter_filter():
     }
     param = FeatureClassParameter(label='Feature Type', name='Feature_Type')
     param.filter = FeatureClassTypeFilter(list(GeometryType))
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content[param.name]
     assert resource == expected_resource
 # End test_feature_class_parameter_filter function
@@ -455,7 +455,7 @@ def test_field_parameter_filter():
     }
     param = FieldParameter(label='Field Type', name='Field_Type')
     param.filter = FieldTypeFilter(list(FieldType))
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content[param.name]
     assert resource == expected_resource
 # End test_field_parameter_filter function
@@ -475,7 +475,7 @@ def test_file_parameter_filter():
     }
     param = FileParameter(label='File Type', name='File_Type')
     param.filter = FileTypeFilter(('txt', 'csv ', 'shp'))
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content[param.name]
     assert resource == expected_resource
 # End test_file_parameter_filter function
@@ -506,7 +506,7 @@ def test_workspace_parameter_filter():
     }
     param = WorkspaceParameter(label='Workspace', name='Workspace')
     param.filter = WorkspaceTypeFilter(list(WorkspaceType))
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content[param.name]
     assert resource == expected_resource
 # End test_workspace_parameter_filter function
@@ -534,7 +534,7 @@ def test_long_parameter_range_filter():
     }
     param = LongParameter(label='Long Range', name='Long_Range')
     param.filter = LongRangeFilter(-1, 9876543210)
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content[param.name]
     assert resource == expected_resource
 # End test_long_parameter_range_filter function
@@ -563,7 +563,7 @@ def test_double_parameter_range_filter():
     values = -999.999, 9876.543
     param = DoubleParameter(label='Double Range', name='Double_Range')
     param.filter = DoubleRangeFilter(*values)
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     domain = content['domain']
     assert domain['type'] == 'GPRangeDomain'
     min_value = float(domain['min'])
@@ -596,7 +596,7 @@ def test_long_parameter_value_filter():
     }
     param = LongParameter(label='Long Value', name='Long_Value')
     param.filter = LongValueFilter((-999, 0, 1, 2, 3, 4, 5, 1234567890))
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content[param.name]
     assert resource == expected_resource
 # End test_long_parameter_value_filter function
@@ -624,7 +624,7 @@ def test_double_parameter_value_filter():
     values = -999.999, 1.1, 2.22, 3.333, 4.4444, 5.55555, 123.456
     param = DoubleParameter(label='Double Value', name='Double_Value')
     param.filter = DoubleValueFilter(values)
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content[param.name]
     assert resource == expected_resource
 # End test_double_parameter_value_filter function
@@ -654,10 +654,46 @@ def test_string_parameter_value_filter():
     values = "A", "BB", "CCC", "DDDD"
     param = StringParameter(label='String Value', name='String_Value')
     param.filter = StringValueFilter(values)
-    content, resource = param.serialize({})
+    content, resource = param.serialize({}, target=None)
     assert content == expected_content[param.name]
     assert resource == expected_resource
 # End test_string_parameter_value_filter function
+
+
+def test_parameter_symbology(tmp_path, data_path):
+    """
+    Test parameter symbology
+    """
+    script = data_path / 'scripts' / 'example.py'
+    assert script.is_file()
+    lyr = data_path / 'boxbox.lyrx'
+    assert lyr.is_file()
+    lyr_legacy = data_path / 'boxbox.lyr'
+    assert not lyr_legacy.is_file()
+
+    fc = FeatureClassParameter(label='Feature Class')
+    assert fc.symbology is None
+    fc.symbology = None
+    assert fc.symbology is None
+
+    with raises(TypeError):
+        fc.symbology = script
+    assert fc.symbology is None
+
+    with raises(FileNotFoundError):
+        fc.symbology = lyr_legacy
+    assert fc.symbology is None
+
+    fc = FeatureClassParameter(label='Feature Class', is_input=False)
+    fc.symbology = lyr
+    assert fc.symbology is not None
+
+    content, resources = fc.serialize({}, target=tmp_path)
+    assert ParameterContentKeys.symbology in content
+    value = content[ParameterContentKeys.symbology]
+    assert lyr.name in value
+    assert resources == {'feature_class.title': 'Feature Class'}
+# End test_parameter_symbology function
 
 
 if __name__ == '__main__':  # pragma: no cover
