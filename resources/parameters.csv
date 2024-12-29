@@ -5,7 +5,7 @@
 4,Any Value,GPType,AnyType,,,N,N,A data type that accepts any value.
 5,ArcMap Document,DEMapDocument,MapDocument,v0.1.0,,Y,N,"A file that contains one map, its layout, and its associated layers, tables, charts, and reports."
 6,Areal Unit,GPArealUnit,ArealUnit,v0.1.0,,Y,N,"An areal unit type and value, such as square meter or acre."
-7,Boolean,GPBoolean,Boolean,v0.1.0,,Y,N,A Boolean value.
+7,Boolean,GPBoolean,Boolean,v0.1.0,v0.2.0,Y,Y,A Boolean value.
 8,CAD Drawing Dataset,DECadDrawingDataset,CadDrawingDataset,v0.1.0,,Y,Y,A vector data source combined with feature types and symbology. The dataset cannot be used for feature class-based queries or analysis.
 9,Calculator Expression,GPCalculatorExpression,CalculatorExpression,v0.1.0,,Y,N,A calculator expression.
 10,Catalog Layer,GPCatalogLayer,CatalogLayer,v0.1.0,,Y,N,"A collection of references to different data types. The data types can be from different locations and are managed and visualized dynamically as layers based on location, time, and other attributes."
@@ -21,8 +21,8 @@
 20,Data Element,DEType,DataElement,v0.1.0,,Y,Y,A dataset visible in ArcCatalog.
 21,Data File,GPDataFile,DataFile,v0.2.0,,Y,Y,A data file.
 22,Database Connections,DERemoteDatabaseFolder,RemoteDatabaseFolder,,,N,N,The database connection folder in ArcCatalog.
-23,Dataset,DEDatasetType,DatasetType,v0.1.0,,Y,N,"A collection of related data, usually grouped or stored together."
-24,Date,GPDate,Date,v0.1.0,,Y,N,A date value.
+23,Dataset,DEDatasetType,DatasetType,v0.1.0,v0.2.0,Y,Y,"A collection of related data, usually grouped or stored together."
+24,Date,GPDate,Date,v0.1.0,v0.2.0,Y,Y,A date value.
 25,dBASE Table,DEDbaseTable,DbaseTable,v0.1.0,,Y,Y,Attribute data stored in dBASE format.
 26,Decimate,GP3DADecimate,Decimate3DA,,,N,N,A subset of nodes of a TIN to create a generalized version of that TIN.
 27,Diagram Layer,GPDiagramLayer,DiagramLayer,v0.2.0,,Y,Y,A diagram layer.
@@ -113,7 +113,7 @@
 112,SemiVariogram,GPSASemiVariogram,SASemiVariogram,v0.2.0,,Y,N,The distance and direction representing two locations used to quantify autocorrelation.
 113,ServerConnection,DEServerConnection,ServerConnection,,,N,N,A server connection.
 114,Shapefile,DEShapeFile,ShapeFile,v0.1.0,,Y,Y,Spatial data in shapefile format.
-115,Spatial Reference,GPSpatialReference,SpatialReference,v0.1.0,,Y,N,"The coordinate system used to store a spatial dataset, including the spatial domain."
+115,Spatial Reference,GPSpatialReference,SpatialReference,v0.1.0,v0.2.0,Y,Y,"The coordinate system used to store a spatial dataset, including the spatial domain."
 116,SQL Expression,GPSQLExpression,SQLExpression,v0.1.0,,Y,N,A syntax for defining and manipulating data from a relational database.
 117,String,GPString,String,v0.1.0,,Y,Y,A text value.
 118,String Hidden,GPStringHidden,StringHidden,v0.1.0,,Y,N,A string that is masked by asterisk characters.
