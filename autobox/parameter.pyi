@@ -295,7 +295,7 @@ class ArealUnitParameter(InputParameter):
 # End ArealUnitParameter class
 
 
-class DoubleParameter(InputParameter):
+class DoubleParameter(InputOutputParameter):
     """
     Any floating-point number stored as a double precision, 64-bit value.
     """
@@ -377,7 +377,7 @@ class LinearUnitParameter(InputParameter):
 # End LinearUnitParameter class
 
 
-class LongParameter(InputParameter):
+class LongParameter(InputOutputParameter):
     """
     An integer number value.
     """
