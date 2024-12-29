@@ -14,6 +14,9 @@ COLON: str = ':'
 SEMI_COLON: str = ';'
 DOUBLE_SPACE: str = f'{SPACE}{SPACE}'
 DOUBLE_UNDERSCORE: str = f'{UNDERSCORE}{UNDERSCORE}'
+DOT_DOT_SLASH: str = f'{DOT}{DOT}\\'
+# NOTE relative from a tool folder to folder containing toolbox
+RELATIVE: str = f'{DOT_DOT_SLASH}{DOT_DOT_SLASH}'
 
 
 GP_MULTI_VALUE: str = 'GPMultiValue'
@@ -186,6 +189,7 @@ class ParameterContentKeys(BaseContentKeys):
     domain: ClassVar[str] = 'domain'
     depends: ClassVar[str] = 'depends'
     type: ClassVar[str] = 'type'
+    symbology: ClassVar[str] = 'symbologylayer'
     schema: ClassVar[str] = 'schema'
     value: ClassVar[str] = 'value'
 # End ParameterContentKeys class
