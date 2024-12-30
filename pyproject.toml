@@ -1,6 +1,6 @@
 [project]
 name = "autobox"
-version = "0.1.0"
+version = "0.2.0"
 description = """\
     Automation for ArcGIS Pro toolboxes, script tools, and \
     documentation from Python objects.\
