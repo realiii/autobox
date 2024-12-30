@@ -196,7 +196,7 @@ def test_make_parameter_name(value, expected):
      '/Users/person/Documents/ArcGIS/Projects/builder',
      '..\\..\\..\\..\\..\\..\\..\\..\\layer.lyrx'),
     param('c:/layer.lyrx',
-          'd:/Users/person/Documents/ArcGIS/Projects/builder',
+          'c:/Users/person/Documents/ArcGIS/Projects/builder',
           '..\\..\\..\\..\\..\\..\\..\\..\\layer.lyrx',
           marks=mark.skipif(
               platform == 'darwin', reason='only makes sense on Windows')),
