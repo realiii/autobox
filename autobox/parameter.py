@@ -147,6 +147,19 @@ class BaseParameter:
         return value
     # End _validate_type method
 
+    def _validate_dependency(self, value: Any) -> Any:
+        """
+        Validate Dependency, for derived parameters allow for the same
+        parameter type to be used as a dependency.  Needed in support of
+        multithreaded background processing and parameter memory approach.
+        """
+        if self.is_derived and isinstance(value, self.__class__):
+            if id(self) != id(value):
+                return value
+        return self._validate_type(
+            value, types=self.dependency_types, text=PARAMETER)
+    # End _validate_dependency method
+
     @staticmethod
     def _validate_layer_file(path: PATH) -> PATH:
         """
@@ -426,8 +439,7 @@ class BaseParameter:
 
     @dependency.setter
     def dependency(self, value: Self | None) -> None:
-        self._dependency = self._validate_type(
-            value, types=self.dependency_types, text=PARAMETER)
+        self._dependency = self._validate_dependency(value)
     # End dependency property
 
     @property
