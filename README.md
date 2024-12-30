@@ -269,6 +269,9 @@ tool.validation_script = ValidationScript.from_file(Path('../data/scripts/valida
 
 ## Release History
 
+### v0.2.1
+* Fix failing test on Windows, incorrect parametrization
+
 ### v0.2.0
 * Added support for symbology (via layer file) on parameters
 * Include type tuples in `enum` for Rational Numbers, Integers, Numbers, Strings, and Identifiers
