@@ -14,7 +14,7 @@ from typing import NoReturn, Self
 
 from autobox.constant import (
     COLON, DEPENDENCY, DOT, ENCODING, ICON, ILLUSTRATION, ParameterContentKeys,
-    SCRIPT, SCRIPT_STUB, SEMI_COLON, SPACE, ScriptToolContentKeys,
+    RELATIVE, SCRIPT, SCRIPT_STUB, SEMI_COLON, SPACE, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT, TOOL_CONTENT_RC,
     TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY, ToolAttributeKeywords)
@@ -65,7 +65,7 @@ class AbstractScript:
             path = self._path.relative_to(target.resolve())
         except ValueError:
             return str(self._path)
-        return f'..\\..\\{path}'
+        return f'{RELATIVE}{path}'
     # End _get_content method
 
     @staticmethod
@@ -238,11 +238,12 @@ class ScriptTool:
         return label.strip() or name
     # End _validate_label method
 
-    def _build_content(self) -> tuple[dict[str, str | dict[str, list]], MAP_STR]:
+    def _build_content(self, target: Path) \
+            -> tuple[dict[str, str | dict[str, list]], MAP_STR]:
         """
         Build Content
         """
-        parameter_content, parameter_resource = self._build_parameters()
+        parameter_content, parameter_resource = self._build_parameters(target)
         mapping = {
             ScriptToolContentKeys.type: 'ScriptTool',
             ScriptToolContentKeys.display_name: '$rc:title',
@@ -265,7 +266,8 @@ class ScriptTool:
         return mapping, parameter_resource
     # End _build_content method
 
-    def _build_parameters(self) -> tuple[dict[str, dict] | str, MAP_STR]:
+    def _build_parameters(self, target: Path) \
+            -> tuple[dict[str, dict] | str, MAP_STR]:
         """
         Build Parameters
         """
@@ -276,7 +278,7 @@ class ScriptTool:
         self._check_parameter_repeats()
         categories = self._build_categories()
         for parameter in self.parameters:
-            content, resource = parameter.serialize(categories)
+            content, resource = parameter.serialize(categories, target=target)
             resources.update(resource)
             parameters[parameter.name] = content
         prefix = (f'{ScriptToolContentKeys.parameters}{DOT}'
@@ -355,7 +357,7 @@ class ScriptTool:
         """
         Serialize Files to Temporary Folder
         """
-        content, parameter_resource = self._build_content()
+        content, parameter_resource = self._build_content(target)
         resource = self._build_resource(parameter_resource)
         script_path = source.joinpath(f'{self._folder}{DOT}{TOOL}')
         script_path.mkdir()

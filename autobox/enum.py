@@ -8,7 +8,10 @@ from enum import StrEnum
 
 
 __all__ = [
-    'ArealUnit', 'FieldType', 'GeometryType', 'LinearUnit', 'WorkspaceType'
+    'ArealUnit', 'FieldType', 'GeometryType', 'LinearUnit',
+    'TimeUnit', 'TravelModeUnitType', 'WorkspaceType',
+    'RATIONAL_FIELD_TYPES', 'INTEGER_FIELD_TYPES', 'NUMERIC_FIELD_TYPES',
+    'STRING_FIELD_TYPES', 'IDENTIFIER_FIELD_TYPES',
 ]
 
 
@@ -61,6 +64,16 @@ class FieldType(StrEnum):
 # End FieldType class
 
 
+RATIONAL_FIELD_TYPES: tuple[FieldType, ...] = FieldType.DOUBLE, FieldType.FLOAT
+INTEGER_FIELD_TYPES: tuple[FieldType, ...] = (
+    FieldType.SHORT, FieldType.LONG, FieldType.BIG_INTEGER)
+NUMERIC_FIELD_TYPES: tuple[FieldType, ...] = (
+    *RATIONAL_FIELD_TYPES, *INTEGER_FIELD_TYPES)
+STRING_FIELD_TYPES: tuple[FieldType, ...] = FieldType.TEXT,
+IDENTIFIER_FIELD_TYPES: tuple[FieldType, ...] = (
+    FieldType.OID, FieldType.GUID, FieldType.GLOBAL_ID)
+
+
 class GeometryType(StrEnum):
     """
     Geometry Type Enumeration
@@ -99,6 +112,34 @@ class LinearUnit(StrEnum):
     DECIMAL_DEGREES = 'DecimalDegrees'
     DECIMETERS = 'Decimeters'
 # End LinearUnit class
+
+
+class TimeUnit(StrEnum):
+    """
+    Time Unit Enumeration
+    """
+    UNKNOWN = 'Unknown'
+    MILLISECONDS = 'Milliseconds'
+    SECONDS = 'Seconds'
+    MINUTES = 'Minutes'
+    HOURS = 'Hours'
+    DAYS = 'Days'
+    WEEKS = 'Weeks'
+    MONTHS = 'Months'
+    YEARS = 'Years'
+    DECADES = 'Decades'
+    CENTURIES = 'Centuries'
+# End TimeUnit class
+
+
+class TravelModeUnitType(StrEnum):
+    """
+    Travel Mode Unit Type
+    """
+    TIME = 'esriNetworkTravelModeUnitsDomainTypeTime'
+    DISTANCE = 'esriNetworkTravelModeUnitsDomainTypeDistance'
+    OTHER = 'esriNetworkTravelModeUnitsDomainTypeOther'
+# End TravelModeUnitType class
 
 
 class WorkspaceType(StrEnum):

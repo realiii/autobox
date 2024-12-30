@@ -4,12 +4,15 @@ Utility Tests
 """
 
 
-from pytest import mark
+from pathlib import Path
+from sys import platform
+
+from pytest import mark, param
 from autobox.util import (
     _remove_leading_non_alpha, _validate_alpha_start_sans_special,
-    make_parameter_name, validate_parameter_label, validate_parameter_name,
-    validate_script_folder_name, validate_toolbox_name, validate_toolset_name,
-    wrap_markup)
+    make_parameter_name, resolve_layer_path, validate_parameter_label,
+    validate_parameter_name, validate_script_folder_name, validate_toolbox_name,
+    validate_toolset_name, wrap_markup)
 
 
 @mark.parametrize('value, expected', [
@@ -176,6 +179,36 @@ def test_make_parameter_name(value, expected):
     value = validate_parameter_label(value)
     assert make_parameter_name(value) == expected
 # End test_make_parameter_name function
+
+
+@mark.parametrize('layer, toolbox, expected', [
+    ('/users/person/application/projects/project/layer.lyrx',
+     '/users/person/application/projects/project',
+     '..\\..\\layer.lyrx'),
+    ('/users/person/application/projects/project/subfolder/layer.lyrx',
+     '/users/person/application/projects/project',
+     '..\\..\\subfolder\\layer.lyrx'),
+    ('/layer.lyrx', '/', '..\\..\\layer.lyrx'),
+    ('/software/layer.lyrx',
+     '/Users/person/Documents/ArcGIS/Projects/builder',
+     '..\\..\\..\\..\\..\\..\\..\\..\\software\\layer.lyrx'),
+    ('/layer.lyrx',
+     '/Users/person/Documents/ArcGIS/Projects/builder',
+     '..\\..\\..\\..\\..\\..\\..\\..\\layer.lyrx'),
+    param('c:/layer.lyrx',
+          'd:/Users/person/Documents/ArcGIS/Projects/builder',
+          '..\\..\\..\\..\\..\\..\\..\\..\\layer.lyrx',
+          marks=mark.skipif(
+              platform == 'darwin', reason='only makes sense on Windows')),
+])
+def test_resolve_layer_path(layer, toolbox, expected):
+    """
+    Test resolve layer path
+    """
+    path = resolve_layer_path(
+        layer_file=Path(layer), toolbox_folder=Path(toolbox))
+    assert path.replace('/', '\\') == expected
+# End test_resolve_layer_path function
 
 
 if __name__ == '__main__':  # pragma: no cover

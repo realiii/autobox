@@ -269,6 +269,77 @@ tool.validation_script = ValidationScript.from_file(Path('../data/scripts/valida
 
 ## Release History
 
+### v0.2.0
+* Added support for symbology (via layer file) on parameters
+* Include type tuples in `enum` for Rational Numbers, Integers, Numbers, Strings, and Identifiers
+* Extend dependency types to include `FeatureRecordSetLayerParameter` and `RecordSetParameter` on: 
+  * `AreaUnitParameter`
+  * `Field`
+  * `LinearUnit`
+  * `SQLExpression`
+* Add dependency types to:
+  * `FieldMappingParameter`
+  * `GAValueTableParameter`
+  * `NAHierarchySettingsParameter`
+  * `NetworkTravelModeParameter` 
+* Enable following parameters to be used as a derived parameter:
+  * `BooleanParameter`
+  * `DateParameter`
+  * `DatasetParameter`
+  * `DoubleParameter`
+  * `LongParameter`
+  * `SpatialReferenceParameter`
+* Added new filters `TimeUnitFilter` and `TravelModeUnitTypeFilter`
+* `Parameter` types added in this release:
+  * `DataFileParameter`
+  * `DiagramLayerParameter`
+  * `FeatureRecordSetLayerParameter`
+  * `FieldInfoParameter`
+  * `FieldMappingParameter`
+  * `GALayerParameter`
+  * `GASearchNeighborhoodParameter`
+  * `GAValueTableParameter`
+  * `GeodatasetTypeParameter`
+  * `GeometricNetworkParameter`
+  * `KMLLayerParameter`
+  * `MDomainParameter`
+  * `NAClassFieldMapParameter`
+  * `NAHierarchySettingsParameter`
+  * `NALayerParameter`
+  * `NetworkDataSourceParameter`
+  * `NetworkDatasetLayerParameter`
+  * `RandomNumberGeneratorParameter`
+  * `RasterBuilderParameter`
+  * `RecordSetParameter`
+  * `SAExtractValuesParameter`
+  * `SAFuzzyFunctionParameter`
+  * `SAGDBEnvCompressionParameter`
+  * `SAGDBEnvPyramidParameter`
+  * `SAGDBEnvStatisticsParameter`
+  * `SAGDBEnvTileSizeParameter`
+  * `SAHorizontalFactorParameter`
+  * `SANeighborhoodParameter`
+  * `SARadiusParameter`
+  * `SARemapParameter`
+  * `SASemiVariogramParameter`
+  * `SATimeConfigurationParameter`
+  * `SATopoFeaturesParameter`
+  * `SATransformationFunctionParameter`
+  * `SAVerticalFactorParameter`
+  * `SAWeightedOverlayTableParameter`
+  * `SAWeightedSumParameter`
+  * `SchematicDatasetParameter`
+  * `SchematicDiagramClassParameter`
+  * `SchematicDiagramParameter`
+  * `SchematicFolderParameter`
+  * `SchematicLayerParameter`
+  * `TerrainLayerParameter`
+  * `TopologyLayerParameter`
+  * `ValueTableParameter`
+  * `VectorLayerParameter`
+  * `XYDomainParameter`
+  * `ZDomainParameter`
+
 ### v0.1.0
 * initial release
 * Create a `Toolbox` and save to `.atbx` format
@@ -276,9 +347,19 @@ tool.validation_script = ValidationScript.from_file(Path('../data/scripts/valida
 * Create a `ScriptTool` with `Parameters` and add to a `Toolbox` or `Toolset`
 * Add an `ExecutionScript` to a `ScriptTool`
 * Add an optional `ValidationScript` to a `ScriptTool`
-* Create and add a `Filter` to a `Parameter`
 * Add a dependency to a `Parameter`
 * Add documentation to `Toolbox`, `ScriptTool`, and `Parameter`
+* Create and add a `Filter` to a `Parameter`, filters include:
+  * `ArealUnitFilter`
+  * `DoubleRangeFilter`
+  * `DoubleValueFilter`
+  * `FeatureClassTypeFilter`
+  * `FileTypeFilter`
+  * `LinearUnitFilter`
+  * `LongRangeFilter`
+  * `LongValueFilter`
+  * `StringValueFilter`
+  * `WorkspaceTypeFilter`
 * `Parameter` types added in this release:
   * `AnalysisCellSizeParameter`
   * `ArealUnitParameter`
@@ -337,11 +418,3 @@ tool.validation_script = ValidationScript.from_file(Path('../data/scripts/valida
   * `TinParameter`
   * `TopologyParameter`
   * `WorkspaceParameter`
-
-* `Filter` types added in this release:
-  * `ArealUnitFilter`
-  * `FeatureClassTypeFilter`
-  * `FieldTypeFilter`
-  * `FileTypeFilter`
-  * `LinearUnitFilter`
-  * `WorkspaceTypeFilter`

@@ -1,150 +1,150 @@
-﻿ORDER,NAME,KEYWORD,CLASS,VERSION,GENERATE,OUTPUT,COMMENT
-1,3D Tiles Layer,GP3DTilesLayer,TilesLayer3D,,N,Y,A 3D tiles layer references a tile set that defines an integrated mesh or 3D object type data in a hierarchical data structure.
-2,Address Locator,DEAddressLocator,AddressLocator,,N,Y,"A dataset used for geocoding that stores the address attributes, associated indexes, and rules that define the process for translating nonspatial descriptions of places to spatial data."
-3,Analysis Cell Size,analysis_cell_size,AnalysisCellSize,v0.1.0,Y,N,The cell size used by raster tools.
-4,Any Value,GPType,AnyType,,N,N,A data type that accepts any value.
-5,ArcMap Document,DEMapDocument,MapDocument,v0.1.0,Y,N,"A file that contains one map, its layout, and its associated layers, tables, charts, and reports."
-6,Areal Unit,GPArealUnit,ArealUnit,v0.1.0,Y,N,"An areal unit type and value, such as square meter or acre."
-7,Boolean,GPBoolean,Boolean,v0.1.0,Y,N,A Boolean value.
-8,CAD Drawing Dataset,DECadDrawingDataset,CadDrawingDataset,v0.1.0,Y,Y,A vector data source combined with feature types and symbology. The dataset cannot be used for feature class-based queries or analysis.
-9,Calculator Expression,GPCalculatorExpression,CalculatorExpression,v0.1.0,Y,N,A calculator expression.
-10,Catalog Layer,GPCatalogLayer,CatalogLayer,v0.1.0,Y,N,"A collection of references to different data types. The data types can be from different locations and are managed and visualized dynamically as layers based on location, time, and other attributes."
-11,Catalog Root,DECatalogRoot,CatalogRoot,,N,N,The top-level node in the Catalog tree.
-12,Cell Size,GPSACellSize,SACellSize,v0.1.0,Y,N,The cell size used by the ArcGIS Spatial Analyst extension.
-13,Cell Size XY,GPCellSizeXY,CellSizeXY,v0.1.0,Y,N,The size that defines the two sides of a raster cell.
-14,Composite Layer,GPCompositeLayer,CompositeLayer,,N,Y,"A reference to several children layers, including symbology and rendering properties."
-15,Compression,GPSAGDBEnvCompression,SAGDBEnvCompression,,N,N,The type of compression used for a raster.
-16,Coordinate System,GPCoordinateSystem,CoordinateSystem,v0.1.0,Y,Y,"A reference framework, such as the UTM system consisting of a set of points, lines, or surfaces, and a set of rules used to define the positions of points in two- and three-dimensional space."
-17,Coordinate Systems Folder,DESpatialReferencesFolder,SpatialReferencesFolder,,N,N,A folder on disk storing coordinate systems.
-18,Coverage,DECoverage,Coverage,v0.1.0,Y,N,"A coverage dataset, a proprietary data model for storing geographic features as points, arcs, and polygons with associated feature attribute tables."
-19,Coverage Feature Class,DECoverageFeatureClasses,CoverageFeatureClass,v0.1.0,Y,N,"A coverage feature class, such as point, arc, node, route, route system, section, polygon, and region."
-20,Data Element,DEType,DataElement,v0.1.0,Y,Y,A dataset visible in ArcCatalog.
-21,Data File,GPDataFile,DataFile,,N,Y,A data file.
-22,Database Connections,DERemoteDatabaseFolder,RemoteDatabaseFolder,,N,N,The database connection folder in ArcCatalog.
-23,Dataset,DEDatasetType,DatasetType,v0.1.0,Y,N,"A collection of related data, usually grouped or stored together."
-24,Date,GPDate,Date,v0.1.0,Y,N,A date value.
-25,dBASE Table,DEDbaseTable,DbaseTable,v0.1.0,Y,Y,Attribute data stored in dBASE format.
-26,Decimate,GP3DADecimate,Decimate3DA,,N,N,A subset of nodes of a TIN to create a generalized version of that TIN.
-27,Diagram Layer,GPDiagramLayer,DiagramLayer,,N,Y,A diagram layer.
-28,Disk Connection,DEDiskConnection,DiskConnection,,N,N,An access path to a data storage device.
-29,Double,GPDouble,Double,v0.1.0,Y,N,"Any floating-point number stored as a double precision, 64-bit value."
-30,Encrypted String,GPEncryptedString,EncryptedString,v0.1.0,Y,N,An encrypted string for passwords.
-31,Envelope,GPEnvelope,Envelope,v0.1.0,Y,N,The coordinate pairs that define the minimum bounding rectangle in which the data source resides.
-32,Evaluation Scale,GPEvaluationScale,EvaluationScale,,N,N,The scale value range and increment value applied to inputs in a weighted overlay operation.
-33,Extent,GPExtent,Extent,v0.1.0,Y,N,"The coordinate pairs that define the minimum bounding rectangle (x-minimum, y-minimum and x-maximum, y-maximum) of a data source. All coordinates for the data source are within this boundary."
-34,Extract Values,GPSAExtractValues,SAExtractValues,,N,N,An extract values parameter.
-35,Feature Class,DEFeatureClass,FeatureClass,v0.1.0,Y,Y,"A collection of spatial data with the same shape type: point, multipoint, polyline, and polygon."
-36,Feature Dataset,DEFeatureDataset,FeatureDataset,v0.1.0,Y,Y,A collection of feature classes that share a common geographic area and the same spatial reference system.
-37,Feature Layer,GPFeatureLayer,FeatureLayer,v0.1.0,Y,Y,"A reference to a feature class, including symbology and rendering properties."
-38,Feature Set,GPFeatureRecordSetLayer,FeatureRecordSetLayer,,N,N,Interactive features that draw the features when the tool is run.
-39,Field,Field,Field,v0.1.0,Y,N,A column in a table that stores the values for a single attribute.
-40,Field Info,GPFieldInfo,FieldInfo,,N,N,The details about a field in a field map.
-41,Field Mappings,GPFieldMapping,FieldMapping,,N,N,A collection of fields in one or more input tables.
-42,File,DEFile,File,v0.1.0,Y,Y,A file on disk.
-43,Folder,DEFolder,Folder,v0.1.0,Y,Y,A location on disk where data is stored.
-44,Formulated Raster,GPRasterFormulated,RasterFormulated,,N,N,A raster surface whose cell values are represented by a formula or constant.
-45,Fuzzy function,GPSAFuzzyFunction,SAFuzzyFunction,,N,N,The algorithm used in fuzzification of an input raster.
-46,Geodataset,DEGeodatasetType,GeodatasetType,,N,N,A collection of data with a common theme in a geodatabase.
-47,GeoDataServer,DEGeoDataServer,GeoDataServer,,N,N,A coarse-grained object that references a geodatabase.
-48,Geometric Network,DEGeometricNetwork,GeometricNetwork,,N,Y,A linear network represented by topologically connected edge and junction features. Feature connectivity is based on their geometric coincidence.
-49,Geostatistical Layer,GPGALayer,GALayer,,N,Y,"A reference to a geostatistical data source, including symbology and rendering properties."
-50,Geostatistical Search Neighborhood,GPGASearchNeighborhood,GASearchNeighborhood,,N,N,The searching neighborhood parameters for a geostatistical layer are defined.
-51,Geostatistical Value Table,GPGAValueTable,GAValueTable,,N,N,A collection of data sources and fields that define a geostatistical layer.
-52,GlobeServer,DEGlobeServer,GlobeServer,,N,N,A Globe server.
-53,GPServer,DEGPServer,GPServer,,N,N,A geoprocessing server.
-54,Graph,GPGraph,Graph,,N,Y,A graph.
-55,Graph Data Table,GPGraphDataTable,GraphDataTable,,N,Y,A graph data table.
-56,Group Layer,GPGroupLayer,GroupLayer,v0.1.0,Y,Y,"A collection of layers that appear and act as a single layer. Group layers make it easier to organize a map, assign advanced drawing order options, and share layers for use in other maps."
-57,Horizontal Factor,GPSAHorizontalFactor,SAHorizontalFactor,,N,N,The relationship between the horizontal cost factor and the horizontal relative moving angle.
-58,Image Service,DEImageServer,ImageServer,,N,N,An image service.
-59,Index,Index,Index,,N,N,A data structure used to speed the search for records in geographic datasets and databases.
-60,INFO Expression,GPINFOExpression,INFOExpression,,N,N,A syntax for defining and manipulating data in an INFO table.
-61,INFO Item,GPArcInfoItem,ArcInfoItem,,N,N,An item in an INFO table.
-62,INFO Table,DEArcInfoTable,ArcInfoTable,,N,N,A table in an INFO database.
-63,Internet Tiled Layer,GPInternetTiledLayer,InternetTiledLayer,,N,Y,An internet tiled layer.
-64,KML Layer,GPKMLLayer,KMLLayer,,N,Y,A KML layer.
-65,LAS Dataset,DELasDataset,LasDataset,v0.1.0,Y,Y,A LAS dataset stores reference to one or more LAS files on disk as well as to additional surface features. A LAS file is a binary file that stores airborne lidar data.
-66,LAS Dataset Layer,GPLasDatasetLayer,LasDatasetLayer,v0.1.0,Y,Y,A layer that references a LAS dataset on disk. This layer can apply filters on lidar files and surface constraints referenced by a LAS dataset.
-67,Layer,GPLayer,GPLayer,v0.1.0,Y,Y,"A reference to a data source, such as a shapefile, coverage, geodatabase feature class, or raster, including symbology and rendering properties."
-68,Layer File,DELayer,LayerFile,v0.1.0,Y,Y,"A layer file stores a layer definition, including symbology and rendering properties."
-69,Line,GPLine,Line,,N,N,"A shape, straight or curved, defined by a connected series of unique x,y-coordinate pairs."
-70,Linear Unit,GPLinearUnit,LinearUnit,v0.1.0,Y,N,A linear unit type and value such as meter or feet.
-71,Long,GPLong,Long,v0.1.0,Y,N,An integer number value.
-72,M Domain,GPMDomain,MDomain,,N,N,A range of lowest and highest possible value for m-coordinates.
-73,Map,GPMap,Map,v0.1.0,Y,Y,An ArcGIS Pro map.
-74,MapServer,DEMapServer,MapServer,,N,N,A map server.
-75,Map Server Layer,GPMapServerLayer,MapServerLayer,,N,Y,A map server layer.
-76,Mosaic Dataset,DEMosaicDataset,MosaicDataset,v0.1.0,Y,Y,"A collection of raster and image data that allows you to store, view, and query the data. It is a data model in the geodatabase used to manage a collection of raster datasets (images) stored as a catalog and viewed as a mosaicked image."
-77,Mosaic Layer,GPMosaicLayer,MosaicLayer,v0.1.0,Y,Y,A layer that references a mosaic dataset.
-78,Neighborhood,GPSANeighborhood,SANeighborhood,,N,N,The shape of the area around each cell used to calculate statistics.
-79,Network Analyst Class FieldMap,NAClassFieldMap,NAClassFieldMap,,N,N,"Mapping between location properties in a Network Analyst layer (such as stops, facilities, and incidents) and a point feature class."
-80,Network Analyst Hierarchy Settings,GPNAHierarchySettings,NAHierarchySettings,,N,N,A hierarchy attribute that divides hierarchy values of a network dataset into three groups using two integers. The first integer sets the ending value of the first group; the second number sets the beginning value of the third group.
-81,Network Analyst Layer,GPNALayer,NALayer,,N,Y,A group layer used to express and solve network routing problems. Each sublayer held in memory in a Network Analyst layer represents some aspect of the routing problem and the routing solution.
-82,Network Data Source,GPNetworkDataSource,NetworkDataSource,,N,Y,"A network data source can be a local dataset specified either using its catalog path or a layer from a map, or it can be a URL to a portal."
-83,Network Dataset,DENetworkDataset,NetworkDataset,v0.1.0,Y,Y,"A collection of topologically connected network elements (edges, junctions, and turns), derived from network sources and associated with a collection of network attributes."
-84,Network Dataset Layer,GPNetworkDatasetLayer,NetworkDatasetLayer,,N,Y,"A reference to a network dataset, including symbology and rendering properties."
-85,Network Travel Mode,NetworkTravelMode,NetworkTravelMode,,N,N,A dictionary of travel mode objects.
-86,Oriented Imagery Layer,GPOrientedImageryLayer,OrientedImageryLayer,,N,Y,A collection of camera locations with image metadata.
-87,Parcel Fabric For ArcMap,DECadastralFabric,CadastralFabric,,N,Y,"A dataset used for the storage, maintenance, and editing of a continuous surface of connected parcels or parcel network."
-88,Parcel Fabric Layer,GPCadastralFabricLayer,CadastralFabricLayer,,N,Y,A layer referencing a parcel fabric on disk. This layer works as a group layer organizing a set of related layers under a single layer.
-89,Point,GPPoint,Point,v0.1.0,Y,N,"A pair of x,y-coordinates."
-90,Polygon,GPPolygon,Polygon,,N,N,"A connected sequence of x,y-coordinate pairs in which the first and last coordinate pair are the same."
-91,Projection File,DEPrjFile,PrjFile,v0.1.0,Y,Y,A file storing coordinate system information for spatial data.
-92,Pyramid,GPSAGDBEnvPyramid,SAGDBEnvPyramid,,N,N,Specifies whether pyramids are built.
-93,Radius,GPSARadius,SARadius,,N,N,The surrounding points that are used for interpolation.
-94,Random Number Generator,GPRandomNumberGenerator,RandomNumberGenerator,,N,N,The seed and the generator to use when creating random values.
-95,Raster Band,DERasterBand,RasterBand,v0.1.0,Y,Y,A layer in a raster dataset.
-96,Raster Calculator Expression,GPRasterCalculatorExpression,RasterCalculatorExpression,v0.1.0,Y,N,A raster calculator expression.
-97,Raster Data Layer,GPRasterDataLayer,RasterDataLayer,v0.1.0,Y,Y,A raster data layer.
-98,Raster Dataset,DERasterDataset,RasterDataset,v0.1.0,Y,Y,A single dataset built from one or more rasters.
-99,Raster Layer,GPRasterLayer,RasterLayer,v0.1.0,Y,Y,"A reference to a raster, including symbology and rendering properties."
-100,Raster Statistics,GPSAGDBEnvStatistics,SAGDBEnvStatistics,,N,N,Specifies whether raster statistics build.
-101,Raster Type,GPRasterBuilder,RasterBuilder,,N,N,"Raster data is added to a mosaic dataset by specifying a raster type. The raster type identifies metadata, such as georeferencing, acquisition date, and sensor type, with a raster format."
-102,Record Set,GPRecordSet,RecordSet,,N,N,An interactive table. Type the table values when the tool is run.
-103,Relationship Class,DERelationshipClass,RelationshipClass,v0.1.0,Y,Y,The details about the relationship between objects in the geodatabase.
-104,Remap,GPSARemap,SARemap,,N,N,A table that defines how raster cell values are reclassified.
-105,Route Measure Event Properties,GPRouteMeasureEventProperties,RouteMeasureEventProperties,,N,N,The fields on a table that describe events measured by a linear reference route system.
-106,Scene Service Layer,GPSceneServiceLayer,SceneServiceLayer,,N,Y,A scene service layer.
-107,Schematic Dataset,DESchematicDataset,SchematicDataset,,N,Y,"A collection of schematic diagram templates and schematic feature classes that share the same application domain, for example, water or electrical."
-108,Schematic Diagram,DESchematicDiagram,SchematicDiagram,,N,N,A schematic diagram.
-109,Schematic Diagram Class,DESchematicDiagramClass,SchematicDiagramClass,,N,N,A schematic diagram class.
-110,Schematic Folder,DESchematicFolder,SchematicFolder,,N,N,A schematic folder.
-111,Schematic Layer,GPSchematicLayer,SchematicLayer,,N,N,A composite layer composed of feature layers based on the schematic feature classes associated with the template on which the schematic diagram is based.
-112,SemiVariogram,GPSASemiVariogram,SASemiVariogram,,N,N,The distance and direction representing two locations used to quantify autocorrelation.
-113,ServerConnection,DEServerConnection,ServerConnection,,N,N,A server connection.
-114,Shapefile,DEShapeFile,ShapeFile,v0.1.0,Y,Y,Spatial data in shapefile format.
-115,Spatial Reference,GPSpatialReference,SpatialReference,v0.1.0,Y,N,"The coordinate system used to store a spatial dataset, including the spatial domain."
-116,SQL Expression,GPSQLExpression,SQLExpression,v0.1.0,Y,N,A syntax for defining and manipulating data from a relational database.
-117,String,GPString,String,v0.1.0,Y,Y,A text value.
-118,String Hidden,GPStringHidden,StringHidden,v0.1.0,Y,N,A string that is masked by asterisk characters.
-119,Table,DETable,Table,v0.1.0,Y,Y,Tabular data.
-120,Table View,GPTableView,TableView,v0.1.0,Y,Y,A representation of tabular data for viewing and editing purposes stored in memory or on disk.
-121,Terrain Layer,GPTerrainLayer,TerrainLayer,,N,Y,"A reference to a terrain, including symbology and rendering properties. It’s used to draw a terrain."
-122,Text File,DETextfile,Textfile,v0.1.0,Y,Y,A text file.
-123,Tile Size,GPSAGDBEnvTileSize,SAGDBEnvTileSize,,N,N,The width and height of data stored in block.
-124,Time configuration,GPSATimeConfiguration,SATimeConfiguration,,N,N,The time periods used for calculating solar radiation at specific locations.
-125,Time Unit,GPTimeUnit,TimeUnit,,N,N,A time unit type and value such as minutes or hours.
-126,TIN,DETin,Tin,v0.1.0,Y,Y,"A vector data structure that partitions geographic space into contiguous, nonoverlapping triangles. The vertices of each triangle are sample data points with x-, y-, and z-values."
-127,Tin Layer,GPTinLayer,TinLayer,v0.1.0,Y,Y,"A reference to a TIN, including topological relationships, symbology, and rendering properties."
-128,Tool,DETool,Tool,,N,Y,A geoprocessing tool.
-129,Toolbox,DEToolbox,Toolbox,,N,Y,A geoprocessing toolbox.
-130,Topo Features,GPSATopoFeatures,SATopoFeatures,,N,N,Features that are input to the interpolation.
-131,Topology,DETopology,Topology,v0.1.0,Y,Y,A topology that defines and enforces data integrity rules for spatial data.
-132,Topology Layer,GPTopologyLayer,TopologyLayer,,N,Y,"A reference to a topology, including symbology and rendering properties."
-133,Transformation Function,GPSATransformationFunction,SATransformationFunction,,N,N,A Spatial Analyst transformation function.
-134,Trajectory Layer,GPTrajectoryLayer,TrajectoryLayer,,N,Y,A layer that references a trajectory dataset.
-135,Utility Network,DEUtilityNetwork,UtilityNetwork,,N,Y,A utility network.
-136,Utility Network Layer,GPUtilityNetworkLayer,UtilityNetworkLayer,,N,Y,A utility network layer.
-137,Value Table,GPValueTable,ValueTable,,N,N,A collection of columns of values.
-138,Variant,GPVariant,Variant,,N,N,"A data value that can contain any basic type: Boolean, date, double, long, and string."
-139,Vector Tile Layer,GPVectorLayer,VectorLayer,,N,Y,A vector tile layer.
-140,Vertical Factor,GPSAVerticalFactor,SAVerticalFactor,,N,N,"The relationship between the vertical cost factor and the vertical, relative moving angle."
-141,VPF Coverage,DEVPFCoverage,VPFCoverage,,N,Y,Spatial data stored in Vector Product Format.
-142,VPF Table,DEVPFTable,VPFTable,,N,Y,Attribute data stored in Vector Product Format.
-143,WCS Coverage,DEWCSCoverage,WCSCoverage,,N,Y,Web Coverage Service (WCS) is an open specification for sharing raster datasets on the web.
-144,Weighted Overlay Table,GPSAWeightedOverlayTable,SAWeightedOverlayTable,,N,N,"A table with data to combine multiple rasters by applying a common measurement scale of values to each raster, weighing each according to its importance."
-145,Weighted Sum,GPSAWeightedSum,SAWeightedSum,,N,N,"Data for overlaying several rasters, each multiplied by their given weight and summed."
-146,WMS Map,DEWMSMap,WMSMap,,N,Y,A WMS map.
-147,Workspace,DEWorkspace,Workspace,v0.1.0,Y,Y,A container such as a geodatabase or folder.
-148,XY Domain,GPXYDomain,XYDomain,,N,N,"A range of lowest and highest possible values for x,y-coordinates."
-149,Z Domain,GPZDomain,ZDomain,,N,N,A range of lowest and highest possible values for z-coordinates.
+﻿ORDER,NAME,KEYWORD,CLASS,VERSION,UPDATED,GENERATE,OUTPUT,COMMENT
+1,3D Tiles Layer,GP3DTilesLayer,TilesLayer3D,,,N,Y,A 3D tiles layer references a tile set that defines an integrated mesh or 3D object type data in a hierarchical data structure.
+2,Address Locator,DEAddressLocator,AddressLocator,,,N,Y,"A dataset used for geocoding that stores the address attributes, associated indexes, and rules that define the process for translating nonspatial descriptions of places to spatial data."
+3,Analysis Cell Size,analysis_cell_size,AnalysisCellSize,v0.1.0,,Y,N,The cell size used by raster tools.
+4,Any Value,GPType,AnyType,,,N,N,A data type that accepts any value.
+5,ArcMap Document,DEMapDocument,MapDocument,v0.1.0,,Y,N,"A file that contains one map, its layout, and its associated layers, tables, charts, and reports."
+6,Areal Unit,GPArealUnit,ArealUnit,v0.1.0,,Y,N,"An areal unit type and value, such as square meter or acre."
+7,Boolean,GPBoolean,Boolean,v0.1.0,v0.2.0,Y,Y,A Boolean value.
+8,CAD Drawing Dataset,DECadDrawingDataset,CadDrawingDataset,v0.1.0,,Y,Y,A vector data source combined with feature types and symbology. The dataset cannot be used for feature class-based queries or analysis.
+9,Calculator Expression,GPCalculatorExpression,CalculatorExpression,v0.1.0,,Y,N,A calculator expression.
+10,Catalog Layer,GPCatalogLayer,CatalogLayer,v0.1.0,,Y,N,"A collection of references to different data types. The data types can be from different locations and are managed and visualized dynamically as layers based on location, time, and other attributes."
+11,Catalog Root,DECatalogRoot,CatalogRoot,,,N,N,The top-level node in the Catalog tree.
+12,Cell Size,GPSACellSize,SACellSize,v0.1.0,,Y,N,The cell size used by the ArcGIS Spatial Analyst extension.
+13,Cell Size XY,GPCellSizeXY,CellSizeXY,v0.1.0,,Y,N,The size that defines the two sides of a raster cell.
+14,Composite Layer,GPCompositeLayer,CompositeLayer,,,N,Y,"A reference to several children layers, including symbology and rendering properties."
+15,Compression,GPSAGDBEnvCompression,SAGDBEnvCompression,v0.2.0,,Y,N,The type of compression used for a raster.
+16,Coordinate System,GPCoordinateSystem,CoordinateSystem,v0.1.0,,Y,Y,"A reference framework, such as the UTM system consisting of a set of points, lines, or surfaces, and a set of rules used to define the positions of points in two- and three-dimensional space."
+17,Coordinate Systems Folder,DESpatialReferencesFolder,SpatialReferencesFolder,,,N,N,A folder on disk storing coordinate systems.
+18,Coverage,DECoverage,Coverage,v0.1.0,,Y,N,"A coverage dataset, a proprietary data model for storing geographic features as points, arcs, and polygons with associated feature attribute tables."
+19,Coverage Feature Class,DECoverageFeatureClasses,CoverageFeatureClass,v0.1.0,,Y,N,"A coverage feature class, such as point, arc, node, route, route system, section, polygon, and region."
+20,Data Element,DEType,DataElement,v0.1.0,,Y,Y,A dataset visible in ArcCatalog.
+21,Data File,GPDataFile,DataFile,v0.2.0,,Y,Y,A data file.
+22,Database Connections,DERemoteDatabaseFolder,RemoteDatabaseFolder,,,N,N,The database connection folder in ArcCatalog.
+23,Dataset,DEDatasetType,DatasetType,v0.1.0,v0.2.0,Y,Y,"A collection of related data, usually grouped or stored together."
+24,Date,GPDate,Date,v0.1.0,v0.2.0,Y,Y,A date value.
+25,dBASE Table,DEDbaseTable,DbaseTable,v0.1.0,,Y,Y,Attribute data stored in dBASE format.
+26,Decimate,GP3DADecimate,Decimate3DA,,,N,N,A subset of nodes of a TIN to create a generalized version of that TIN.
+27,Diagram Layer,GPDiagramLayer,DiagramLayer,v0.2.0,,Y,Y,A diagram layer.
+28,Disk Connection,DEDiskConnection,DiskConnection,,,N,N,An access path to a data storage device.
+29,Double,GPDouble,Double,v0.1.0,v0.2.0,Y,Y,"Any floating-point number stored as a double precision, 64-bit value."
+30,Encrypted String,GPEncryptedString,EncryptedString,v0.1.0,,Y,N,An encrypted string for passwords.
+31,Envelope,GPEnvelope,Envelope,v0.1.0,,Y,N,The coordinate pairs that define the minimum bounding rectangle in which the data source resides.
+32,Evaluation Scale,GPEvaluationScale,EvaluationScale,,,N,N,The scale value range and increment value applied to inputs in a weighted overlay operation.
+33,Extent,GPExtent,Extent,v0.1.0,,Y,N,"The coordinate pairs that define the minimum bounding rectangle (x-minimum, y-minimum and x-maximum, y-maximum) of a data source. All coordinates for the data source are within this boundary."
+34,Extract Values,GPSAExtractValues,SAExtractValues,v0.2.0,,Y,N,An extract values parameter.
+35,Feature Class,DEFeatureClass,FeatureClass,v0.1.0,,Y,Y,"A collection of spatial data with the same shape type: point, multipoint, polyline, and polygon."
+36,Feature Dataset,DEFeatureDataset,FeatureDataset,v0.1.0,,Y,Y,A collection of feature classes that share a common geographic area and the same spatial reference system.
+37,Feature Layer,GPFeatureLayer,FeatureLayer,v0.1.0,,Y,Y,"A reference to a feature class, including symbology and rendering properties."
+38,Feature Set,GPFeatureRecordSetLayer,FeatureRecordSetLayer,v0.2.0,,Y,N,Interactive features that draw the features when the tool is run.
+39,Field,Field,Field,v0.1.0,,Y,N,A column in a table that stores the values for a single attribute.
+40,Field Info,GPFieldInfo,FieldInfo,v0.2.0,,Y,N,The details about a field in a field map.
+41,Field Mappings,GPFieldMapping,FieldMapping,v0.2.0,,Y,N,A collection of fields in one or more input tables.
+42,File,DEFile,File,v0.1.0,,Y,Y,A file on disk.
+43,Folder,DEFolder,Folder,v0.1.0,,Y,Y,A location on disk where data is stored.
+44,Formulated Raster,GPRasterFormulated,RasterFormulated,,,N,N,A raster surface whose cell values are represented by a formula or constant.
+45,Fuzzy function,GPSAFuzzyFunction,SAFuzzyFunction,v0.2.0,,Y,N,The algorithm used in fuzzification of an input raster.
+46,Geodataset,DEGeodatasetType,GeodatasetType,v0.2.0,,Y,N,A collection of data with a common theme in a geodatabase.
+47,GeoDataServer,DEGeoDataServer,GeoDataServer,,,N,N,A coarse-grained object that references a geodatabase.
+48,Geometric Network,DEGeometricNetwork,GeometricNetwork,v0.2.0,,Y,Y,A linear network represented by topologically connected edge and junction features. Feature connectivity is based on their geometric coincidence.
+49,Geostatistical Layer,GPGALayer,GALayer,v0.2.0,,Y,Y,"A reference to a geostatistical data source, including symbology and rendering properties."
+50,Geostatistical Search Neighborhood,GPGASearchNeighborhood,GASearchNeighborhood,v0.2.0,,Y,N,The searching neighborhood parameters for a geostatistical layer are defined.
+51,Geostatistical Value Table,GPGAValueTable,GAValueTable,v0.2.0,,Y,N,A collection of data sources and fields that define a geostatistical layer.
+52,GlobeServer,DEGlobeServer,GlobeServer,,,N,N,A Globe server.
+53,GPServer,DEGPServer,GPServer,,,N,N,A geoprocessing server.
+54,Graph,GPGraph,Graph,,,N,Y,A graph.
+55,Graph Data Table,GPGraphDataTable,GraphDataTable,,,N,Y,A graph data table.
+56,Group Layer,GPGroupLayer,GroupLayer,v0.1.0,,Y,Y,"A collection of layers that appear and act as a single layer. Group layers make it easier to organize a map, assign advanced drawing order options, and share layers for use in other maps."
+57,Horizontal Factor,GPSAHorizontalFactor,SAHorizontalFactor,v0.2.0,,Y,N,The relationship between the horizontal cost factor and the horizontal relative moving angle.
+58,Image Service,DEImageServer,ImageServer,,,N,N,An image service.
+59,Index,Index,Index,,,N,N,A data structure used to speed the search for records in geographic datasets and databases.
+60,INFO Expression,GPINFOExpression,INFOExpression,,,N,N,A syntax for defining and manipulating data in an INFO table.
+61,INFO Item,GPArcInfoItem,ArcInfoItem,,,N,N,An item in an INFO table.
+62,INFO Table,DEArcInfoTable,ArcInfoTable,,,N,N,A table in an INFO database.
+63,Internet Tiled Layer,GPInternetTiledLayer,InternetTiledLayer,,,N,Y,An internet tiled layer.
+64,KML Layer,GPKMLLayer,KMLLayer,v0.2.0,,Y,Y,A KML layer.
+65,LAS Dataset,DELasDataset,LasDataset,v0.1.0,,Y,Y,A LAS dataset stores reference to one or more LAS files on disk as well as to additional surface features. A LAS file is a binary file that stores airborne lidar data.
+66,LAS Dataset Layer,GPLasDatasetLayer,LasDatasetLayer,v0.1.0,,Y,Y,A layer that references a LAS dataset on disk. This layer can apply filters on lidar files and surface constraints referenced by a LAS dataset.
+67,Layer,GPLayer,GPLayer,v0.1.0,,Y,Y,"A reference to a data source, such as a shapefile, coverage, geodatabase feature class, or raster, including symbology and rendering properties."
+68,Layer File,DELayer,LayerFile,v0.1.0,,Y,Y,"A layer file stores a layer definition, including symbology and rendering properties."
+69,Line,GPLine,Line,,,N,N,"A shape, straight or curved, defined by a connected series of unique x,y-coordinate pairs."
+70,Linear Unit,GPLinearUnit,LinearUnit,v0.1.0,,Y,N,A linear unit type and value such as meter or feet.
+71,Long,GPLong,Long,v0.1.0,v0.2.0,Y,Y,An integer number value.
+72,M Domain,GPMDomain,MDomain,v0.2.0,,Y,N,A range of lowest and highest possible value for m-coordinates.
+73,Map,GPMap,Map,v0.1.0,,Y,Y,An ArcGIS Pro map.
+74,MapServer,DEMapServer,MapServer,,,N,N,A map server.
+75,Map Server Layer,GPMapServerLayer,MapServerLayer,,,N,Y,A map server layer.
+76,Mosaic Dataset,DEMosaicDataset,MosaicDataset,v0.1.0,,Y,Y,"A collection of raster and image data that allows you to store, view, and query the data. It is a data model in the geodatabase used to manage a collection of raster datasets (images) stored as a catalog and viewed as a mosaicked image."
+77,Mosaic Layer,GPMosaicLayer,MosaicLayer,v0.1.0,,Y,Y,A layer that references a mosaic dataset.
+78,Neighborhood,GPSANeighborhood,SANeighborhood,v0.2.0,,Y,N,The shape of the area around each cell used to calculate statistics.
+79,Network Analyst Class FieldMap,NAClassFieldMap,NAClassFieldMap,v0.2.0,,Y,N,"Mapping between location properties in a Network Analyst layer (such as stops, facilities, and incidents) and a point feature class."
+80,Network Analyst Hierarchy Settings,GPNAHierarchySettings,NAHierarchySettings,v0.2.0,,Y,N,A hierarchy attribute that divides hierarchy values of a network dataset into three groups using two integers. The first integer sets the ending value of the first group; the second number sets the beginning value of the third group.
+81,Network Analyst Layer,GPNALayer,NALayer,v0.2.0,,Y,Y,A group layer used to express and solve network routing problems. Each sublayer held in memory in a Network Analyst layer represents some aspect of the routing problem and the routing solution.
+82,Network Data Source,GPNetworkDataSource,NetworkDataSource,v0.2.0,,Y,Y,"A network data source can be a local dataset specified either using its catalog path or a layer from a map, or it can be a URL to a portal."
+83,Network Dataset,DENetworkDataset,NetworkDataset,v0.1.0,,Y,Y,"A collection of topologically connected network elements (edges, junctions, and turns), derived from network sources and associated with a collection of network attributes."
+84,Network Dataset Layer,GPNetworkDatasetLayer,NetworkDatasetLayer,v0.2.0,,Y,Y,"A reference to a network dataset, including symbology and rendering properties."
+85,Network Travel Mode,NetworkTravelMode,NetworkTravelMode,v0.2.0,,Y,N,A dictionary of travel mode objects.
+86,Oriented Imagery Layer,GPOrientedImageryLayer,OrientedImageryLayer,,,N,Y,A collection of camera locations with image metadata.
+87,Parcel Fabric For ArcMap,DECadastralFabric,CadastralFabric,,,N,Y,"A dataset used for the storage, maintenance, and editing of a continuous surface of connected parcels or parcel network."
+88,Parcel Fabric Layer,GPCadastralFabricLayer,CadastralFabricLayer,,,N,Y,A layer referencing a parcel fabric on disk. This layer works as a group layer organizing a set of related layers under a single layer.
+89,Point,GPPoint,Point,v0.1.0,,Y,N,"A pair of x,y-coordinates."
+90,Polygon,GPPolygon,Polygon,,,N,N,"A connected sequence of x,y-coordinate pairs in which the first and last coordinate pair are the same."
+91,Projection File,DEPrjFile,PrjFile,v0.1.0,,Y,Y,A file storing coordinate system information for spatial data.
+92,Pyramid,GPSAGDBEnvPyramid,SAGDBEnvPyramid,v0.2.0,,Y,N,Specifies whether pyramids are built.
+93,Radius,GPSARadius,SARadius,v0.2.0,,Y,N,The surrounding points that are used for interpolation.
+94,Random Number Generator,GPRandomNumberGenerator,RandomNumberGenerator,v0.2.0,,Y,N,The seed and the generator to use when creating random values.
+95,Raster Band,DERasterBand,RasterBand,v0.1.0,,Y,Y,A layer in a raster dataset.
+96,Raster Calculator Expression,GPRasterCalculatorExpression,RasterCalculatorExpression,v0.1.0,,Y,N,A raster calculator expression.
+97,Raster Data Layer,GPRasterDataLayer,RasterDataLayer,v0.1.0,,Y,Y,A raster data layer.
+98,Raster Dataset,DERasterDataset,RasterDataset,v0.1.0,,Y,Y,A single dataset built from one or more rasters.
+99,Raster Layer,GPRasterLayer,RasterLayer,v0.1.0,,Y,Y,"A reference to a raster, including symbology and rendering properties."
+100,Raster Statistics,GPSAGDBEnvStatistics,SAGDBEnvStatistics,v0.2.0,,Y,N,Specifies whether raster statistics build.
+101,Raster Type,GPRasterBuilder,RasterBuilder,v0.2.0,,Y,N,"Raster data is added to a mosaic dataset by specifying a raster type. The raster type identifies metadata, such as georeferencing, acquisition date, and sensor type, with a raster format."
+102,Record Set,GPRecordSet,RecordSet,v0.2.0,,Y,N,An interactive table. Type the table values when the tool is run.
+103,Relationship Class,DERelationshipClass,RelationshipClass,v0.1.0,,Y,Y,The details about the relationship between objects in the geodatabase.
+104,Remap,GPSARemap,SARemap,v0.2.0,,Y,N,A table that defines how raster cell values are reclassified.
+105,Route Measure Event Properties,GPRouteMeasureEventProperties,RouteMeasureEventProperties,,,N,N,The fields on a table that describe events measured by a linear reference route system.
+106,Scene Service Layer,GPSceneServiceLayer,SceneServiceLayer,,,N,Y,A scene service layer.
+107,Schematic Dataset,DESchematicDataset,SchematicDataset,v0.2.0,,Y,Y,"A collection of schematic diagram templates and schematic feature classes that share the same application domain, for example, water or electrical."
+108,Schematic Diagram,DESchematicDiagram,SchematicDiagram,v0.2.0,,Y,Y,A schematic diagram.
+109,Schematic Diagram Class,DESchematicDiagramClass,SchematicDiagramClass,v0.2.0,,Y,Y,A schematic diagram class.
+110,Schematic Folder,DESchematicFolder,SchematicFolder,v0.2.0,,Y,Y,A schematic folder.
+111,Schematic Layer,GPSchematicLayer,SchematicLayer,v0.2.0,,Y,Y,A composite layer composed of feature layers based on the schematic feature classes associated with the template on which the schematic diagram is based.
+112,SemiVariogram,GPSASemiVariogram,SASemiVariogram,v0.2.0,,Y,N,The distance and direction representing two locations used to quantify autocorrelation.
+113,ServerConnection,DEServerConnection,ServerConnection,,,N,N,A server connection.
+114,Shapefile,DEShapeFile,ShapeFile,v0.1.0,,Y,Y,Spatial data in shapefile format.
+115,Spatial Reference,GPSpatialReference,SpatialReference,v0.1.0,v0.2.0,Y,Y,"The coordinate system used to store a spatial dataset, including the spatial domain."
+116,SQL Expression,GPSQLExpression,SQLExpression,v0.1.0,,Y,N,A syntax for defining and manipulating data from a relational database.
+117,String,GPString,String,v0.1.0,,Y,Y,A text value.
+118,String Hidden,GPStringHidden,StringHidden,v0.1.0,,Y,N,A string that is masked by asterisk characters.
+119,Table,DETable,Table,v0.1.0,,Y,Y,Tabular data.
+120,Table View,GPTableView,TableView,v0.1.0,,Y,Y,A representation of tabular data for viewing and editing purposes stored in memory or on disk.
+121,Terrain Layer,GPTerrainLayer,TerrainLayer,v0.2.0,,Y,Y,"A reference to a terrain, including symbology and rendering properties. It’s used to draw a terrain."
+122,Text File,DETextfile,Textfile,v0.1.0,,Y,Y,A text file.
+123,Tile Size,GPSAGDBEnvTileSize,SAGDBEnvTileSize,v0.2.0,,Y,N,The width and height of data stored in block.
+124,Time configuration,GPSATimeConfiguration,SATimeConfiguration,v0.2.0,,Y,N,The time periods used for calculating solar radiation at specific locations.
+125,Time Unit,GPTimeUnit,TimeUnit,v0.2.0,,Y,N,A time unit type and value such as minutes or hours.
+126,TIN,DETin,Tin,v0.1.0,,Y,Y,"A vector data structure that partitions geographic space into contiguous, nonoverlapping triangles. The vertices of each triangle are sample data points with x-, y-, and z-values."
+127,Tin Layer,GPTinLayer,TinLayer,v0.1.0,,Y,Y,"A reference to a TIN, including topological relationships, symbology, and rendering properties."
+128,Tool,DETool,Tool,,,N,Y,A geoprocessing tool.
+129,Toolbox,DEToolbox,Toolbox,,,N,Y,A geoprocessing toolbox.
+130,Topo Features,GPSATopoFeatures,SATopoFeatures,v0.2.0,,Y,N,Features that are input to the interpolation.
+131,Topology,DETopology,Topology,v0.1.0,,Y,Y,A topology that defines and enforces data integrity rules for spatial data.
+132,Topology Layer,GPTopologyLayer,TopologyLayer,v0.2.0,,Y,Y,"A reference to a topology, including symbology and rendering properties."
+133,Transformation Function,GPSATransformationFunction,SATransformationFunction,v0.2.0,,Y,N,A Spatial Analyst transformation function.
+134,Trajectory Layer,GPTrajectoryLayer,TrajectoryLayer,,,N,Y,A layer that references a trajectory dataset.
+135,Utility Network,DEUtilityNetwork,UtilityNetwork,,,N,Y,A utility network.
+136,Utility Network Layer,GPUtilityNetworkLayer,UtilityNetworkLayer,,,N,Y,A utility network layer.
+137,Value Table,GPValueTable,ValueTable,v0.2.0,,Y,N,A collection of columns of values.
+138,Variant,GPVariant,Variant,,,N,N,"A data value that can contain any basic type: Boolean, date, double, long, and string."
+139,Vector Tile Layer,GPVectorLayer,VectorLayer,v0.2.0,,Y,Y,A vector tile layer.
+140,Vertical Factor,GPSAVerticalFactor,SAVerticalFactor,v0.2.0,,Y,N,"The relationship between the vertical cost factor and the vertical, relative moving angle."
+141,VPF Coverage,DEVPFCoverage,VPFCoverage,,,N,Y,Spatial data stored in Vector Product Format.
+142,VPF Table,DEVPFTable,VPFTable,,,N,Y,Attribute data stored in Vector Product Format.
+143,WCS Coverage,DEWCSCoverage,WCSCoverage,,,N,Y,Web Coverage Service (WCS) is an open specification for sharing raster datasets on the web.
+144,Weighted Overlay Table,GPSAWeightedOverlayTable,SAWeightedOverlayTable,v0.2.0,,Y,N,"A table with data to combine multiple rasters by applying a common measurement scale of values to each raster, weighing each according to its importance."
+145,Weighted Sum,GPSAWeightedSum,SAWeightedSum,v0.2.0,,Y,N,"Data for overlaying several rasters, each multiplied by their given weight and summed."
+146,WMS Map,DEWMSMap,WMSMap,,,N,Y,A WMS map.
+147,Workspace,DEWorkspace,Workspace,v0.1.0,,Y,Y,A container such as a geodatabase or folder.
+148,XY Domain,GPXYDomain,XYDomain,v0.2.0,,Y,N,"A range of lowest and highest possible values for x,y-coordinates."
+149,Z Domain,GPZDomain,ZDomain,v0.2.0,,Y,N,A range of lowest and highest possible values for z-coordinates.

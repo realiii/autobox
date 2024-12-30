@@ -10,7 +10,8 @@ from typing import NamedTuple, TYPE_CHECKING, Type, TypeAlias, Union
 
 if TYPE_CHECKING:  # pragma: no cover
     from autobox.enum import (
-        ArealUnit, FieldType, GeometryType, LinearUnit, WorkspaceType)
+        ArealUnit, FieldType, GeometryType, LinearUnit, TimeUnit,
+        TravelModeUnitType, WorkspaceType)
     # noinspection PyProtectedMember
     from autobox.filter import AbstractFilter
     # noinspection PyProtectedMember
@@ -26,12 +27,14 @@ MAP_STR_LIST: TypeAlias = dict[str, str | list[MAP_STR]]
 MAP_DICT_STR_LIST: TypeAlias = dict[str, dict[str, str | list[str]]]
 TOOLS_MAP: TypeAlias = dict[str, dict[str, list[str]]]
 PARAMETER: TypeAlias = Union['InputOutputParameter', 'InputParameter']
-TYPE_PARAMS: TypeAlias = tuple[Type['InputOutputParameter'], ...]
+TYPE_PARAMS: TypeAlias = tuple[Union[Type['InputOutputParameter'], Type['InputParameter']], ...]
 TYPE_FILTERS: TypeAlias = tuple[Type['AbstractFilter'], ...]
 AREAL_UNITS: TypeAlias = list['ArealUnit'] | tuple['ArealUnit', ...]
+LINEAR_UNITS: TypeAlias = list['LinearUnit'] | tuple['LinearUnit', ...]
+TIME_UNITS: TypeAlias = list['TimeUnit'] | tuple['TimeUnit', ...]
 FIELD_TYPES: TypeAlias = list['FieldType'] | tuple['FieldType', ...]
 GEOMETRY_TYPES: TypeAlias = list['GeometryType'] | tuple['GeometryType', ...]
-LINEAR_UNITS: TypeAlias = list['LinearUnit'] | tuple['LinearUnit', ...]
+TRAVEL_MODES: TypeAlias = list['TravelModeUnitType'] | tuple['TravelModeUnitType', ...]
 WORKSPACE_TYPES: TypeAlias = list['WorkspaceType'] | tuple['WorkspaceType', ...]
 
 
