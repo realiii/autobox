@@ -532,7 +532,7 @@ class AnalysisCellSizeParameter(InputParameter):
 # End AnalysisCellSizeParameter class
 
 
-class BooleanParameter(InputParameter):
+class BooleanParameter(InputOutputParameter):
     """
     A Boolean value.
     """
@@ -620,7 +620,7 @@ class DataFileParameter(InputOutputParameter):
 # End DataFileParameter class
 
 
-class DatasetTypeParameter(InputParameter):
+class DatasetTypeParameter(InputOutputParameter):
     """
     A collection of related data, usually grouped or stored together.
     """
@@ -628,7 +628,7 @@ class DatasetTypeParameter(InputParameter):
 # End DatasetTypeParameter class
 
 
-class DateParameter(InputParameter):
+class DateParameter(InputOutputParameter):
     """
     A date value.
     """
@@ -1174,7 +1174,7 @@ class ShapeFileParameter(InputOutputParameter):
 # End ShapeFileParameter class
 
 
-class SpatialReferenceParameter(InputParameter):
+class SpatialReferenceParameter(InputOutputParameter):
     """
     The coordinate system used to store a spatial dataset, including the
     spatial domain.
