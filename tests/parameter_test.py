@@ -16,9 +16,9 @@ from autobox.filter import (
 from autobox.parameter import (
     ArealUnitParameter, DoubleParameter, FeatureClassParameter,
     FeatureDatasetParameter, FeatureLayerParameter, FieldParameter,
-    FileParameter, InputOutputParameter, InputParameter, LinearUnitParameter,
-    LongParameter, RasterDatasetParameter, StringParameter, TableParameter,
-    TinParameter, WorkspaceParameter)
+    FileParameter, FolderParameter, InputOutputParameter, InputParameter,
+    LinearUnitParameter, LongParameter, RasterDatasetParameter, StringParameter,
+    TableParameter, TinParameter, WorkspaceParameter)
 
 
 def test_parameter_instantiate():
@@ -694,6 +694,32 @@ def test_parameter_symbology(tmp_path, data_path):
     assert lyr.name in value
     assert resources == {'feature_class.title': 'Feature Class'}
 # End test_parameter_symbology function
+
+
+def test_parameter_sans_dep_types_accepts_same():
+    """
+    Test that a parameter without dependency types accepts the same type
+    as a dependency parameter when set to derived
+    """
+    assert not FolderParameter.dependency_types
+    file = FileParameter(label='a file')
+    folder = FolderParameter(label='a folder')
+    folder.dependency = file
+    assert folder.dependency is None
+    folder.dependency = folder
+    assert folder.dependency is None
+
+    folder.set_derived()
+    folder.dependency = file
+    assert folder.dependency is None
+    folder.dependency = folder
+    assert folder.dependency is None
+
+    another = FolderParameter(label='another folder')
+    folder.dependency = another
+    assert folder.dependency is not None
+
+# End test_parameter_sans_dep_types_accepts_same function
 
 
 if __name__ == '__main__':  # pragma: no cover

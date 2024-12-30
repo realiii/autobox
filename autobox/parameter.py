@@ -147,6 +147,19 @@ class BaseParameter:
         return value
     # End _validate_type method
 
+    def _validate_dependency(self, value: Any) -> Any:
+        """
+        Validate Dependency, for derived parameters allow for the same
+        parameter type to be used as a dependency.  Needed in support of
+        multithreaded background processing and parameter memory approach.
+        """
+        if self.is_derived and isinstance(value, self.__class__):
+            if id(self) != id(value):
+                return value
+        return self._validate_type(
+            value, types=self.dependency_types, text=PARAMETER)
+    # End _validate_dependency method
+
     @staticmethod
     def _validate_layer_file(path: PATH) -> PATH:
         """
@@ -407,6 +420,17 @@ class BaseParameter:
     # End is_enabled property
 
     @property
+    def is_derived(self) -> bool:
+        """
+        True if parameter is configured as derived, purposely verbose checks
+        to parallel what is done in set_derived.
+        """
+        return (self.is_input is False and
+                self.is_required is None and
+                self.is_enabled is True)
+    # End is_derived property
+
+    @property
     def dependency(self) -> Self | None:
         """
         Dependency Parameter
@@ -415,8 +439,7 @@ class BaseParameter:
 
     @dependency.setter
     def dependency(self, value: Self | None) -> None:
-        self._dependency = self._validate_type(
-            value, types=self.dependency_types, text=PARAMETER)
+        self._dependency = self._validate_dependency(value)
     # End dependency property
 
     @property
@@ -496,7 +519,7 @@ class InputOutputParameter(BaseParameter):
         """
         self._is_input = False
         self._is_required = None
-        self._is_enabled = True
+        self.is_enabled = True
     # End set_derived method
 # End InputOutputParameter class
 
