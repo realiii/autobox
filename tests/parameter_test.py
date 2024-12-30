@@ -718,8 +718,17 @@ def test_parameter_sans_dep_types_accepts_same():
     another = FolderParameter(label='another folder')
     folder.dependency = another
     assert folder.dependency is not None
-
 # End test_parameter_sans_dep_types_accepts_same function
+
+
+def test_parameter_validate_required():
+    """
+    Test Parameter _validate_required
+    """
+    with raises(ValueError):
+        FeatureClassParameter(label='Feature Class', is_required=3)
+# End test_parameter_validate_required function
+
 
 
 if __name__ == '__main__':  # pragma: no cover

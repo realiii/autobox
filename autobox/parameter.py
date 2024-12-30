@@ -104,9 +104,9 @@ class BaseParameter:
         self._name: str = self._validate_name(name, self._label)
         self._category: STRING = category
         self._description: STRING = description
-        self._default: Any = default_value
+        self._default: Any = self._validate_default(default_value)
         self._is_input: bool = is_input
-        self._is_required: BOOL = is_required
+        self._is_required: BOOL = self._validate_required(is_required)
         self._is_multi: bool = is_multi
         self._is_enabled: bool = is_enabled
         self._dependency: InputOutputParameter | None = None
@@ -134,6 +134,22 @@ class BaseParameter:
                 raise ValueError(f'Invalid parameter name: {name}')
         return validated_name
     # End _validate_name method
+
+    def _validate_default(self, value: Any) -> Any:
+        """
+        Validate Default, no validation in the base implementation.
+        """
+        return value
+    # End _validate_default method
+
+    def _validate_required(self, value: BOOL) -> BOOL:
+        """
+        Validate Required
+        """
+        if not (isinstance(value, bool) or value is None):
+            raise ValueError(f'Invalid is_required value: {value}')
+        return value
+    # End _validate_required method
 
     @staticmethod
     def _validate_type(value: Any, types: tuple[Type, ...], text: str) -> Any:
@@ -380,7 +396,7 @@ class BaseParameter:
 
     @default_value.setter
     def default_value(self, value: Any) -> None:
-        self._default = value
+        self._default = self._validate_default(value)
     # End default_value property
 
     @property
