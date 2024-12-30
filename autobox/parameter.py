@@ -407,6 +407,17 @@ class BaseParameter:
     # End is_enabled property
 
     @property
+    def is_derived(self) -> bool:
+        """
+        True if parameter is configured as derived, purposely verbose checks
+        to parallel what is done in set_derived.
+        """
+        return (self.is_input is False and
+                self.is_required is None and
+                self.is_enabled is True)
+    # End is_derived property
+
+    @property
     def dependency(self) -> Self | None:
         """
         Dependency Parameter
