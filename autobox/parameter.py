@@ -104,9 +104,9 @@ class BaseParameter:
         self._name: str = self._validate_name(name, self._label)
         self._category: STRING = category
         self._description: STRING = description
-        self._default: Any = default_value
+        self._default: Any = self._validate_default(default_value)
         self._is_input: bool = is_input
-        self._is_required: BOOL = is_required
+        self._is_required: BOOL = self._validate_required(is_required)
         self._is_multi: bool = is_multi
         self._is_enabled: bool = is_enabled
         self._dependency: InputOutputParameter | None = None
@@ -134,6 +134,22 @@ class BaseParameter:
                 raise ValueError(f'Invalid parameter name: {name}')
         return validated_name
     # End _validate_name method
+
+    def _validate_default(self, value: Any) -> Any:
+        """
+        Validate Default, no validation in the base implementation.
+        """
+        return value
+    # End _validate_default method
+
+    def _validate_required(self, value: BOOL) -> BOOL:
+        """
+        Validate Required
+        """
+        if not (isinstance(value, bool) or value is None):
+            raise ValueError(f'Invalid is_required value: {value}')
+        return value
+    # End _validate_required method
 
     @staticmethod
     def _validate_type(value: Any, types: tuple[Type, ...], text: str) -> Any:
@@ -380,7 +396,7 @@ class BaseParameter:
 
     @default_value.setter
     def default_value(self, value: Any) -> None:
-        self._default = value
+        self._default = self._validate_default(value)
     # End default_value property
 
     @property
@@ -553,14 +569,6 @@ class AnalysisCellSizeParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'analysis_cell_size'
 # End AnalysisCellSizeParameter class
-
-
-class BooleanParameter(InputOutputParameter):
-    """
-    A Boolean value.
-    """
-    keyword: ClassVar[str] = 'GPBoolean'
-# End BooleanParameter class
 
 
 class CadDrawingDatasetParameter(InputOutputParameter):
@@ -1372,6 +1380,46 @@ class ArealUnitParameter(InputParameter):
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = ArealUnitFilter,
 # End ArealUnitParameter class
+
+
+class BooleanParameter(InputOutputParameter):
+    """
+    A Boolean value.
+    """
+    keyword: ClassVar[str] = 'GPBoolean'
+
+    def __init__(self, label: str, name: STRING = None, category: STRING = None,
+                 description: STRING = None, default_value: BOOL = True,
+                 is_input: bool = True, is_required: BOOL = True,
+                 is_multi: bool = False, is_enabled: bool = True) -> None:
+        """
+        Initialize the BooleanParameter class.
+        """
+        super().__init__(
+            label=label, name=name, category=category, description=description,
+            default_value=default_value, is_input=is_input,
+            is_required=is_required, is_multi=is_multi, is_enabled=is_enabled)
+    # End init built-in
+
+    def _validate_required(self, value: BOOL) -> BOOL:
+        """
+        Validate Required, disallow optional Boolean parameters
+        """
+        if value not in (True, None):
+            raise ValueError(f'Invalid is_required value: {value}, can only '
+                             f'be True (Required) or None (Derived)')
+        return value
+    # End _validate_required method
+
+    def _validate_default(self, value: Any) -> bool | NoReturn:
+        """
+        Validate Default, no validation in the base implementation.
+        """
+        if not isinstance(value, bool):
+            raise TypeError(f'Invalid Boolean value: {value}')
+        return value
+    # End _validate_default method
+# End BooleanParameter class
 
 
 class DoubleParameter(InputOutputParameter):

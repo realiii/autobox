@@ -14,11 +14,11 @@ from autobox.filter import (
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
     LongRangeFilter, LongValueFilter, StringValueFilter, WorkspaceTypeFilter)
 from autobox.parameter import (
-    ArealUnitParameter, DoubleParameter, FeatureClassParameter,
-    FeatureDatasetParameter, FeatureLayerParameter, FieldParameter,
-    FileParameter, FolderParameter, InputOutputParameter, InputParameter,
-    LinearUnitParameter, LongParameter, RasterDatasetParameter, StringParameter,
-    TableParameter, TinParameter, WorkspaceParameter)
+    ArealUnitParameter, BooleanParameter, DoubleParameter,
+    FeatureClassParameter, FeatureDatasetParameter, FeatureLayerParameter,
+    FieldParameter, FileParameter, FolderParameter, InputOutputParameter,
+    InputParameter, LinearUnitParameter, LongParameter, RasterDatasetParameter,
+    StringParameter, TableParameter, TinParameter, WorkspaceParameter)
 
 
 def test_parameter_instantiate():
@@ -718,8 +718,31 @@ def test_parameter_sans_dep_types_accepts_same():
     another = FolderParameter(label='another folder')
     folder.dependency = another
     assert folder.dependency is not None
-
 # End test_parameter_sans_dep_types_accepts_same function
+
+
+def test_parameter_validate_required():
+    """
+    Test Parameter _validate_required
+    """
+    with raises(ValueError):
+        FeatureClassParameter(label='Feature Class', is_required=3)
+# End test_parameter_validate_required function
+
+
+def test_boolean_specialization():
+    """
+    Test Boolean Specialization
+    """
+    with raises(TypeError):
+        BooleanParameter(label='Boolean', name='Boolean', default_value=1)
+    with raises(ValueError):
+        BooleanParameter(label='Boolean', name='Boolean', is_required=False)
+    b = BooleanParameter(label='Boolean', name='Boolean')
+    assert b.default_value is True
+    with raises(TypeError):
+        b.default_value = 'True'
+# End test_boolean_specialization function
 
 
 if __name__ == '__main__':  # pragma: no cover
