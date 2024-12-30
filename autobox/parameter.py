@@ -496,7 +496,7 @@ class InputOutputParameter(BaseParameter):
         """
         self._is_input = False
         self._is_required = None
-        self._is_enabled = True
+        self.is_enabled = True
     # End set_derived method
 # End InputOutputParameter class
 
