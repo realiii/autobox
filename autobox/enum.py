@@ -9,7 +9,9 @@ from enum import StrEnum
 
 __all__ = [
     'ArealUnit', 'FieldType', 'GeometryType', 'LinearUnit',
-    'TimeUnit', 'TravelModeUnitType', 'WorkspaceType'
+    'TimeUnit', 'TravelModeUnitType', 'WorkspaceType',
+    'RATIONAL_FIELD_TYPES', 'INTEGER_FIELD_TYPES', 'NUMERIC_FIELD_TYPES',
+    'STRING_FIELD_TYPES', 'IDENTIFIER_FIELD_TYPES',
 ]
 
 
@@ -60,6 +62,16 @@ class FieldType(StrEnum):
     GLOBAL_ID = 'GlobalID'
     XML = 'XML'
 # End FieldType class
+
+
+RATIONAL_FIELD_TYPES: tuple[FieldType, ...] = FieldType.DOUBLE, FieldType.FLOAT
+INTEGER_FIELD_TYPES: tuple[FieldType, ...] = (
+    FieldType.SHORT, FieldType.LONG, FieldType.BIG_INTEGER)
+NUMERIC_FIELD_TYPES: tuple[FieldType, ...] = (
+    *RATIONAL_FIELD_TYPES, *INTEGER_FIELD_TYPES)
+STRING_FIELD_TYPES: tuple[FieldType, ...] = FieldType.TEXT,
+IDENTIFIER_FIELD_TYPES: tuple[FieldType, ...] = (
+    FieldType.OID, FieldType.GUID, FieldType.GLOBAL_ID)
 
 
 class GeometryType(StrEnum):
