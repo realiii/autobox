@@ -571,14 +571,6 @@ class AnalysisCellSizeParameter(InputParameter):
 # End AnalysisCellSizeParameter class
 
 
-class BooleanParameter(InputOutputParameter):
-    """
-    A Boolean value.
-    """
-    keyword: ClassVar[str] = 'GPBoolean'
-# End BooleanParameter class
-
-
 class CadDrawingDatasetParameter(InputOutputParameter):
     """
     A vector data source combined with feature types and symbology. The
@@ -1388,6 +1380,46 @@ class ArealUnitParameter(InputParameter):
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = ArealUnitFilter,
 # End ArealUnitParameter class
+
+
+class BooleanParameter(InputOutputParameter):
+    """
+    A Boolean value.
+    """
+    keyword: ClassVar[str] = 'GPBoolean'
+
+    def __init__(self, label: str, name: STRING = None, category: STRING = None,
+                 description: STRING = None, default_value: BOOL = True,
+                 is_input: bool = True, is_required: BOOL = True,
+                 is_multi: bool = False, is_enabled: bool = True) -> None:
+        """
+        Initialize the BooleanParameter class.
+        """
+        super().__init__(
+            label=label, name=name, category=category, description=description,
+            default_value=default_value, is_input=is_input,
+            is_required=is_required, is_multi=is_multi, is_enabled=is_enabled)
+    # End init built-in
+
+    def _validate_required(self, value: BOOL) -> BOOL:
+        """
+        Validate Required, disallow optional Boolean parameters
+        """
+        if value not in (True, None):
+            raise ValueError(f'Invalid is_required value: {value}, can only '
+                             f'be True (Required) or None (Derived)')
+        return value
+    # End _validate_required method
+
+    def _validate_default(self, value: Any) -> bool | NoReturn:
+        """
+        Validate Default, no validation in the base implementation.
+        """
+        if not isinstance(value, bool):
+            raise TypeError(f'Invalid Boolean value: {value}')
+        return value
+    # End _validate_default method
+# End BooleanParameter class
 
 
 class DoubleParameter(InputOutputParameter):
