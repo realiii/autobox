@@ -5,14 +5,17 @@ Parameter Stubs
 
 
 from pathlib import Path
-from typing import Any, ClassVar, NoReturn, Self, Type, TypeAlias
+from typing import Any, ClassVar, NoReturn, Self, TypeAlias
 
+from autobox.default import CellSizeXY
+from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
     LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
     TravelModeUnitTypeFilter, WorkspaceTypeFilter)
-from autobox.type import BOOL, MAP_STR, PATH, STRING, TYPE_FILTERS, TYPE_PARAMS
+from autobox.type import (
+    BOOL, MAP_STR, PATH, STRING, TYPES, TYPE_FILTERS, TYPE_PARAMS)
 
 
 class BaseParameter:
@@ -22,6 +25,7 @@ class BaseParameter:
     keyword: ClassVar[str]
     dependency_types: ClassVar[TYPE_PARAMS]
     filter_types: ClassVar[TYPE_FILTERS]
+    valid_types: ClassVar[TYPES]
 
     _label: str
     _name: str
@@ -47,7 +51,7 @@ class BaseParameter:
     def _validate_required(self, value: BOOL) -> BOOL: ...
     def _validate_default(self, value: Any) -> Any: ...
     @staticmethod
-    def _validate_type(value: Any, types: tuple[Type, ...], text: str) -> Any: ...
+    def _validate_type(value: Any, types: TYPES, text: str) -> Any: ...
     def _validate_dependency(self, value: Any) -> Any: ...
     @staticmethod
     def _validate_layer_file(path: PATH) -> PATH: ...
@@ -144,10 +148,8 @@ class SchemaMixin:
 # End SchemaMixin class
 
 
-class AnalysisCellSizeParameter(InputParameter): ...
 class CadDrawingDatasetParameter(InputOutputParameter): ...
 class CatalogLayerParameter(InputParameter): ...
-class CellSizeXYParameter(InputParameter): ...
 class CoordinateSystemParameter(InputOutputParameter): ...
 class CoverageFeatureClassParameter(InputParameter): ...
 class CoverageParameter(InputParameter): ...
@@ -193,7 +195,6 @@ class RasterDataLayerParameter(InputOutputParameter): ...
 class RasterDatasetParameter(InputOutputParameter): ...
 class RasterLayerParameter(InputOutputParameter): ...
 class RelationshipClassParameter(InputOutputParameter): ...
-class SACellSizeParameter(InputParameter): ...
 class SAExtractValuesParameter(InputParameter): ...
 class SAFuzzyFunctionParameter(InputParameter): ...
 class SAGDBEnvCompressionParameter(InputParameter): ...
@@ -282,6 +283,19 @@ _NETWORK_TYPES: TypeAlias = (
 )
 
 
+class AnalysisCellSizeParameter(InputParameter):
+    """
+    The cell size used by raster tools.
+    """
+    def _validate_default(self, value: Any) -> Path | int | float | None | NoReturn: ...
+    @property
+    def default_value(self) -> Path | int | float | None: ...
+    # noinspection PyUnresolvedReferences
+    @default_value.setter
+    def default_value(self, value: Path | int | float | None) -> None: ...
+# End AnalysisCellSizeParameter class
+
+
 class ArealUnitParameter(InputParameter):
     """
     An areal unit type and value, such as square meter or acre.
@@ -322,6 +336,19 @@ class CalculatorExpressionParameter(InputParameter):
     @dependency.setter
     def dependency(self, value: _TABLE_AND_GEOGRAPHIC_TYPES) -> None: ...
 # End CalculatorExpressionParameter class
+
+
+class CellSizeXYParameter(InputParameter):
+    """
+    The size that defines the two sides of a raster cell.
+    """
+    def _validate_default(self, value: Any) -> CellSizeXY | None | NoReturn: ...
+    @property
+    def default_value(self) -> CellSizeXY | None: ...
+    # noinspection PyUnresolvedReferences
+    @default_value.setter
+    def default_value(self, value: CellSizeXY | None) -> None: ...
+# End CellSizeXYParameter class
 
 
 class DoubleParameter(InputOutputParameter):
@@ -450,17 +477,17 @@ class NAHierarchySettingsParameter(InputParameter):
 # End NAHierarchySettingsParameter class
 
 
-class StringParameter(InputOutputParameter):
+class SACellSizeParameter(InputParameter):
     """
-    A text value.
+    The cell size used by the ArcGIS Spatial Analyst extension.
     """
-    def _build_filter(self) -> tuple[dict, MAP_STR]: ...
+    def _validate_default(self, value: Any) -> Path | SACellSize | None | NoReturn: ...
     @property
-    def filter(self) -> StringValueFilter | None: ...
+    def default_value(self) -> Path | SACellSize | None: ...
     # noinspection PyUnresolvedReferences
-    @filter.setter
-    def filter(self, value: StringValueFilter | None) -> None: ...
-# End StringParameter class
+    @default_value.setter
+    def default_value(self, value: Path | SACellSize | None) -> None: ...
+# End SACellSizeParameter class
 
 
 class SQLExpressionParameter(InputParameter):
@@ -474,6 +501,19 @@ class SQLExpressionParameter(InputParameter):
     @dependency.setter
     def dependency(self, value: _TABLE_AND_GEOGRAPHIC_TYPES) -> None: ...
 # End SQLExpressionParameter class
+
+
+class StringParameter(InputOutputParameter):
+    """
+    A text value.
+    """
+    def _build_filter(self) -> tuple[dict, MAP_STR]: ...
+    @property
+    def filter(self) -> StringValueFilter | None: ...
+    # noinspection PyUnresolvedReferences
+    @filter.setter
+    def filter(self, value: StringValueFilter | None) -> None: ...
+# End StringParameter class
 
 
 class TimeUnitParameter(InputParameter):
