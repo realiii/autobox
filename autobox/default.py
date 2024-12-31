@@ -32,9 +32,9 @@ class CellSizeXY:
         """
         Validate Value
         """
-        if isinstance(value, (int, float)):
+        if isinstance(value, (int, float)) and value > 0:
             return value
-        raise TypeError(f'{text} must be a number')
+        raise TypeError(f'{text} must be a greater than 0')
     # End _validate_value method
 # End CellSizeXY class
 
