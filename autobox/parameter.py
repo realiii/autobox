@@ -580,14 +580,6 @@ class CadDrawingDatasetParameter(InputOutputParameter):
 # End CadDrawingDatasetParameter class
 
 
-class CalculatorExpressionParameter(InputParameter):
-    """
-    A calculator expression.
-    """
-    keyword: ClassVar[str] = 'GPCalculatorExpression'
-# End CalculatorExpressionParameter class
-
-
 class CatalogLayerParameter(InputParameter):
     """
     A collection of references to different data types. The data types can
@@ -1420,6 +1412,15 @@ class BooleanParameter(InputOutputParameter):
         return value
     # End _validate_default method
 # End BooleanParameter class
+
+
+class CalculatorExpressionParameter(InputParameter):
+    """
+    A calculator expression.
+    """
+    keyword: ClassVar[str] = 'GPCalculatorExpression'
+    dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+# End CalculatorExpressionParameter class
 
 
 class DoubleParameter(InputOutputParameter):
