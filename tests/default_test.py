@@ -15,6 +15,8 @@ def test_cell_size_xy():
     """
     with raises(TypeError):
         CellSizeXY(x=None, y=None)
+    with raises(ValueError):
+        CellSizeXY(x=-1, y=-2)
     xy = CellSizeXY(x=1, y=2)
     assert repr(xy) == '1 2'
     xy = CellSizeXY(x=1.11, y=2.22)
