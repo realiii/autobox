@@ -141,7 +141,7 @@ class BaseParameter:
 
     def _validate_default(self, value: Any) -> Any:
         """
-        Validate Default, no validation in the base implementation.
+        Validate Default, when no default types no validation occurs.
         """
         if not self.default_types:
             return value
