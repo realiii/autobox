@@ -1354,7 +1354,6 @@ class AnalysisCellSizeParameter(InputParameter):
     The cell size used by raster tools.
     """
     keyword: ClassVar[str] = 'analysis_cell_size'
-    valid_types: ClassVar[TYPES] = Path, int, float
     default_types: ClassVar[TYPES] = Path, int, float
 # End AnalysisCellSizeParameter class
 
