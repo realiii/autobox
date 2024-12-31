@@ -7,7 +7,7 @@ Parameter Stubs
 from pathlib import Path
 from typing import Any, ClassVar, NoReturn, Self, TypeAlias
 
-from autobox.default import CellSizeXY
+from autobox.default import CellSizeXY, MDomain, XYDomain, ZDomain
 from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
@@ -25,7 +25,7 @@ class BaseParameter:
     keyword: ClassVar[str]
     dependency_types: ClassVar[TYPE_PARAMS]
     filter_types: ClassVar[TYPE_FILTERS]
-    valid_types: ClassVar[TYPES]
+    default_types: ClassVar[TYPES]
 
     _label: str
     _name: str
@@ -175,7 +175,6 @@ class KMLLayerParameter(InputOutputParameter): ...
 class LasDatasetLayerParameter(InputOutputParameter): ...
 class LasDatasetParameter(InputOutputParameter): ...
 class LayerFileParameter(InputOutputParameter): ...
-class MDomainParameter(InputParameter): ...
 class MapDocumentParameter(InputParameter): ...
 class MapParameter(InputOutputParameter): ...
 class MosaicDatasetParameter(InputOutputParameter): ...
@@ -229,8 +228,6 @@ class TopologyLayerParameter(InputOutputParameter): ...
 class TopologyParameter(InputOutputParameter): ...
 class ValueTableParameter(InputParameter): ...
 class VectorLayerParameter(InputOutputParameter): ...
-class XYDomainParameter(InputParameter): ...
-class ZDomainParameter(InputParameter): ...
 
 
 class FeatureClassParameter(SchemaMixin, InputOutputParameter):
@@ -445,6 +442,19 @@ class LongParameter(InputOutputParameter):
 # End LongParameter class
 
 
+class MDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible value for m-coordinates.
+    """
+    def _validate_default(self, value: Any) -> MDomain | None | NoReturn: ...
+    @property
+    def default_value(self) -> MDomain | None: ...
+    # noinspection PyUnresolvedReferences
+    @default_value.setter
+    def default_value(self, value: MDomain | None) -> None: ...
+# End MDomainParameter class
+
+
 class NetworkTravelModeParameter(InputParameter):
     """
     A dictionary of travel mode objects.
@@ -538,6 +548,32 @@ class WorkspaceParameter(InputOutputParameter):
     @filter.setter
     def filter(self, value: WorkspaceTypeFilter | None) -> None: ...
 # End WorkspaceParameter class
+
+
+class XYDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible values for x,y-coordinates.
+    """
+    def _validate_default(self, value: Any) -> XYDomain | None | NoReturn: ...
+    @property
+    def default_value(self) -> XYDomain | None: ...
+    # noinspection PyUnresolvedReferences
+    @default_value.setter
+    def default_value(self, value: XYDomain | None) -> None: ...
+# End XYDomainParameter class
+
+
+class ZDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible values for z-coordinates.
+    """
+    def _validate_default(self, value: Any) -> ZDomain | None | NoReturn: ...
+    @property
+    def default_value(self) -> ZDomain | None: ...
+    # noinspection PyUnresolvedReferences
+    @default_value.setter
+    def default_value(self, value: ZDomain | None) -> None: ...
+# End ZDomainParameter class
 
 
 if __name__ == '__main__':  # pragma: no cover

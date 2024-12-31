@@ -22,6 +22,7 @@ PATH: TypeAlias = Path | None
 BOOL: TypeAlias = bool | None
 STRING: TypeAlias = str | None
 STRINGS: TypeAlias = list[str] | tuple[str, ...]
+NUMBER: TypeAlias = int | float
 MAP_STR: TypeAlias = dict[str, STRING]
 MAP_STR_LIST: TypeAlias = dict[str, str | list[MAP_STR]]
 MAP_DICT_STR_LIST: TypeAlias = dict[str, dict[str, str | list[str]]]

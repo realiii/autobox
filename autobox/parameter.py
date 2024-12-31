@@ -12,7 +12,7 @@ from autobox.constant import (
     OUT, PARAMETER, ParameterContentKeys, ParameterContentResourceKeys,
     RELATIVE, SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TRUE)
-from autobox.default import CellSizeXY
+from autobox.default import CellSizeXY, MDomain, XYDomain, ZDomain
 from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
@@ -80,7 +80,7 @@ class BaseParameter:
     keyword: ClassVar[str] = ''
     dependency_types: ClassVar[TYPE_PARAMS] = ()
     filter_types: ClassVar[TYPE_FILTERS] = ()
-    valid_types: ClassVar[TYPES] = ()
+    default_types: ClassVar[TYPES] = ()
 
     def __init__(self, label: str, name: STRING = None, category: STRING = None,
                  description: STRING = None, default_value: Any = None,
@@ -141,11 +141,11 @@ class BaseParameter:
 
     def _validate_default(self, value: Any) -> Any:
         """
-        Validate Default, no validation in the base implementation.
+        Validate Default, when no default types no validation occurs.
         """
-        if not self.valid_types:
+        if not self.default_types:
             return value
-        if isinstance(value, self.valid_types) or value is None:
+        if isinstance(value, self.default_types) or value is None:
             return value
         raise TypeError(
             f'Invalid default value for {self.__class__.__name__}: {value}')
@@ -830,14 +830,6 @@ class MapParameter(InputOutputParameter):
 # End MapParameter class
 
 
-class MDomainParameter(InputParameter):
-    """
-    A range of lowest and highest possible value for m-coordinates.
-    """
-    keyword: ClassVar[str] = 'GPMDomain'
-# End MDomainParameter class
-
-
 class MosaicDatasetParameter(InputOutputParameter):
     """
     A collection of raster and image data that allows you to store, view,
@@ -1278,22 +1270,6 @@ class VectorLayerParameter(InputOutputParameter):
 # End VectorLayerParameter class
 
 
-class XYDomainParameter(InputParameter):
-    """
-    A range of lowest and highest possible values for x,y-coordinates.
-    """
-    keyword: ClassVar[str] = 'GPXYDomain'
-# End XYDomainParameter class
-
-
-class ZDomainParameter(InputParameter):
-    """
-    A range of lowest and highest possible values for z-coordinates.
-    """
-    keyword: ClassVar[str] = 'GPZDomain'
-# End ZDomainParameter class
-
-
 class FeatureClassParameter(SchemaMixin, InputOutputParameter):
     """
     A collection of spatial data with the same shape type: point,
@@ -1354,7 +1330,20 @@ class AnalysisCellSizeParameter(InputParameter):
     The cell size used by raster tools.
     """
     keyword: ClassVar[str] = 'analysis_cell_size'
-    valid_types: ClassVar[TYPES] = Path, int, float
+    default_types: ClassVar[TYPES] = Path, int, float
+
+    def _validate_default(self, value: Any) -> Path | int | float | None:
+        """
+        Validate Default, when no default types no validation occurs.
+        """
+        value = super()._validate_default(value)
+        if isinstance(value, Path) or value is None:
+            return value
+        if isinstance(value, (float, int)) and value > 0:
+            return value
+        raise ValueError(f'Default value for {self.__class__.__name__} '
+                         f'must be greater than 0: {value}')
+    # End _validate_default method
 # End AnalysisCellSizeParameter class
 
 
@@ -1373,7 +1362,7 @@ class BooleanParameter(InputOutputParameter):
     A Boolean value.
     """
     keyword: ClassVar[str] = 'GPBoolean'
-    valid_types: ClassVar[TYPES] = bool,
+    default_types: ClassVar[TYPES] = bool,
 
     def __init__(self, label: str, name: STRING = None, category: STRING = None,
                  description: STRING = None, default_value: BOOL = True,
@@ -1424,7 +1413,7 @@ class CellSizeXYParameter(InputParameter):
     The size that defines the two sides of a raster cell.
     """
     keyword: ClassVar[str] = 'GPCellSizeXY'
-    valid_types: ClassVar[TYPES] = CellSizeXY,
+    default_types: ClassVar[TYPES] = CellSizeXY,
 # End CellSizeXYParameter class
 
 
@@ -1494,6 +1483,15 @@ class LongParameter(InputOutputParameter):
 # End LongParameter class
 
 
+class MDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible value for m-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPMDomain'
+    default_types: ClassVar[TYPES] = MDomain,
+# End MDomainParameter class
+
+
 class NAHierarchySettingsParameter(InputParameter):
     """
     A hierarchy attribute that divides hierarchy values of a network
@@ -1523,7 +1521,7 @@ class SACellSizeParameter(InputParameter):
     The cell size used by the ArcGIS Spatial Analyst extension.
     """
     keyword: ClassVar[str] = 'GPSACellSize'
-    valid_types: ClassVar[TYPES] = Path, SACellSize
+    default_types: ClassVar[TYPES] = Path, SACellSize
 # End SACellSizeParameter class
 
 
@@ -1572,6 +1570,24 @@ class WorkspaceParameter(InputOutputParameter):
     keyword: ClassVar[str] = 'DEWorkspace'
     filter_types: ClassVar[TYPE_FILTERS] = WorkspaceTypeFilter,
 # End WorkspaceParameter class
+
+
+class XYDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible values for x,y-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPXYDomain'
+    default_types: ClassVar[TYPES] = XYDomain,
+# End XYDomainParameter class
+
+
+class ZDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible values for z-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPZDomain'
+    default_types: ClassVar[TYPES] = ZDomain,
+# End ZDomainParameter class
 
 
 if __name__ == '__main__':  # pragma: no cover
