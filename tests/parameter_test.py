@@ -4,21 +4,26 @@ Parameter Test
 """
 
 
+from pathlib import Path
+
 from pytest import approx, mark, raises
 
 from autobox.constant import ParameterContentKeys
+from autobox.default import CellSizeXY
 from autobox.enum import (
-    ArealUnit, FieldType, GeometryType, LinearUnit, WorkspaceType)
+    ArealUnit, SACellSize, FieldType, GeometryType, LinearUnit, WorkspaceType)
 from autobox.filter import (
     ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
     LongRangeFilter, LongValueFilter, StringValueFilter, WorkspaceTypeFilter)
 from autobox.parameter import (
-    ArealUnitParameter, BooleanParameter, DoubleParameter,
+    AnalysisCellSizeParameter, ArealUnitParameter, BooleanParameter,
+    CellSizeXYParameter, DoubleParameter,
     FeatureClassParameter, FeatureDatasetParameter, FeatureLayerParameter,
     FieldParameter, FileParameter, FolderParameter, InputOutputParameter,
     InputParameter, LinearUnitParameter, LongParameter, RasterDatasetParameter,
-    StringParameter, TableParameter, TinParameter, WorkspaceParameter)
+    SACellSizeParameter, StringParameter, TableParameter, TinParameter,
+    WorkspaceParameter)
 
 
 def test_parameter_instantiate():
@@ -743,6 +748,88 @@ def test_boolean_specialization():
     with raises(TypeError):
         b.default_value = 'True'
 # End test_boolean_specialization function
+
+
+def test_default_value_analysis_cell_size():
+    """
+    Test default value analysis cell size
+    """
+    p = AnalysisCellSizeParameter(label='Analysis Cell Size')
+    with raises(TypeError):
+        p.default_value = '100'
+    p.default_value = 100
+    assert p.default_value == 100
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '100'
+
+    p.default_value = 123.45
+    assert p.default_value == 123.45
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '123.45'
+
+    path = Path('c:/temp/test.tif')
+    p.default_value = path
+    assert p.default_value == path
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == 'c:/temp/test.tif'
+
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_analysis_cell_size function
+
+
+def test_default_value_cell_size_xy():
+    """
+    Test default value cell size xy
+    """
+    p = CellSizeXYParameter(label='Cell Size XY')
+    with raises(TypeError):
+        p.default_value = '100'
+    with raises(TypeError):
+        p.default_value = 100
+
+    xy = CellSizeXY(100, 200)
+    p.default_value = xy
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '100 200'
+
+    xy = CellSizeXY(100.123, 200.456)
+    p.default_value = xy
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '100.123 200.456'
+
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_cell_size_xy function
+
+
+def test_default_value_sa_cell_size():
+    """
+    Test default value sa cell size
+    """
+    p = SACellSizeParameter(label='SA Cell Size')
+    with raises(TypeError):
+        p.default_value = '100'
+    with raises(TypeError):
+        p.default_value = 100
+
+    path = Path('c:/temp/test.tif')
+    p.default_value = path
+    assert p.default_value == path
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == 'c:/temp/test.tif'
+
+    p.default_value = SACellSize.MAXIMUM
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == 'Maximum of Inputs'
+
+    p.default_value = SACellSize.MINIMUM
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == 'Minimum of Inputs'
+
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_sa_cell_size function
 
 
 if __name__ == '__main__':  # pragma: no cover

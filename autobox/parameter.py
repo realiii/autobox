@@ -4,7 +4,7 @@ Parameters
 """
 
 from pathlib import Path
-from typing import Any, ClassVar, NoReturn, Self, Type
+from typing import Any, ClassVar, NoReturn, Self
 
 from autobox.constant import (
     DERIVED, DOLLAR_RC, DOT, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA,
@@ -12,12 +12,15 @@ from autobox.constant import (
     OUT, PARAMETER, ParameterContentKeys, ParameterContentResourceKeys,
     RELATIVE, SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TRUE)
+from autobox.default import CellSizeXY
+from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
     LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
     TravelModeUnitTypeFilter, WorkspaceTypeFilter)
-from autobox.type import BOOL, MAP_STR, PATH, STRING, TYPE_FILTERS, TYPE_PARAMS
+from autobox.type import (
+    BOOL, MAP_STR, PATH, STRING, TYPES, TYPE_FILTERS, TYPE_PARAMS)
 from autobox.util import (
     make_parameter_name, resolve_layer_path, validate_parameter_label,
     validate_parameter_name, validate_path, wrap_markup)
@@ -77,6 +80,7 @@ class BaseParameter:
     keyword: ClassVar[str] = ''
     dependency_types: ClassVar[TYPE_PARAMS] = ()
     filter_types: ClassVar[TYPE_FILTERS] = ()
+    valid_types: ClassVar[TYPES] = ()
 
     def __init__(self, label: str, name: STRING = None, category: STRING = None,
                  description: STRING = None, default_value: Any = None,
@@ -139,7 +143,12 @@ class BaseParameter:
         """
         Validate Default, no validation in the base implementation.
         """
-        return value
+        if not self.valid_types:
+            return value
+        if isinstance(value, self.valid_types) or value is None:
+            return value
+        raise TypeError(
+            f'Invalid default value for {self.__class__.__name__}: {value}')
     # End _validate_default method
 
     def _validate_required(self, value: BOOL) -> BOOL:
@@ -152,7 +161,7 @@ class BaseParameter:
     # End _validate_required method
 
     @staticmethod
-    def _validate_type(value: Any, types: tuple[Type, ...], text: str) -> Any:
+    def _validate_type(value: Any, types: TYPES, text: str) -> Any:
         """
         Validate Type
         """
@@ -563,14 +572,6 @@ class SchemaMixin:
 # End SchemaMixin class
 
 
-class AnalysisCellSizeParameter(InputParameter):
-    """
-    The cell size used by raster tools.
-    """
-    keyword: ClassVar[str] = 'analysis_cell_size'
-# End AnalysisCellSizeParameter class
-
-
 class CadDrawingDatasetParameter(InputOutputParameter):
     """
     A vector data source combined with feature types and symbology. The
@@ -588,14 +589,6 @@ class CatalogLayerParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPCatalogLayer'
 # End CatalogLayerParameter class
-
-
-class CellSizeXYParameter(InputParameter):
-    """
-    The size that defines the two sides of a raster cell.
-    """
-    keyword: ClassVar[str] = 'GPCellSizeXY'
-# End CellSizeXYParameter class
 
 
 class CoordinateSystemParameter(InputOutputParameter):
@@ -994,14 +987,6 @@ class RelationshipClassParameter(InputOutputParameter):
 # End RelationshipClassParameter class
 
 
-class SACellSizeParameter(InputParameter):
-    """
-    The cell size used by the ArcGIS Spatial Analyst extension.
-    """
-    keyword: ClassVar[str] = 'GPSACellSize'
-# End SACellSizeParameter class
-
-
 class SAExtractValuesParameter(InputParameter):
     """
     An extract values parameter.
@@ -1364,6 +1349,15 @@ _GEOGRAPHIC_TYPES: TYPE_PARAMS = (
 )
 
 
+class AnalysisCellSizeParameter(InputParameter):
+    """
+    The cell size used by raster tools.
+    """
+    keyword: ClassVar[str] = 'analysis_cell_size'
+    valid_types: ClassVar[TYPES] = Path, int, float
+# End AnalysisCellSizeParameter class
+
+
 class ArealUnitParameter(InputParameter):
     """
     An areal unit type and value, such as square meter or acre.
@@ -1379,6 +1373,7 @@ class BooleanParameter(InputOutputParameter):
     A Boolean value.
     """
     keyword: ClassVar[str] = 'GPBoolean'
+    valid_types: ClassVar[TYPES] = bool,
 
     def __init__(self, label: str, name: STRING = None, category: STRING = None,
                  description: STRING = None, default_value: BOOL = True,
@@ -1405,11 +1400,12 @@ class BooleanParameter(InputOutputParameter):
 
     def _validate_default(self, value: Any) -> bool | NoReturn:
         """
-        Validate Default, no validation in the base implementation.
+        Validate Default, specialization since None is considered invalid
         """
-        if not isinstance(value, bool):
-            raise TypeError(f'Invalid Boolean value: {value}')
-        return value
+        if isinstance(value, bool):
+            return value
+        raise TypeError(
+            f'Invalid default value for {self.__class__.__name__}: {value}')
     # End _validate_default method
 # End BooleanParameter class
 
@@ -1421,6 +1417,15 @@ class CalculatorExpressionParameter(InputParameter):
     keyword: ClassVar[str] = 'GPCalculatorExpression'
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
 # End CalculatorExpressionParameter class
+
+
+class CellSizeXYParameter(InputParameter):
+    """
+    The size that defines the two sides of a raster cell.
+    """
+    keyword: ClassVar[str] = 'GPCellSizeXY'
+    valid_types: ClassVar[TYPES] = CellSizeXY,
+# End CellSizeXYParameter class
 
 
 class DoubleParameter(InputOutputParameter):
@@ -1511,6 +1516,15 @@ class NetworkTravelModeParameter(InputParameter):
         NetworkDataSourceParameter)
     filter_types: ClassVar[TYPE_FILTERS] = TravelModeUnitTypeFilter,
 # End NetworkTravelModeParameter class
+
+
+class SACellSizeParameter(InputParameter):
+    """
+    The cell size used by the ArcGIS Spatial Analyst extension.
+    """
+    keyword: ClassVar[str] = 'GPSACellSize'
+    valid_types: ClassVar[TYPES] = Path, SACellSize
+# End SACellSizeParameter class
 
 
 class SQLExpressionParameter(InputParameter):
