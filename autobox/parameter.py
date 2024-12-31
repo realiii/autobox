@@ -1355,6 +1355,19 @@ class AnalysisCellSizeParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'analysis_cell_size'
     default_types: ClassVar[TYPES] = Path, int, float
+
+    def _validate_default(self, value: Any) -> Path | int | float | None:
+        """
+        Validate Default, when no default types no validation occurs.
+        """
+        value = super()._validate_default(value)
+        if isinstance(value, Path) or value is None:
+            return value
+        if isinstance(value, (float, int)) and value > 0:
+            return value
+        raise ValueError(f'Default value for {self.__class__.__name__} '
+                         f'must be greater than 0: {value}')
+    # End _validate_default method
 # End AnalysisCellSizeParameter class
 
 
