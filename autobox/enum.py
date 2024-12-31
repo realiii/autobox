@@ -8,7 +8,7 @@ from enum import StrEnum
 
 
 __all__ = [
-    'ArealUnit', 'FieldType', 'GeometryType', 'LinearUnit',
+    'ArealUnit', 'FieldType', 'GeometryType', 'LinearUnit', 'SACellSize',
     'TimeUnit', 'TravelModeUnitType', 'WorkspaceType',
     'RATIONAL_FIELD_TYPES', 'INTEGER_FIELD_TYPES', 'NUMERIC_FIELD_TYPES',
     'STRING_FIELD_TYPES', 'IDENTIFIER_FIELD_TYPES',
@@ -112,6 +112,15 @@ class LinearUnit(StrEnum):
     DECIMAL_DEGREES = 'DecimalDegrees'
     DECIMETERS = 'Decimeters'
 # End LinearUnit class
+
+
+class SACellSize(StrEnum):
+    """
+    Spatial Analyst Cell Size
+    """
+    MAXIMUM = 'Maximum of Inputs'
+    MINIMUM = 'Minimum of Inputs'
+# End SACellSize class
 
 
 class TimeUnit(StrEnum):
