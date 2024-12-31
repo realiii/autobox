@@ -9,7 +9,9 @@ from pathlib import Path
 from pytest import approx, mark, raises
 
 from autobox.constant import ParameterContentKeys
-from autobox.default import CellSizeXY
+from autobox.default import (
+    CellSizeXY, MDomain, XDomain, XYDomain, YDomain,
+    ZDomain)
 from autobox.enum import (
     ArealUnit, SACellSize, FieldType, GeometryType, LinearUnit, WorkspaceType)
 from autobox.filter import (
@@ -21,9 +23,10 @@ from autobox.parameter import (
     CellSizeXYParameter, DoubleParameter,
     FeatureClassParameter, FeatureDatasetParameter, FeatureLayerParameter,
     FieldParameter, FileParameter, FolderParameter, InputOutputParameter,
-    InputParameter, LinearUnitParameter, LongParameter, RasterDatasetParameter,
+    InputParameter, LinearUnitParameter, LongParameter, MDomainParameter,
+    RasterDatasetParameter,
     SACellSizeParameter, StringParameter, TableParameter, TinParameter,
-    WorkspaceParameter)
+    WorkspaceParameter, XYDomainParameter, ZDomainParameter)
 
 
 def test_parameter_instantiate():
@@ -834,6 +837,38 @@ def test_default_value_sa_cell_size():
     p.default_value = None
     assert p.default_value is None
 # End test_default_value_sa_cell_size function
+
+
+@mark.parametrize('param_cls, default_cls', [
+    (MDomainParameter, MDomain),
+    (ZDomainParameter, ZDomain)
+])
+def test_default_value_range_domain(param_cls, default_cls):
+    """
+    Test Default Value for M Domain and Z Domain
+    """
+    p = param_cls(label='Domain')
+    with raises(TypeError):
+        p.default_value = '100'
+
+    p.default_value = default_cls(-1000, 1000)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '-1000 1000'
+# End test_default_value_m_domain function
+
+
+def test_default_value_xy_domain():
+    """
+    Test Default Value for XY Domain
+    """
+    p = XYDomainParameter(label='XY Domain')
+    with raises(TypeError):
+        p.default_value = '100'
+
+    p.default_value = XYDomain(XDomain(-1000, 1000), YDomain(-2000, 2000))
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '-1000 -2000 1000 2000'
+# End test_default_value_xy_domain function
 
 
 if __name__ == '__main__':  # pragma: no cover

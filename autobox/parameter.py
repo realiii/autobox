@@ -12,7 +12,7 @@ from autobox.constant import (
     OUT, PARAMETER, ParameterContentKeys, ParameterContentResourceKeys,
     RELATIVE, SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TRUE)
-from autobox.default import CellSizeXY
+from autobox.default import CellSizeXY, MDomain, XYDomain, ZDomain
 from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
@@ -830,14 +830,6 @@ class MapParameter(InputOutputParameter):
 # End MapParameter class
 
 
-class MDomainParameter(InputParameter):
-    """
-    A range of lowest and highest possible value for m-coordinates.
-    """
-    keyword: ClassVar[str] = 'GPMDomain'
-# End MDomainParameter class
-
-
 class MosaicDatasetParameter(InputOutputParameter):
     """
     A collection of raster and image data that allows you to store, view,
@@ -1278,22 +1270,6 @@ class VectorLayerParameter(InputOutputParameter):
 # End VectorLayerParameter class
 
 
-class XYDomainParameter(InputParameter):
-    """
-    A range of lowest and highest possible values for x,y-coordinates.
-    """
-    keyword: ClassVar[str] = 'GPXYDomain'
-# End XYDomainParameter class
-
-
-class ZDomainParameter(InputParameter):
-    """
-    A range of lowest and highest possible values for z-coordinates.
-    """
-    keyword: ClassVar[str] = 'GPZDomain'
-# End ZDomainParameter class
-
-
 class FeatureClassParameter(SchemaMixin, InputOutputParameter):
     """
     A collection of spatial data with the same shape type: point,
@@ -1507,6 +1483,15 @@ class LongParameter(InputOutputParameter):
 # End LongParameter class
 
 
+class MDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible value for m-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPMDomain'
+    default_types: ClassVar[TYPES] = MDomain,
+# End MDomainParameter class
+
+
 class NAHierarchySettingsParameter(InputParameter):
     """
     A hierarchy attribute that divides hierarchy values of a network
@@ -1585,6 +1570,24 @@ class WorkspaceParameter(InputOutputParameter):
     keyword: ClassVar[str] = 'DEWorkspace'
     filter_types: ClassVar[TYPE_FILTERS] = WorkspaceTypeFilter,
 # End WorkspaceParameter class
+
+
+class XYDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible values for x,y-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPXYDomain'
+    default_types: ClassVar[TYPES] = XYDomain,
+# End XYDomainParameter class
+
+
+class ZDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible values for z-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPZDomain'
+    default_types: ClassVar[TYPES] = ZDomain,
+# End ZDomainParameter class
 
 
 if __name__ == '__main__':  # pragma: no cover
