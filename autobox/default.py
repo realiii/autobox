@@ -4,20 +4,22 @@ Classes for Default Value
 """
 
 
-from typing import NoReturn
+from typing import NoReturn, Type
+
+from autobox.type import NUMBER
 
 
 class CellSizeXY:
     """
     Cell Size XY
     """
-    def __init__(self, x: float | int, y: float | int) -> None:
+    def __init__(self, x: NUMBER, y: NUMBER) -> None:
         """
         Initialize the CellSizeXY class
         """
         super().__init__()
-        self._x: float | int = self._validate_value(x, 'x')
-        self._y: float | int = self._validate_value(y, 'y')
+        self._x: NUMBER = self._validate_value(x, 'x')
+        self._y: NUMBER = self._validate_value(y, 'y')
     # End init built-in
 
     def __repr__(self) -> str:
@@ -28,7 +30,7 @@ class CellSizeXY:
     # End repr built-in
 
     @staticmethod
-    def _validate_value(value: float | int, text: str) -> float | int | NoReturn:
+    def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn:
         """
         Validate Value
         """
