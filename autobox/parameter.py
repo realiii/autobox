@@ -80,7 +80,7 @@ class BaseParameter:
     keyword: ClassVar[str] = ''
     dependency_types: ClassVar[TYPE_PARAMS] = ()
     filter_types: ClassVar[TYPE_FILTERS] = ()
-    valid_types: ClassVar[TYPES] = ()
+    default_types: ClassVar[TYPES] = ()
 
     def __init__(self, label: str, name: STRING = None, category: STRING = None,
                  description: STRING = None, default_value: Any = None,
@@ -143,9 +143,9 @@ class BaseParameter:
         """
         Validate Default, no validation in the base implementation.
         """
-        if not self.valid_types:
+        if not self.default_types:
             return value
-        if isinstance(value, self.valid_types) or value is None:
+        if isinstance(value, self.default_types) or value is None:
             return value
         raise TypeError(
             f'Invalid default value for {self.__class__.__name__}: {value}')
@@ -1355,6 +1355,7 @@ class AnalysisCellSizeParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'analysis_cell_size'
     valid_types: ClassVar[TYPES] = Path, int, float
+    default_types: ClassVar[TYPES] = Path, int, float
 # End AnalysisCellSizeParameter class
 
 
@@ -1373,7 +1374,7 @@ class BooleanParameter(InputOutputParameter):
     A Boolean value.
     """
     keyword: ClassVar[str] = 'GPBoolean'
-    valid_types: ClassVar[TYPES] = bool,
+    default_types: ClassVar[TYPES] = bool,
 
     def __init__(self, label: str, name: STRING = None, category: STRING = None,
                  description: STRING = None, default_value: BOOL = True,
@@ -1424,7 +1425,7 @@ class CellSizeXYParameter(InputParameter):
     The size that defines the two sides of a raster cell.
     """
     keyword: ClassVar[str] = 'GPCellSizeXY'
-    valid_types: ClassVar[TYPES] = CellSizeXY,
+    default_types: ClassVar[TYPES] = CellSizeXY,
 # End CellSizeXYParameter class
 
 
@@ -1523,7 +1524,7 @@ class SACellSizeParameter(InputParameter):
     The cell size used by the ArcGIS Spatial Analyst extension.
     """
     keyword: ClassVar[str] = 'GPSACellSize'
-    valid_types: ClassVar[TYPES] = Path, SACellSize
+    default_types: ClassVar[TYPES] = Path, SACellSize
 # End SACellSizeParameter class
 
 

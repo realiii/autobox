@@ -25,7 +25,7 @@ class BaseParameter:
     keyword: ClassVar[str]
     dependency_types: ClassVar[TYPE_PARAMS]
     filter_types: ClassVar[TYPE_FILTERS]
-    valid_types: ClassVar[TYPES]
+    default_types: ClassVar[TYPES]
 
     _label: str
     _name: str
