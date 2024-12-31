@@ -64,16 +64,6 @@ class FieldType(StrEnum):
 # End FieldType class
 
 
-RATIONAL_FIELD_TYPES: tuple[FieldType, ...] = FieldType.DOUBLE, FieldType.FLOAT
-INTEGER_FIELD_TYPES: tuple[FieldType, ...] = (
-    FieldType.SHORT, FieldType.LONG, FieldType.BIG_INTEGER)
-NUMERIC_FIELD_TYPES: tuple[FieldType, ...] = (
-    *RATIONAL_FIELD_TYPES, *INTEGER_FIELD_TYPES)
-STRING_FIELD_TYPES: tuple[FieldType, ...] = FieldType.TEXT,
-IDENTIFIER_FIELD_TYPES: tuple[FieldType, ...] = (
-    FieldType.OID, FieldType.GUID, FieldType.GLOBAL_ID)
-
-
 class GeometryType(StrEnum):
     """
     Geometry Type Enumeration
@@ -159,6 +149,16 @@ class WorkspaceType(StrEnum):
     LOCAL_DATABASE = 'Local Database'
     REMOTE_DATABASE = 'Remote Database'
 # End WorkspaceType class
+
+
+RATIONAL_FIELD_TYPES: tuple[FieldType, ...] = FieldType.DOUBLE, FieldType.FLOAT
+INTEGER_FIELD_TYPES: tuple[FieldType, ...] = (
+    FieldType.SHORT, FieldType.LONG, FieldType.BIG_INTEGER)
+NUMERIC_FIELD_TYPES: tuple[FieldType, ...] = (
+    *RATIONAL_FIELD_TYPES, *INTEGER_FIELD_TYPES)
+STRING_FIELD_TYPES: tuple[FieldType, ...] = FieldType.TEXT,
+IDENTIFIER_FIELD_TYPES: tuple[FieldType, ...] = (
+    FieldType.OID, FieldType.GUID, FieldType.GLOBAL_ID)
 
 
 if __name__ == '__main__':  # pragma: no cover
