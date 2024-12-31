@@ -757,6 +757,10 @@ def test_default_value_analysis_cell_size():
     p = AnalysisCellSizeParameter(label='Analysis Cell Size')
     with raises(TypeError):
         p.default_value = '100'
+
+    with raises(ValueError):
+        p.default_value = -10
+
     p.default_value = 100
     assert p.default_value == 100
     data, _ = p.serialize({}, target=None)
