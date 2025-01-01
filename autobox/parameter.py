@@ -13,7 +13,7 @@ from autobox.constant import (
     RELATIVE, SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TRUE)
 from autobox.default import CellSizeXY, MDomain, XYDomain, ZDomain
-from autobox.enum import SACellSize
+from autobox.enum import ArealUnit, LinearUnit, SACellSize, TimeUnit
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
@@ -1370,6 +1370,7 @@ class ArealUnitParameter(InputParameter):
     keyword: ClassVar[str] = GP_AREAL_UNIT
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = ArealUnitFilter,
+    default_types: ClassVar[TYPES] = ArealUnit,
 # End ArealUnitParameter class
 
 
@@ -1496,6 +1497,7 @@ class LinearUnitParameter(InputParameter):
     keyword: ClassVar[str] = GP_LINEAR_UNIT
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = LinearUnitFilter,
+    default_types: ClassVar[TYPES] = LinearUnit,
 # End LinearUnitParameter class
 
 
@@ -1595,6 +1597,7 @@ class TimeUnitParameter(InputParameter):
     """
     keyword: ClassVar[str] = GP_TIME_UNIT
     filter_types: ClassVar[TYPE_FILTERS] = TimeUnitFilter,
+    default_types: ClassVar[TYPES] = TimeUnit,
 # End TimeUnitParameter class
 
 

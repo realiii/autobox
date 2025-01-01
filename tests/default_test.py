@@ -7,8 +7,9 @@ Test Default Value Classes
 from pytest import mark, raises
 
 from autobox.default import (
-    BaseRangeDomain, CellSizeXY, XDomain, XYDomain,
-    YDomain)
+    ArealUnitValue, BaseRangeDomain, BaseUnitValue, CellSizeXY, LinearUnitValue,
+    TimeUnitValue, XDomain, XYDomain, YDomain)
+from autobox.enum import ArealUnit, LinearUnit, TimeUnit
 
 
 @mark.parametrize('x, y, exception', [
@@ -120,6 +121,43 @@ def test_xy_domain_hash_support():
     assert len({domain, domain}) == 1
 # End test_xy_domain_hash_support function
 
+
+@mark.parametrize('cls, value, unit, exception', [
+    (ArealUnitValue, '', '', TypeError),
+    (ArealUnitValue, 0, 0, TypeError),
+])
+def test_unit_value_raise(cls, value, unit, exception):
+    """
+    Test unit value exceptions
+    """
+    with raises(exception):
+        cls(value, unit)
+# End test_unit_value_raise function
+
+
+@mark.parametrize('cls, value, unit, expected', [
+    (ArealUnitValue, 0, ArealUnit.SQUARE_MILLIMETERS, '0 SquareMillimeters'),
+    (LinearUnitValue, 0.123, LinearUnit.METERS, '0.123 Meters'),
+    (TimeUnitValue, -10, TimeUnit.HOURS, '-10 Hours'),
+])
+def test_unit_value_repr(cls, value, unit, expected):
+    """
+    Test unit value repr
+    """
+    assert repr(cls(value, unit)) == expected
+# End test_unit_value_repr function
+
+
+def test_unit_value_hash_support():
+    """
+    Test unit value hash implementation
+    """
+    value = BaseUnitValue(1, ArealUnit.SQUARE_MILES)
+    assert value == BaseUnitValue(1, ArealUnit.SQUARE_MILES)
+    assert value != (1, ArealUnit.SQUARE_MILES)
+    assert value.as_tuple() == (1, ArealUnit.SQUARE_MILES)
+    assert len({value, value}) == 1
+# End test_unit_value_hash_support function
 
 
 if __name__ == '__main__':  # pragma: no cover
