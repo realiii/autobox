@@ -4,7 +4,7 @@ Classes for Default Value
 """
 
 
-from typing import NoReturn, Type
+from typing import NoReturn, Self, Type
 
 from autobox.type import NUMBER
 
@@ -80,6 +80,22 @@ class BaseRangeDomain:
         self._max: NUMBER = maximum
     # End init built-in
 
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
     def __repr__(self) -> str:
         """
         String Representation
@@ -126,6 +142,13 @@ class BaseRangeDomain:
         """
         return self._min
     # End minimum property
+
+    def as_tuple(self) -> tuple[NUMBER, NUMBER]:
+        """
+        As Tuple
+        """
+        return self.minimum, self.maximum
+    # End as_tuple method
 # End BaseRangeDomain class
 
 
@@ -163,6 +186,22 @@ class XYDomain:
         self._y: YDomain = self._validate_domain(y, YDomain)
     # End init built-in
 
+    def __eq__(self, other: 'XYDomain') -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, XYDomain):
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
     def __repr__(self):
         """
         String Representation
@@ -182,6 +221,14 @@ class XYDomain:
             return value
         raise TypeError(f'Expected a {type_.__name__}, got: {value}')
     # End _validate_domain method
+
+    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]:
+        """
+        As Tuple
+        """
+        return (self._x.minimum, self._y.minimum,
+                self._x.maximum, self._y.maximum)
+    # End as_tuple method
 # End XYDomain class
 
 
