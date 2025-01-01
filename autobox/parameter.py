@@ -572,6 +572,22 @@ class SchemaMixin:
 # End SchemaMixin class
 
 
+class StringNotStoredMixin:
+    """
+    String Not Stored Mixin
+    """
+    def _validate_default(self, value: str) -> None | NoReturn:
+        """
+        Validate Default
+        """
+        if value is None:
+            return
+        raise ValueError(
+            f'Default value for {self.__class__.__name__} is not stored')
+    # End _validate_default method
+# End StringNotStoredMixin class
+
+
 class CadDrawingDatasetParameter(InputOutputParameter):
     """
     A vector data source combined with feature types and symbology. The
@@ -666,14 +682,6 @@ class DiagramLayerParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPDiagramLayer'
 # End DiagramLayerParameter class
-
-
-class EncryptedStringParameter(InputParameter):
-    """
-    An encrypted string for passwords.
-    """
-    keyword: ClassVar[str] = 'GPEncryptedString'
-# End EncryptedStringParameter class
 
 
 class EnvelopeParameter(InputParameter):
@@ -1183,14 +1191,6 @@ class SpatialReferenceParameter(InputOutputParameter):
 # End SpatialReferenceParameter class
 
 
-class StringHiddenParameter(InputParameter):
-    """
-    A string that is masked by asterisk characters.
-    """
-    keyword: ClassVar[str] = 'GPStringHidden'
-# End StringHiddenParameter class
-
-
 class TableViewParameter(InputOutputParameter):
     """
     A representation of tabular data for viewing and editing purposes
@@ -1405,6 +1405,7 @@ class CalculatorExpressionParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPCalculatorExpression'
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+    default_types: ClassVar[TYPES] = str,
 # End CalculatorExpressionParameter class
 
 
@@ -1424,6 +1425,14 @@ class DoubleParameter(InputOutputParameter):
     keyword: ClassVar[str] = 'GPDouble'
     filter_types: ClassVar[TYPE_FILTERS] = DoubleRangeFilter, DoubleValueFilter
 # End DoubleParameter class
+
+
+class EncryptedStringParameter(StringNotStoredMixin, InputParameter):
+    """
+    An encrypted string for passwords.
+    """
+    keyword: ClassVar[str] = 'GPEncryptedString'
+# End EncryptedStringParameter class
 
 
 class FieldMappingParameter(InputParameter):
@@ -1532,6 +1541,7 @@ class SQLExpressionParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPSQLExpression'
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+    default_types: ClassVar[TYPES] = str,
 # End SQLExpressionParameter class
 
 
@@ -1541,6 +1551,7 @@ class StringParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPString'
     filter_types: ClassVar[TYPE_FILTERS] = StringValueFilter,
+    default_types: ClassVar[TYPES] = str,
 
     def _build_filter(self) -> tuple[dict, MAP_STR]:
         """
@@ -1552,6 +1563,14 @@ class StringParameter(InputOutputParameter):
         return content, resource
     # End _build_filter method
 # End StringParameter class
+
+
+class StringHiddenParameter(StringNotStoredMixin, InputParameter):
+    """
+    A string that is masked by asterisk characters.
+    """
+    keyword: ClassVar[str] = 'GPStringHidden'
+# End StringHiddenParameter class
 
 
 class TimeUnitParameter(InputParameter):
