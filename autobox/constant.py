@@ -19,6 +19,11 @@ DOT_DOT_SLASH: str = f'{DOT}{DOT}\\'
 RELATIVE: str = f'{DOT_DOT_SLASH}{DOT_DOT_SLASH}'
 
 
+DATE_FORMAT: str = '%m/%d/%Y'
+TIME_FORMAT: str = '%H:%M:%S'
+DATETIME_FORMAT: str = f'{DATE_FORMAT} {TIME_FORMAT}'
+
+
 GP_MULTI_VALUE: str = 'GPMultiValue'
 GP_FEATURE_SCHEMA: str = 'GPFeatureSchema'
 GP_TABLE_SCHEMA: str = 'GPTableSchema'

@@ -4,6 +4,7 @@ Types and Aliases
 """
 
 
+from datetime import date, datetime, time
 from pathlib import Path
 from typing import NamedTuple, TYPE_CHECKING, Type, TypeAlias, Union
 
@@ -20,6 +21,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 PATH: TypeAlias = Path | None
 BOOL: TypeAlias = bool | None
+DATETIME: TypeAlias = datetime | date | time
 STRING: TypeAlias = str | None
 STRINGS: TypeAlias = list[str] | tuple[str, ...]
 NUMBER: TypeAlias = int | float

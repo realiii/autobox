@@ -4,15 +4,17 @@ Parameters
 """
 
 
+from datetime import date, datetime, time
 from pathlib import Path
 from typing import Any, ClassVar, NoReturn, Self
 
 from autobox.constant import (
-    DERIVED, DOLLAR_RC, DOT, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA,
-    GP_LINEAR_UNIT, GP_MULTI_VALUE, GP_TABLE_SCHEMA, GP_TIME_UNIT, OPTIONAL,
-    OUT, PARAMETER, ParameterContentKeys, ParameterContentResourceKeys,
-    RELATIVE, SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
-    ScriptToolContentResourceKeys, TRUE)
+    DATETIME_FORMAT, DATE_FORMAT, DERIVED, DOLLAR_RC, DOT, FILTER,
+    GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT, GP_MULTI_VALUE,
+    GP_TABLE_SCHEMA, GP_TIME_UNIT, OPTIONAL, OUT, PARAMETER,
+    ParameterContentKeys, ParameterContentResourceKeys, RELATIVE, SEMI_COLON,
+    SchemaContentKeys, ScriptToolContentKeys, ScriptToolContentResourceKeys,
+    TIME_FORMAT, TRUE)
 from autobox.default import (
     ArealUnitValue, CellSizeXY, LinearUnitValue, MDomain, TimeUnitValue,
     XYDomain, ZDomain)
@@ -23,7 +25,7 @@ from autobox.filter import (
     LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
     TravelModeUnitTypeFilter, WorkspaceTypeFilter)
 from autobox.type import (
-    BOOL, MAP_STR, PATH, STRING, TYPES, TYPE_FILTERS, TYPE_PARAMS)
+    BOOL, DATETIME, MAP_STR, PATH, STRING, TYPES, TYPE_FILTERS, TYPE_PARAMS)
 from autobox.util import (
     make_parameter_name, quote, resolve_layer_path, unique,
     validate_parameter_label, validate_parameter_name, validate_path,
@@ -678,14 +680,6 @@ class DatasetTypeParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DEDatasetType'
 # End DatasetTypeParameter class
-
-
-class DateParameter(InputOutputParameter):
-    """
-    A date value.
-    """
-    keyword: ClassVar[str] = 'GPDate'
-# End DateParameter class
 
 
 class DbaseTableParameter(InputOutputParameter):
@@ -1398,6 +1392,16 @@ class BooleanParameter(InputOutputParameter):
             is_required=is_required, is_multi=is_multi, is_enabled=is_enabled)
     # End init built-in
 
+    def _build_default_value(self) -> dict[str, Any]:
+        """
+        Build Default Value, stored as string version of lowercase.
+        """
+        value = self.default_value
+        if value is not None:
+            value = str(value).casefold()
+        return {ParameterContentKeys.value: value}
+    # End _build_default_value method
+
     def _validate_required(self, value: BOOL) -> BOOL:
         """
         Validate Required, disallow optional Boolean parameters
@@ -1439,12 +1443,53 @@ class CellSizeXYParameter(InputParameter):
 # End CellSizeXYParameter class
 
 
+class DateParameter(InputOutputParameter):
+    """
+    A date value.
+    """
+    keyword: ClassVar[str] = 'GPDate'
+    default_types: ClassVar[TYPES] = datetime, date, time
+
+    @staticmethod
+    def _as_string(value: DATETIME) -> str:
+        """
+        Value as String
+        """
+        if isinstance(value, datetime):
+            fmt = DATETIME_FORMAT
+        elif isinstance(value, date):
+            fmt = DATE_FORMAT
+        else:
+            fmt = TIME_FORMAT
+        return value.strftime(fmt)
+    # End _as_string method
+
+    def _build_default_value(self) -> dict[str, Any]:
+        """
+        Build Default Value
+        """
+        value = self.default_value
+        if self.is_multi:
+            if value is None:
+                value = ()
+            elif not isinstance(value, (list, tuple)):  # pragma: no cover
+                value = value,
+            value = SEMI_COLON.join(quote(self._as_string(v)) for v in value)
+        else:
+            if value is not None:
+                value = self._as_string(value)
+        return {ParameterContentKeys.value: value}
+    # End _build_default_value method
+# End DateParameter class
+
+
 class DoubleParameter(InputOutputParameter):
     """
     Any floating-point number stored as a double precision, 64-bit value.
     """
     keyword: ClassVar[str] = 'GPDouble'
     filter_types: ClassVar[TYPE_FILTERS] = DoubleRangeFilter, DoubleValueFilter
+    default_types: ClassVar[TYPES] = float, int
 # End DoubleParameter class
 
 
@@ -1511,6 +1556,7 @@ class LongParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPLong'
     filter_types: ClassVar[TYPE_FILTERS] = LongRangeFilter, LongValueFilter
+    default_types: ClassVar[TYPES] = int,
 # End LongParameter class
 
 
