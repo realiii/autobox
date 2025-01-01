@@ -22,6 +22,22 @@ class CellSizeXY:
         self._y: NUMBER = self._validate_value(y, 'y')
     # End init built-in
 
+    def __eq__(self, other: 'CellSizeXY') -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, CellSizeXY):
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
     def __repr__(self) -> str:
         """
         String Representation
@@ -40,6 +56,13 @@ class CellSizeXY:
             return value
         raise ValueError(f'{text} must be a greater than 0')
     # End _validate_value method
+
+    def as_tuple(self) -> tuple[NUMBER, NUMBER]:
+        """
+        As Tuple
+        """
+        return self._x, self._y
+    # End as_tuple method
 # End CellSizeXY class
 
 
