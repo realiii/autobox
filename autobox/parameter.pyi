@@ -7,7 +7,9 @@ Parameter Stubs
 from pathlib import Path
 from typing import Any, ClassVar, NoReturn, Self, TypeAlias
 
-from autobox.default import CellSizeXY, MDomain, XYDomain, ZDomain
+from autobox.default import (
+    ArealUnitValue, CellSizeXY, LinearUnitValue, MDomain, TimeUnitValue,
+    XYDomain, ZDomain)
 from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
@@ -304,6 +306,12 @@ class ArealUnitParameter(InputParameter):
     """
     An areal unit type and value, such as square meter or acre.
     """
+    def _validate_default(self, value: Any) -> ArealUnitValue | tuple[ArealUnitValue, ...] | NoReturn: ...
+    @property
+    def default_value(self) -> ArealUnitValue | tuple[str, ...]: ...
+    # noinspection PyUnresolvedReferences
+    @default_value.setter
+    def default_value(self, value: ArealUnitValue | tuple[ArealUnitValue, ...]) -> None: ...
     @property
     def dependency(self) -> _TABLE_AND_GEOGRAPHIC_TYPES: ...
     # noinspection PyUnresolvedReferences
@@ -441,6 +449,12 @@ class LinearUnitParameter(InputParameter):
     """
     A linear unit type and value such as meter or feet.
     """
+    def _validate_default(self, value: Any) -> LinearUnitValue | tuple[LinearUnitValue, ...] | NoReturn: ...
+    @property
+    def default_value(self) -> LinearUnitValue | tuple[str, ...]: ...
+    # noinspection PyUnresolvedReferences
+    @default_value.setter
+    def default_value(self, value: LinearUnitValue | tuple[LinearUnitValue, ...]) -> None: ...
     @property
     def dependency(self) -> _TABLE_AND_GEOGRAPHIC_TYPES: ...
     # noinspection PyUnresolvedReferences
@@ -577,6 +591,12 @@ class TimeUnitParameter(InputParameter):
     """
     A time unit type and value such as minutes or hours.
     """
+    def _validate_default(self, value: Any) -> TimeUnitValue | tuple[TimeUnitValue, ...] | NoReturn: ...
+    @property
+    def default_value(self) -> TimeUnitValue | tuple[str, ...]: ...
+    # noinspection PyUnresolvedReferences
+    @default_value.setter
+    def default_value(self, value: TimeUnitValue | tuple[TimeUnitValue, ...]) -> None: ...
     @property
     def filter(self) -> TimeUnitFilter | None: ...
     # noinspection PyUnresolvedReferences

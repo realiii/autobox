@@ -3,6 +3,7 @@
 Parameters
 """
 
+
 from pathlib import Path
 from typing import Any, ClassVar, NoReturn, Self
 
@@ -12,7 +13,9 @@ from autobox.constant import (
     OUT, PARAMETER, ParameterContentKeys, ParameterContentResourceKeys,
     RELATIVE, SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TRUE)
-from autobox.default import CellSizeXY, MDomain, XYDomain, ZDomain
+from autobox.default import (
+    ArealUnitValue, CellSizeXY, LinearUnitValue, MDomain, TimeUnitValue,
+    XYDomain, ZDomain)
 from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
@@ -22,8 +25,9 @@ from autobox.filter import (
 from autobox.type import (
     BOOL, MAP_STR, PATH, STRING, TYPES, TYPE_FILTERS, TYPE_PARAMS)
 from autobox.util import (
-    make_parameter_name, resolve_layer_path, unique, validate_parameter_label,
-    validate_parameter_name, validate_path, wrap_markup)
+    make_parameter_name, quote, resolve_layer_path, unique,
+    validate_parameter_label, validate_parameter_name, validate_path,
+    wrap_markup)
 
 
 __all__ = [
@@ -326,7 +330,7 @@ class BaseParameter:
                 value = ()
             elif not isinstance(value, (list, tuple)):  # pragma: no cover
                 value = value,
-            value = SEMI_COLON.join(repr(v) for v in value)
+            value = SEMI_COLON.join(quote(repr(v)) for v in value)
         else:
             if value is not None:
                 value = str(value)
@@ -1370,6 +1374,7 @@ class ArealUnitParameter(InputParameter):
     keyword: ClassVar[str] = GP_AREAL_UNIT
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = ArealUnitFilter,
+    default_types: ClassVar[TYPES] = ArealUnitValue,
 # End ArealUnitParameter class
 
 
@@ -1496,6 +1501,7 @@ class LinearUnitParameter(InputParameter):
     keyword: ClassVar[str] = GP_LINEAR_UNIT
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = LinearUnitFilter,
+    default_types: ClassVar[TYPES] = LinearUnitValue,
 # End LinearUnitParameter class
 
 
@@ -1595,6 +1601,7 @@ class TimeUnitParameter(InputParameter):
     """
     keyword: ClassVar[str] = GP_TIME_UNIT
     filter_types: ClassVar[TYPE_FILTERS] = TimeUnitFilter,
+    default_types: ClassVar[TYPES] = TimeUnitValue,
 # End TimeUnitParameter class
 
 
