@@ -227,6 +227,19 @@ def unique(values: list | tuple) -> list:
 # End unique function
 
 
+def quote(value: str) -> str:
+    """
+    Add quotes when space encountered and not already enclosed in quotes.
+    """
+    if SPACE not in value:
+        return value
+    if (value.startswith("'") and value.endswith("'")) or (
+            value.startswith('"') and value.endswith('"')):
+        return value
+    return f"'{value}'"
+# End quote function
+
+
 def get_repeated_names(values: list['Toolset'] | list['ScriptTool'] |
                                list['BaseParameter']) -> set[str]:
     """
