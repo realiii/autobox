@@ -243,7 +243,7 @@ class CellSizeXY:
         self._y: NUMBER = self._validate_value(y, 'y')
     # End init built-in
 
-    def __eq__(self, other: 'CellSizeXY') -> bool:
+    def __eq__(self, other: Self) -> bool:
         """
         Equality
         """
@@ -384,8 +384,7 @@ class Point:
     # End repr built-in
 
     @staticmethod
-    def _validate_value(value: NUMBER,
-                        text: str) -> NUMBER | NoReturn:
+    def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn:
         """
         Validate Value
         """
