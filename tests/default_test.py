@@ -75,6 +75,18 @@ def test_range_domain_repr(minimum, maximum, expected):
 # End test_range_domain_repr function
 
 
+def test_range_domain_hash_support():
+    """
+    Test range domain hash implementation
+    """
+    domain = BaseRangeDomain(1, 2)
+    assert domain == BaseRangeDomain(1, 2)
+    assert domain != (1, 2)
+    assert domain.as_tuple() == (1, 2)
+    assert len({domain, domain}) == 1
+# End test_range_domain_hash_support function
+
+
 @mark.parametrize('x, y, exception', [
     ('', '', TypeError),
     (0, 0, TypeError),
@@ -95,6 +107,19 @@ def test_xy_domain_repr():
     xy = XYDomain(XDomain(0, 100), YDomain(1000, 2000))
     assert repr(xy) == '0 1000 100 2000'
 # End test_xy_domain_repr function
+
+
+def test_xy_domain_hash_support():
+    """
+    Test XY domain hash implementation
+    """
+    domain = XYDomain(XDomain(0, 100), YDomain(1000, 2000))
+    assert domain == XYDomain(XDomain(0, 100), YDomain(1000, 2000))
+    assert domain != (0, 1000, 100, 2000)
+    assert domain.as_tuple() == (0, 1000, 100, 2000)
+    assert len({domain, domain}) == 1
+# End test_xy_domain_hash_support function
+
 
 
 if __name__ == '__main__':  # pragma: no cover
