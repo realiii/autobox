@@ -25,8 +25,9 @@ from autobox.filter import (
 from autobox.type import (
     BOOL, MAP_STR, PATH, STRING, TYPES, TYPE_FILTERS, TYPE_PARAMS)
 from autobox.util import (
-    make_parameter_name, resolve_layer_path, unique, validate_parameter_label,
-    validate_parameter_name, validate_path, wrap_markup)
+    make_parameter_name, quote, resolve_layer_path, unique,
+    validate_parameter_label, validate_parameter_name, validate_path,
+    wrap_markup)
 
 
 __all__ = [
@@ -329,7 +330,7 @@ class BaseParameter:
                 value = ()
             elif not isinstance(value, (list, tuple)):  # pragma: no cover
                 value = value,
-            value = SEMI_COLON.join(repr(v) for v in value)
+            value = SEMI_COLON.join(quote(repr(v)) for v in value)
         else:
             if value is not None:
                 value = str(value)

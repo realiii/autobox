@@ -950,5 +950,24 @@ def test_default_value_unit(param_cls, default_cls, value, unit, expected):
 # End test_default_value_unit function
 
 
+@mark.parametrize('param_cls, default_cls, args, expected', [
+    (ArealUnitParameter, ArealUnitValue, ((10, ArealUnit.HECTARES), (5, ArealUnit.SQUARE_MILES)), "'10 Hectares';'5 SquareMiles'"),
+    (LinearUnitParameter, LinearUnitValue, ((123.45, LinearUnit.METERS), (100, LinearUnit.FEET)), "'123.45 Meters';'100 Feet'"),
+    (TimeUnitParameter, TimeUnitValue, (( 31, TimeUnit.DAYS), (2, TimeUnit.HOURS)), "'31 Days';'2 Hours'"),
+])
+def test_default_value_multi_unit(param_cls, default_cls, args, expected):
+    """
+    Test Default Value Unit
+    """
+    p = param_cls(label='Unit', is_multi=True)
+    assert p.default_value is None
+    units = [default_cls(*arg) for arg in args]
+    p.default_value = units
+    assert p.default_value == tuple(units)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == expected
+# End test_default_value_unit function
+
+
 if __name__ == '__main__':  # pragma: no cover
     pass
