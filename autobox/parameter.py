@@ -108,11 +108,11 @@ class BaseParameter:
         self._name: str = self._validate_name(name, self._label)
         self._category: STRING = category
         self._description: STRING = description
-        self._default: Any = self._validate_default(default_value)
         self._is_input: bool = is_input
         self._is_required: BOOL = self._validate_required(is_required)
         self._is_multi: bool = is_multi
         self._is_enabled: bool = is_enabled
+        self._default: Any = self._validate_default(default_value)
         self._dependency: InputOutputParameter | None = None
         self._filter: AbstractFilter | None = None
         self._symbology: PATH = None

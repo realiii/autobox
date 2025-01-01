@@ -31,11 +31,11 @@ class BaseParameter:
     _name: str
     _category: STRING
     _description: STRING
-    _default: Any
     _is_input: bool
     _is_required: BOOL
     _is_multi: bool
     _is_enabled: bool
+    _default: Any
     _dependency: InputOutputParameter | None
     _filter: AbstractFilter | None
     _symbology: PATH
