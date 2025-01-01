@@ -3,6 +3,7 @@
 Parameters
 """
 
+
 from pathlib import Path
 from typing import Any, ClassVar, NoReturn, Self
 
@@ -12,8 +13,10 @@ from autobox.constant import (
     OUT, PARAMETER, ParameterContentKeys, ParameterContentResourceKeys,
     RELATIVE, SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TRUE)
-from autobox.default import CellSizeXY, MDomain, XYDomain, ZDomain
-from autobox.enum import ArealUnit, LinearUnit, SACellSize, TimeUnit
+from autobox.default import (
+    ArealUnitValue, CellSizeXY, LinearUnitValue, MDomain, TimeUnitValue,
+    XYDomain, ZDomain)
+from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
@@ -1370,7 +1373,7 @@ class ArealUnitParameter(InputParameter):
     keyword: ClassVar[str] = GP_AREAL_UNIT
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = ArealUnitFilter,
-    default_types: ClassVar[TYPES] = ArealUnit,
+    default_types: ClassVar[TYPES] = ArealUnitValue,
 # End ArealUnitParameter class
 
 
@@ -1497,7 +1500,7 @@ class LinearUnitParameter(InputParameter):
     keyword: ClassVar[str] = GP_LINEAR_UNIT
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = LinearUnitFilter,
-    default_types: ClassVar[TYPES] = LinearUnit,
+    default_types: ClassVar[TYPES] = LinearUnitValue,
 # End LinearUnitParameter class
 
 
@@ -1597,7 +1600,7 @@ class TimeUnitParameter(InputParameter):
     """
     keyword: ClassVar[str] = GP_TIME_UNIT
     filter_types: ClassVar[TYPE_FILTERS] = TimeUnitFilter,
-    default_types: ClassVar[TYPES] = TimeUnit,
+    default_types: ClassVar[TYPES] = TimeUnitValue,
 # End TimeUnitParameter class
 
 

@@ -10,10 +10,13 @@ from pytest import approx, mark, raises
 
 from autobox.constant import ParameterContentKeys
 from autobox.default import (
-    CellSizeXY, MDomain, XDomain, XYDomain, YDomain,
+    ArealUnitValue, CellSizeXY, LinearUnitValue, MDomain, TimeUnitValue,
+    XDomain, XYDomain,
+    YDomain,
     ZDomain)
 from autobox.enum import (
-    ArealUnit, SACellSize, FieldType, GeometryType, LinearUnit, WorkspaceType)
+    ArealUnit, SACellSize, FieldType, GeometryType, LinearUnit, TimeUnit,
+    WorkspaceType)
 from autobox.filter import (
     ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
@@ -26,7 +29,8 @@ from autobox.parameter import (
     InputOutputParameter, InputParameter, LinearUnitParameter, LongParameter,
     MDomainParameter, RasterDatasetParameter, SACellSizeParameter,
     SQLExpressionParameter, StringHiddenParameter, StringParameter,
-    TableParameter, TinParameter, WorkspaceParameter, XYDomainParameter,
+    TableParameter, TimeUnitParameter, TinParameter, WorkspaceParameter,
+    XYDomainParameter,
     ZDomainParameter)
 
 
@@ -922,6 +926,28 @@ def test_default_value_string_multi(value, expected):
     p = StringParameter(label='String', is_multi=True, default_value=value)
     assert p.default_value == expected
 # End test_default_value_string_multi function
+
+
+@mark.parametrize('param_cls, default_cls, value, unit, expected', [
+    (ArealUnitParameter, ArealUnitValue, 10, ArealUnit.HECTARES, '10 Hectares'),
+    (LinearUnitParameter, LinearUnitValue, 123.45, LinearUnit.METERS, '123.45 Meters'),
+    (TimeUnitParameter, TimeUnitValue, 31, TimeUnit.DAYS, '31 Days'),
+])
+def test_default_value_unit(param_cls, default_cls, value, unit, expected):
+    """
+    Test Default Value Unit
+    """
+    p = param_cls(label='Unit')
+    with raises(TypeError):
+        p.default_value = 12345
+    assert p.default_value is None
+
+    unit = default_cls(value, unit)
+    p.default_value = unit
+    assert p.default_value == unit
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == expected
+# End test_default_value_unit function
 
 
 if __name__ == '__main__':  # pragma: no cover
