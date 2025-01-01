@@ -4,6 +4,7 @@ Parameter Test
 """
 
 
+from datetime import datetime
 from pathlib import Path
 
 from pytest import approx, mark, raises
@@ -23,7 +24,8 @@ from autobox.filter import (
     LongRangeFilter, LongValueFilter, StringValueFilter, WorkspaceTypeFilter)
 from autobox.parameter import (
     AnalysisCellSizeParameter, ArealUnitParameter, BooleanParameter,
-    CalculatorExpressionParameter, CellSizeXYParameter, DoubleParameter,
+    CalculatorExpressionParameter, CellSizeXYParameter, DateParameter,
+    DoubleParameter,
     EncryptedStringParameter, FeatureClassParameter, FeatureDatasetParameter,
     FeatureLayerParameter, FieldParameter, FileParameter, FolderParameter,
     InputOutputParameter, InputParameter, LinearUnitParameter, LongParameter,
@@ -755,6 +757,8 @@ def test_boolean_specialization():
     assert b.default_value is True
     with raises(TypeError):
         b.default_value = 'True'
+    data, _ = b.serialize({}, target=None)
+    assert data['value'] == 'true'
 # End test_boolean_specialization function
 
 
@@ -967,6 +971,113 @@ def test_default_value_multi_unit(param_cls, default_cls, args, expected):
     data, _ = p.serialize({}, target=None)
     assert data['value'] == expected
 # End test_default_value_unit function
+
+
+@mark.parametrize('value, expected', [
+    (123, '123'),
+    (123., None),
+])
+def test_default_value_long(value, expected):
+    """
+    Test Default Value for Long
+    """
+    if expected is None:
+        with raises(TypeError):
+            LongParameter(label='Long', default_value=value)
+    else:
+        p = LongParameter(label='Long', default_value=value)
+        data, _ = p.serialize({}, target=None)
+        assert data['value'] == expected
+# End test_default_value_long function
+
+
+@mark.parametrize('value, expected', [
+    ((123, 456), '123;456'),
+])
+def test_default_value_long(value, expected):
+    """
+    Test Default Value for Long
+    """
+    p = LongParameter(label='Long', default_value=value, is_multi=True)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == expected
+# End test_default_value_long function
+
+
+@mark.parametrize('value, expected', [
+    (123, '123'),
+    (123., '123.0'),
+    (123.45, '123.45'),
+    ('123.45', None),
+])
+def test_default_value_double(value, expected):
+    """
+    Test Default Value for Double
+    """
+    if expected is None:
+        with raises(TypeError):
+            DoubleParameter(label='Double', default_value=value)
+    else:
+        p = DoubleParameter(label='Double', default_value=value)
+        data, _ = p.serialize({}, target=None)
+        assert data['value'] == expected
+# End test_default_value_double function
+
+
+@mark.parametrize('value, expected', [
+    ((123, 456), '123;456'),
+    ((123., 456.), '123.0;456.0'),
+    ((123.45, 456.78), '123.45;456.78'),
+])
+def test_default_value_double_multi(value, expected):
+    """
+    Test Default Value for Double
+    """
+    p = DoubleParameter(label='Double', default_value=value, is_multi=True)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == expected
+# End test_default_value_double_multi function
+
+
+@mark.parametrize('value, expected', [
+    ('12/12/12', None),
+    ('12:12:12', None),
+    ('12/12/12 12:12:12', None),
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56), '01/05/2025 12:34:56'),
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56).date(), '01/05/2025'),
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56).time(), '12:34:56'),
+])
+def test_default_value_date(value, expected):
+    """
+    Test Default Value for Date
+    """
+    if expected is None:
+        with raises(TypeError):
+            DateParameter(label='Date', default_value=value)
+    else:
+        p = DateParameter(label='Date', default_value=value)
+        data, _ = p.serialize({}, target=None)
+        assert data['value'] == expected
+# End test_default_value_date function
+
+
+@mark.parametrize('value, expected', [
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56), "'01/05/2025 12:34:56'"),
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56).date(), '01/05/2025'),
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56).time(), '12:34:56'),
+    (None, '12:34:56'),
+])
+def test_default_value_date_multi(value, expected):
+    """
+    Test Default Value for Date
+    """
+    p = DateParameter(label='Date', default_value=value, is_multi=True)
+    data, _ = p.serialize({}, target=None)
+    if value is None:
+        assert 'value' not in data
+    else:
+        assert data['value'] == expected
+# End test_default_value_date_multi function
 
 
 if __name__ == '__main__':  # pragma: no cover
