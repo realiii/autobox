@@ -8,7 +8,7 @@ from enum import StrEnum
 from typing import ClassVar, NoReturn, Self, Type
 
 from autobox.enum import ArealUnit, LinearUnit, TimeUnit
-from autobox.type import NUMBER
+from autobox.type import NUMBER, STRING
 
 
 class BaseRangeDomain:
@@ -50,6 +50,23 @@ class BaseUnitValue:
 # End BaseUnitValue class
 
 
+class BaseBoundingBox:
+    """
+    Base Bounding Box
+    """
+    _x: XDomain
+    _y: YDomain
+
+    def __init__(self, x: XDomain, y: YDomain) -> None: ...
+    def __eq__(self, other) -> bool: ...
+    def __hash__(self) -> int: ...
+    def __repr__(self): ...
+    @staticmethod
+    def _validate_domain(value, type_) -> BaseRangeDomain | NoReturn: ...
+    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]: ...
+# End BaseBoundingBox class
+
+
 class ArealUnitValue(BaseUnitValue):
     """
     Areal Unit Value
@@ -64,6 +81,25 @@ class ArealUnitValue(BaseUnitValue):
 # End ArealUnitValue class
 
 
+class Envelope(BaseBoundingBox):
+    """
+    Envelope
+    """
+# End Envelope class
+
+
+class Extent(BaseBoundingBox):
+    """
+    Extent
+    """
+    _crs: STRING
+
+    def __init__(self, x: XDomain, y: YDomain, crs: STRING = None) -> None: ...
+    @staticmethod
+    def _validate_coordinate_system(value: STRING) -> STRING | NoReturn: ...
+# End Extent class
+
+
 class CellSizeXY:
     """
     Cell Size XY
@@ -72,7 +108,7 @@ class CellSizeXY:
     _y: NUMBER
 
     def __init__(self, x: NUMBER, y: NUMBER) -> None: ...
-    def __eq__(self, other: 'CellSizeXY') -> bool: ...
+    def __eq__(self, other: Self) -> bool: ...
     def __hash__(self) -> int: ...
     def __repr__(self) -> str: ...
     @staticmethod
@@ -98,6 +134,23 @@ class LinearUnitValue(BaseUnitValue):
 class MDomain(BaseRangeDomain): ...
 
 
+class Point:
+    """
+    Point
+    """
+    _x: NUMBER
+    _y: NUMBER
+
+    def __init__(self, x: NUMBER, y: NUMBER) -> None: ...
+    def __eq__(self, other: Self) -> bool: ...
+    def __hash__(self) -> int: ...
+    def __repr__(self) -> str: ...
+    @staticmethod
+    def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn: ...
+    def as_tuple(self) -> tuple[NUMBER, NUMBER]: ...
+# End Point class
+
+
 class TimeUnitValue(BaseUnitValue):
     """
     Time Unit Value
@@ -116,20 +169,10 @@ class XDomain(BaseRangeDomain): ...
 class YDomain(BaseRangeDomain): ...
 
 
-class XYDomain:
+class XYDomain(BaseBoundingBox):
     """
     XY Domain
     """
-    _x: XDomain
-    _y: YDomain
-
-    def __init__(self, x: XDomain, y: YDomain) -> None: ...
-    def __eq__(self, other: 'XYDomain') -> bool: ...
-    def __hash__(self) -> int: ...
-    def __repr__(self): ...
-    @staticmethod
-    def _validate_domain(value: XDomain | YDomain, type_: Type[XDomain | YDomain]) -> XDomain | YDomain | NoReturn: ...
-    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]: ...
 # End XYDomain class
 
 
