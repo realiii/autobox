@@ -22,7 +22,7 @@ from autobox.filter import (
 from autobox.type import (
     BOOL, MAP_STR, PATH, STRING, TYPES, TYPE_FILTERS, TYPE_PARAMS)
 from autobox.util import (
-    make_parameter_name, resolve_layer_path, validate_parameter_label,
+    make_parameter_name, resolve_layer_path, unique, validate_parameter_label,
     validate_parameter_name, validate_path, wrap_markup)
 
 
@@ -139,14 +139,30 @@ class BaseParameter:
         return validated_name
     # End _validate_name method
 
+    def _validate_multi_default(self, value: Any) -> Any:
+        """
+        Validate Multi Default, filter elements based on type then make unique,
+        return a tuple to avoid inplace modification.
+        """
+        if not isinstance(value, (list, tuple)):
+            value = value,
+        values = [v for v in value if isinstance(v, self.default_types)]
+        if values:
+            return tuple(unique(values))
+    # End _validate_multi_default method
+
     def _validate_default(self, value: Any) -> Any:
         """
         Validate Default, when no default types no validation occurs.
         """
-        if not self.default_types:
+        if not self.default_types or value is None:
             return value
-        if isinstance(value, self.default_types) or value is None:
-            return value
+        if self.is_multi:
+            if values := self._validate_multi_default(value):
+                return values
+        else:
+            if isinstance(value, self.default_types):
+                return value
         raise TypeError(
             f'Invalid default value for {self.__class__.__name__}: {value}')
     # End _validate_default method
