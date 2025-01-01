@@ -7,8 +7,8 @@ Test Default Value Classes
 from pytest import mark, raises
 
 from autobox.default import (
-    ArealUnitValue, BaseRangeDomain, BaseUnitValue, CellSizeXY, LinearUnitValue,
-    TimeUnitValue, XDomain, XYDomain, YDomain)
+    ArealUnitValue, BaseRangeDomain, BaseUnitValue, CellSizeXY, Envelope,
+    Extent, LinearUnitValue, Point, TimeUnitValue, XDomain, XYDomain, YDomain)
 from autobox.enum import ArealUnit, LinearUnit, TimeUnit
 
 
@@ -158,6 +158,99 @@ def test_unit_value_hash_support():
     assert value.as_tuple() == (1, ArealUnit.SQUARE_MILES)
     assert len({value, value}) == 1
 # End test_unit_value_hash_support function
+
+
+@mark.parametrize('cls, x, y, exception', [
+    (Extent, '', '', TypeError),
+    (Envelope, 0, 0, TypeError),
+])
+def test_bounding_box_raise(cls, x, y, exception):
+    """
+    Test bounding box domain exceptions
+    """
+    with raises(exception):
+        cls(x, y)
+# End test_bounding_box_raise function
+
+
+@mark.parametrize('cls', [
+    Extent, Envelope
+])
+def test_bounding_box_repr(cls):
+    """
+    Test xy domain exceptions
+    """
+    xy = cls(XDomain(0, 100), YDomain(1000, 2000))
+    assert repr(xy) == '0 1000 100 2000'
+# End test_bounding_box_repr function
+
+
+@mark.parametrize('cls', [
+    Extent, Envelope
+])
+def test_bounding_box_hash_support(cls):
+    """
+    Test XY domain hash implementation
+    """
+    domain = cls(XDomain(0, 100), YDomain(1000, 2000))
+    assert domain == cls(XDomain(0, 100), YDomain(1000, 2000))
+    assert domain != (0, 1000, 100, 2000)
+    assert domain.as_tuple()[:4] == (0, 1000, 100, 2000)
+    assert len({domain, domain}) == 1
+# End test_bounding_box_hash_support function
+
+
+def test_extent_specialization():
+    """
+    Test Default Value Extent specialization
+    """
+    with raises(TypeError):
+        Extent(0, 100, crs=Ellipsis)
+    with raises(TypeError):
+        Extent(XDomain(0, 100), YDomain(1000, 2000), crs=Ellipsis)
+    e = Extent(XDomain(0, 100), YDomain(1000, 2000), crs='')
+    assert e._crs is None
+
+    crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    e = Extent(XDomain(0, 100), YDomain(1000, 2000), crs=crs)
+    assert repr(e) == f'0 1000 100 2000 {crs}'
+# End test_extent_specialization function
+
+
+@mark.parametrize('x, y, exception', [
+    (None, None, TypeError),
+])
+def test_point_raises(x, y, exception):
+    """
+    Test Cell Size XY exceptions
+    """
+    with raises(exception):
+        Point(x=x, y=y)
+# End test_point_raises function
+
+
+@mark.parametrize('x, y, expected', [
+    (1, 2, '1 2'),
+    (1.11, 2.22, '1.11 2.22'),
+])
+def test_point_repr(x, y, expected):
+    """
+    Test Cell Size XY repr
+    """
+    assert repr(Point(x=x, y=y)) == expected
+# End test_point_repr function
+
+
+def test_point_hash_support():
+    """
+    Test Cell Size XY hash implementation
+    """
+    xy = Point(1, 2)
+    assert xy == Point(1, 2)
+    assert xy != (1, 2)
+    assert xy.as_tuple() == (1, 2)
+    assert len({xy, xy}) == 1
+# End test_point_hash_support function
 
 
 if __name__ == '__main__':  # pragma: no cover

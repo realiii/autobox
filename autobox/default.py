@@ -8,7 +8,7 @@ from enum import StrEnum
 from typing import ClassVar, NoReturn, Self, Type
 
 from autobox.enum import ArealUnit, LinearUnit, TimeUnit
-from autobox.type import NUMBER
+from autobox.type import NUMBER, STRING
 
 
 class BaseRangeDomain:
@@ -163,7 +163,66 @@ class BaseUnitValue:
 # End BaseUnitValue class
 
 
-class ArealUnitValue(BaseUnitValue,):
+class BaseBoundingBox:
+    """
+    Base Bounding Box
+    """
+    def __init__(self, x: 'XDomain', y: 'YDomain') -> None:
+        """
+        Initialize the Envelope class
+        """
+        super().__init__()
+        self._x: XDomain = self._validate_domain(x, XDomain)
+        self._y: YDomain = self._validate_domain(y, YDomain)
+    # End init built-in
+
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
+    # noinspection PyUnresolvedReferences
+    def __repr__(self):
+        """
+        String Representation
+        """
+        return (f'{self._x.minimum} {self._y.minimum} '
+                f'{self._x.maximum} {self._y.maximum}')
+    # End repr built-in
+
+    @staticmethod
+    def _validate_domain(value, type_) -> BaseRangeDomain | NoReturn:
+        """
+        Validate Domain
+        """
+        if isinstance(value, type_):
+            return value
+        raise TypeError(f'Expected a {type_.__name__}, got: {value}')
+    # End _validate_domain method
+
+    # noinspection PyUnresolvedReferences
+    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]:
+        """
+        As Tuple
+        """
+        return (self._x.minimum, self._y.minimum,
+                self._x.maximum, self._y.maximum)
+    # End as_tuple method
+# End BaseBoundingBox class
+
+
+class ArealUnitValue(BaseUnitValue):
     """
     Areal Unit Value
     """
@@ -228,7 +287,59 @@ class CellSizeXY:
 # End CellSizeXY class
 
 
-class LinearUnitValue(BaseUnitValue,):
+class Envelope(BaseBoundingBox):
+    """
+    Envelope
+    """
+
+# End Envelope class
+
+
+class Extent(BaseBoundingBox):
+    """
+    Extent
+    """
+    def __init__(self, x: 'XDomain', y: 'YDomain', crs: STRING = None) -> None:
+        """
+        Initialize the Extent class
+        """
+        super().__init__(x=x, y=y)
+        self._crs: STRING = self._validate_coordinate_system(crs)
+    # End init built-in
+
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        values = super().__repr__()
+        if self._crs:
+            return f'{values} {self._crs}'
+        return values
+    # End repr built-in
+
+    @staticmethod
+    def _validate_coordinate_system(value: STRING) -> STRING | NoReturn:
+        """
+        Validate Coordinate System
+        """
+        if value is None:
+            return value
+        if not isinstance(value, str):
+            raise TypeError('coordinate system must be a string or None')
+        return value.strip() or None
+    # End _validate_coordinate_system method
+
+    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER, STRING]:
+        """
+        As Tuple
+        """
+        # noinspection PyTypeChecker
+        return *super().as_tuple(), self._crs
+    # End as_tuple method
+# End Extent class
+
+
+class LinearUnitValue(BaseUnitValue):
     """
     Linear Unit Value
     """
@@ -236,7 +347,63 @@ class LinearUnitValue(BaseUnitValue,):
 # End LinearUnitValue class
 
 
-class TimeUnitValue(BaseUnitValue,):
+class Point:
+    """
+    Point
+    """
+    def __init__(self, x: NUMBER, y: NUMBER) -> None:
+        """
+        Initialize the Point class
+        """
+        super().__init__()
+        self._x: NUMBER = self._validate_value(x, 'x')
+        self._y: NUMBER = self._validate_value(y, 'y')
+    # End init built-in
+
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        return f'{self._x} {self._y}'
+    # End repr built-in
+
+    @staticmethod
+    def _validate_value(value: NUMBER,
+                        text: str) -> NUMBER | NoReturn:
+        """
+        Validate Value
+        """
+        if isinstance(value, (int, float)):
+            return value
+        raise TypeError(f'{text} must be a number')
+    # End _validate_value method
+
+    def as_tuple(self) -> tuple[NUMBER, NUMBER]:
+        """
+        As Tuple
+        """
+        return self._x, self._y
+    # End as_tuple method
+# End Point class
+
+
+class TimeUnitValue(BaseUnitValue):
     """
     Time Unit Value
     """
@@ -265,62 +432,10 @@ class YDomain(BaseRangeDomain):
 # End YDomain class
 
 
-class XYDomain:
+class XYDomain(BaseBoundingBox):
     """
     XY Domain
     """
-    def __init__(self, x: XDomain, y: YDomain) -> None:
-        """
-        Initialize the XYDomain class
-        """
-        super().__init__()
-        self._x: XDomain = self._validate_domain(x, XDomain)
-        self._y: YDomain = self._validate_domain(y, YDomain)
-    # End init built-in
-
-    def __eq__(self, other: 'XYDomain') -> bool:
-        """
-        Equality
-        """
-        if not isinstance(other, XYDomain):
-            return False
-        return self.as_tuple() == other.as_tuple()
-    # End eq built-in
-
-    def __hash__(self) -> int:
-        """
-        Hash
-        """
-        return hash(self.as_tuple())
-    # End hash built-in
-
-    def __repr__(self):
-        """
-        String Representation
-        """
-        return (f'{self._x.minimum} {self._y.minimum} '
-                f'{self._x.maximum} {self._y.maximum}')
-    # End repr built-in
-
-    @staticmethod
-    def _validate_domain(value: XDomain | YDomain,
-                         type_: Type[XDomain | YDomain]) \
-            -> XDomain | YDomain | NoReturn:
-        """
-        Validate Domain
-        """
-        if isinstance(value, type_):
-            return value
-        raise TypeError(f'Expected a {type_.__name__}, got: {value}')
-    # End _validate_domain method
-
-    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]:
-        """
-        As Tuple
-        """
-        return (self._x.minimum, self._y.minimum,
-                self._x.maximum, self._y.maximum)
-    # End as_tuple method
 # End XYDomain class
 
 

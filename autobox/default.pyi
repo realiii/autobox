@@ -8,7 +8,7 @@ from enum import StrEnum
 from typing import ClassVar, NoReturn, Self, Type
 
 from autobox.enum import ArealUnit, LinearUnit, TimeUnit
-from autobox.type import NUMBER
+from autobox.type import NUMBER, STRING
 
 
 class BaseRangeDomain:
@@ -50,6 +50,23 @@ class BaseUnitValue:
 # End BaseUnitValue class
 
 
+class BaseBoundingBox:
+    """
+    Base Bounding Box
+    """
+    _x: XDomain
+    _y: YDomain
+
+    def __init__(self, x: 'XDomain', y: 'YDomain') -> None: ...
+    def __eq__(self, other) -> bool: ...
+    def __hash__(self) -> int: ...
+    def __repr__(self): ...
+    @staticmethod
+    def _validate_domain(value, type_) -> BaseRangeDomain | NoReturn: ...
+    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]: ...
+# End BaseBoundingBox class
+
+
 class ArealUnitValue(BaseUnitValue):
     """
     Areal Unit Value
@@ -62,6 +79,25 @@ class ArealUnitValue(BaseUnitValue):
     def _validate_unit(self, value: ArealUnit) -> ArealUnit | NoReturn: ...
     def as_tuple(self) -> tuple[int, ArealUnit]: ...
 # End ArealUnitValue class
+
+
+class Envelope(BaseBoundingBox):
+    """
+    Envelope
+    """
+# End Envelope class
+
+
+class Extent(BaseBoundingBox):
+    """
+    Extent
+    """
+    _crs: STRING
+
+    def __init__(self, x: XDomain, y: YDomain, crs: STRING = None) -> None: ...
+    @staticmethod
+    def _validate_coordinate_system(value: STRING) -> STRING | NoReturn: ...
+# End Extent class
 
 
 class CellSizeXY:
@@ -116,20 +152,10 @@ class XDomain(BaseRangeDomain): ...
 class YDomain(BaseRangeDomain): ...
 
 
-class XYDomain:
+class XYDomain(BaseBoundingBox):
     """
     XY Domain
     """
-    _x: XDomain
-    _y: YDomain
-
-    def __init__(self, x: XDomain, y: YDomain) -> None: ...
-    def __eq__(self, other: 'XYDomain') -> bool: ...
-    def __hash__(self) -> int: ...
-    def __repr__(self): ...
-    @staticmethod
-    def _validate_domain(value: XDomain | YDomain, type_: Type[XDomain | YDomain]) -> XDomain | YDomain | NoReturn: ...
-    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]: ...
 # End XYDomain class
 
 
