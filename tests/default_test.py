@@ -36,6 +36,18 @@ def test_cell_size_xy_repr(x, y, expected):
 # End test_cell_size_xy_repr function
 
 
+def test_cell_size_xy_hash_support():
+    """
+    Test Cell Size XY hash implementation
+    """
+    xy = CellSizeXY(1, 2)
+    assert xy == CellSizeXY(1, 2)
+    assert xy != (1, 2)
+    assert xy.as_tuple() == (1, 2)
+    assert len({xy, xy}) == 1
+# End test_cell_size_xy_hash_support function
+
+
 @mark.parametrize('minimum, maximum, exception', [
     ('', '', TypeError),
     (0, 0, ValueError),
