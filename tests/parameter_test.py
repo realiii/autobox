@@ -910,5 +910,19 @@ def test_default_value_string_calc_sql(cls):
 # End test_default_value_string_calc_sql function
 
 
+@mark.parametrize('value, expected', [
+    ('100', ('100',)),
+    (['100'], ('100',)),
+    (['100', '100'], ('100',)),
+])
+def test_default_value_string_multi(value, expected):
+    """
+    Test Default Value String Multi
+    """
+    p = StringParameter(label='String', is_multi=True, default_value=value)
+    assert p.default_value == expected
+# End test_default_value_string_multi function
+
+
 if __name__ == '__main__':  # pragma: no cover
     pass
