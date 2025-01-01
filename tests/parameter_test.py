@@ -24,7 +24,8 @@ from autobox.filter import (
     LongRangeFilter, LongValueFilter, StringValueFilter, WorkspaceTypeFilter)
 from autobox.parameter import (
     AnalysisCellSizeParameter, ArealUnitParameter, BooleanParameter,
-    CalculatorExpressionParameter, CellSizeXYParameter, DateParameter,
+    CalculatorExpressionParameter, CellSizeXYParameter,
+    CoordinateSystemParameter, DateParameter,
     DoubleParameter,
     EncryptedStringParameter, FeatureClassParameter, FeatureDatasetParameter,
     FeatureLayerParameter, FieldParameter, FileParameter, FolderParameter,
@@ -1078,6 +1079,49 @@ def test_default_value_date_multi(value, expected):
     else:
         assert data['value'] == expected
 # End test_default_value_date_multi function
+
+
+def test_default_value_coordinate_system():
+    """
+    Test Default Value Coordinate System
+    """
+    p = CoordinateSystemParameter(label='Coordinate System')
+    with raises(TypeError):
+        p.default_value = 100
+    cs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    p.default_value = cs
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == cs
+# End test_default_value_coordinate_system function
+
+
+def test_default_value_coordinate_system_multi():
+    """
+    Test Default Value Coordinate System
+    """
+    p = CoordinateSystemParameter(label='Coordinate System', is_multi=True)
+    with raises(TypeError):
+        p.default_value = 100
+    cs1 = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    cs2 = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
+    p.default_value = (cs1, cs2)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == "'{}';'{}'".format(cs1, cs2).replace('"', '\"')
+# End test_default_value_coordinate_system function
+
+
+def test_default_value_spatial_reference():
+    """
+    Test Default Value Spatial Reference
+    """
+    p = CoordinateSystemParameter(label='Coordinate System')
+    with raises(TypeError):
+        p.default_value = 100
+    cs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]];-20037700 -30241100 10000;-100000 10000;-100000 10000;0.001;0.001;0.001;IsHighPrecision'
+    p.default_value = cs
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == cs
+# End test_default_value_spatial_reference function
 
 
 if __name__ == '__main__':  # pragma: no cover

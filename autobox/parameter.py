@@ -629,16 +629,6 @@ class CatalogLayerParameter(InputParameter):
 # End CatalogLayerParameter class
 
 
-class CoordinateSystemParameter(InputOutputParameter):
-    """
-    A reference framework, such as the UTM system consisting of a set of
-    points, lines, or surfaces, and a set of rules used to define the
-    positions of points in two- and three-dimensional space.
-    """
-    keyword: ClassVar[str] = 'GPCoordinateSystem'
-# End CoordinateSystemParameter class
-
-
 class CoverageParameter(InputParameter):
     """
     A coverage dataset, a proprietary data model for storing geographic
@@ -1196,15 +1186,6 @@ class ShapeFileParameter(InputOutputParameter):
 # End ShapeFileParameter class
 
 
-class SpatialReferenceParameter(InputOutputParameter):
-    """
-    The coordinate system used to store a spatial dataset, including the
-    spatial domain.
-    """
-    keyword: ClassVar[str] = 'GPSpatialReference'
-# End SpatialReferenceParameter class
-
-
 class TableViewParameter(InputOutputParameter):
     """
     A representation of tabular data for viewing and editing purposes
@@ -1443,6 +1424,17 @@ class CellSizeXYParameter(InputParameter):
 # End CellSizeXYParameter class
 
 
+class CoordinateSystemParameter(InputOutputParameter):
+    """
+    A reference framework, such as the UTM system consisting of a set of
+    points, lines, or surfaces, and a set of rules used to define the
+    positions of points in two- and three-dimensional space.
+    """
+    keyword: ClassVar[str] = 'GPCoordinateSystem'
+    default_types: ClassVar[TYPES] = str,
+# End CoordinateSystemParameter class
+
+
 class DateParameter(InputOutputParameter):
     """
     A date value.
@@ -1600,6 +1592,16 @@ class SACellSizeParameter(InputParameter):
     keyword: ClassVar[str] = 'GPSACellSize'
     default_types: ClassVar[TYPES] = Path, SACellSize
 # End SACellSizeParameter class
+
+
+class SpatialReferenceParameter(InputOutputParameter):
+    """
+    The coordinate system used to store a spatial dataset, including the
+    spatial domain.
+    """
+    keyword: ClassVar[str] = 'GPSpatialReference'
+    default_types: ClassVar[TYPES] = str,
+# End SpatialReferenceParameter class
 
 
 class SQLExpressionParameter(InputParameter):
