@@ -22,7 +22,7 @@ from autobox.filter import (
 from autobox.type import (
     BOOL, MAP_STR, PATH, STRING, TYPES, TYPE_FILTERS, TYPE_PARAMS)
 from autobox.util import (
-    make_parameter_name, resolve_layer_path, validate_parameter_label,
+    make_parameter_name, resolve_layer_path, unique, validate_parameter_label,
     validate_parameter_name, validate_path, wrap_markup)
 
 
@@ -108,11 +108,11 @@ class BaseParameter:
         self._name: str = self._validate_name(name, self._label)
         self._category: STRING = category
         self._description: STRING = description
-        self._default: Any = self._validate_default(default_value)
         self._is_input: bool = is_input
         self._is_required: BOOL = self._validate_required(is_required)
         self._is_multi: bool = is_multi
         self._is_enabled: bool = is_enabled
+        self._default: Any = self._validate_default(default_value)
         self._dependency: InputOutputParameter | None = None
         self._filter: AbstractFilter | None = None
         self._symbology: PATH = None
@@ -139,14 +139,30 @@ class BaseParameter:
         return validated_name
     # End _validate_name method
 
+    def _validate_multi_default(self, value: Any) -> Any:
+        """
+        Validate Multi Default, filter elements based on type then make unique,
+        return a tuple to avoid inplace modification.
+        """
+        if not isinstance(value, (list, tuple)):
+            value = value,
+        values = [v for v in value if isinstance(v, self.default_types)]
+        if values:
+            return tuple(unique(values))
+    # End _validate_multi_default method
+
     def _validate_default(self, value: Any) -> Any:
         """
         Validate Default, when no default types no validation occurs.
         """
-        if not self.default_types:
+        if not self.default_types or value is None:
             return value
-        if isinstance(value, self.default_types) or value is None:
-            return value
+        if self.is_multi:
+            if values := self._validate_multi_default(value):
+                return values
+        else:
+            if isinstance(value, self.default_types):
+                return value
         raise TypeError(
             f'Invalid default value for {self.__class__.__name__}: {value}')
     # End _validate_default method
@@ -572,6 +588,22 @@ class SchemaMixin:
 # End SchemaMixin class
 
 
+class StringNotStoredMixin:
+    """
+    String Not Stored Mixin
+    """
+    def _validate_default(self, value: str) -> None | NoReturn:
+        """
+        Validate Default
+        """
+        if value is None:
+            return
+        raise ValueError(
+            f'Default value for {self.__class__.__name__} is not stored')
+    # End _validate_default method
+# End StringNotStoredMixin class
+
+
 class CadDrawingDatasetParameter(InputOutputParameter):
     """
     A vector data source combined with feature types and symbology. The
@@ -666,14 +698,6 @@ class DiagramLayerParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPDiagramLayer'
 # End DiagramLayerParameter class
-
-
-class EncryptedStringParameter(InputParameter):
-    """
-    An encrypted string for passwords.
-    """
-    keyword: ClassVar[str] = 'GPEncryptedString'
-# End EncryptedStringParameter class
 
 
 class EnvelopeParameter(InputParameter):
@@ -1183,14 +1207,6 @@ class SpatialReferenceParameter(InputOutputParameter):
 # End SpatialReferenceParameter class
 
 
-class StringHiddenParameter(InputParameter):
-    """
-    A string that is masked by asterisk characters.
-    """
-    keyword: ClassVar[str] = 'GPStringHidden'
-# End StringHiddenParameter class
-
-
 class TableViewParameter(InputOutputParameter):
     """
     A representation of tabular data for viewing and editing purposes
@@ -1405,6 +1421,7 @@ class CalculatorExpressionParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPCalculatorExpression'
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+    default_types: ClassVar[TYPES] = str,
 # End CalculatorExpressionParameter class
 
 
@@ -1424,6 +1441,14 @@ class DoubleParameter(InputOutputParameter):
     keyword: ClassVar[str] = 'GPDouble'
     filter_types: ClassVar[TYPE_FILTERS] = DoubleRangeFilter, DoubleValueFilter
 # End DoubleParameter class
+
+
+class EncryptedStringParameter(StringNotStoredMixin, InputParameter):
+    """
+    An encrypted string for passwords.
+    """
+    keyword: ClassVar[str] = 'GPEncryptedString'
+# End EncryptedStringParameter class
 
 
 class FieldMappingParameter(InputParameter):
@@ -1532,6 +1557,7 @@ class SQLExpressionParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPSQLExpression'
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+    default_types: ClassVar[TYPES] = str,
 # End SQLExpressionParameter class
 
 
@@ -1541,6 +1567,7 @@ class StringParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPString'
     filter_types: ClassVar[TYPE_FILTERS] = StringValueFilter,
+    default_types: ClassVar[TYPES] = str,
 
     def _build_filter(self) -> tuple[dict, MAP_STR]:
         """
@@ -1552,6 +1579,14 @@ class StringParameter(InputOutputParameter):
         return content, resource
     # End _build_filter method
 # End StringParameter class
+
+
+class StringHiddenParameter(StringNotStoredMixin, InputParameter):
+    """
+    A string that is masked by asterisk characters.
+    """
+    keyword: ClassVar[str] = 'GPStringHidden'
+# End StringHiddenParameter class
 
 
 class TimeUnitParameter(InputParameter):

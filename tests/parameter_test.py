@@ -20,13 +20,14 @@ from autobox.filter import (
     LongRangeFilter, LongValueFilter, StringValueFilter, WorkspaceTypeFilter)
 from autobox.parameter import (
     AnalysisCellSizeParameter, ArealUnitParameter, BooleanParameter,
-    CellSizeXYParameter, DoubleParameter,
-    FeatureClassParameter, FeatureDatasetParameter, FeatureLayerParameter,
-    FieldParameter, FileParameter, FolderParameter, InputOutputParameter,
-    InputParameter, LinearUnitParameter, LongParameter, MDomainParameter,
-    RasterDatasetParameter,
-    SACellSizeParameter, StringParameter, TableParameter, TinParameter,
-    WorkspaceParameter, XYDomainParameter, ZDomainParameter)
+    CalculatorExpressionParameter, CellSizeXYParameter, DoubleParameter,
+    EncryptedStringParameter, FeatureClassParameter, FeatureDatasetParameter,
+    FeatureLayerParameter, FieldParameter, FileParameter, FolderParameter,
+    InputOutputParameter, InputParameter, LinearUnitParameter, LongParameter,
+    MDomainParameter, RasterDatasetParameter, SACellSizeParameter,
+    SQLExpressionParameter, StringHiddenParameter, StringParameter,
+    TableParameter, TinParameter, WorkspaceParameter, XYDomainParameter,
+    ZDomainParameter)
 
 
 def test_parameter_instantiate():
@@ -869,6 +870,58 @@ def test_default_value_xy_domain():
     data, _ = p.serialize({}, target=None)
     assert data['value'] == '-1000 -2000 1000 2000'
 # End test_default_value_xy_domain function
+
+
+@mark.parametrize('cls', [
+    StringHiddenParameter,
+    EncryptedStringParameter
+])
+def test_default_value_string_hidden_encrypted(cls):
+    """
+    Test Default Value for Hidden and Encrypted Strings
+    """
+    with raises(ValueError):
+        cls(label='String', default_value='abc')
+    p = cls(label='String')
+    with raises(ValueError):
+        p.default_value = 'abc'
+    assert p.default_value is None
+# End test_default_value_string_hidden_encrypted function
+
+
+@mark.parametrize('cls', [
+    CalculatorExpressionParameter,
+    StringParameter,
+    SQLExpressionParameter
+])
+def test_default_value_string_calc_sql(cls):
+    """
+    Test Default Value String, Calculator Expression, and SQL Expression
+    """
+    p = cls(label='String')
+    with raises(TypeError):
+        p.default_value = 12345
+    assert p.default_value is None
+    value = 'abcdefg'
+    p.default_value = value
+    assert p.default_value == value
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == value
+# End test_default_value_string_calc_sql function
+
+
+@mark.parametrize('value, expected', [
+    ('100', ('100',)),
+    (['100'], ('100',)),
+    (['100', '100'], ('100',)),
+])
+def test_default_value_string_multi(value, expected):
+    """
+    Test Default Value String Multi
+    """
+    p = StringParameter(label='String', is_multi=True, default_value=value)
+    assert p.default_value == expected
+# End test_default_value_string_multi function
 
 
 if __name__ == '__main__':  # pragma: no cover
