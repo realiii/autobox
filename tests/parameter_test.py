@@ -11,7 +11,8 @@ from pytest import approx, mark, raises
 
 from autobox.constant import ParameterContentKeys
 from autobox.default import (
-    ArealUnitValue, CellSizeXY, LinearUnitValue, MDomain, TimeUnitValue,
+    ArealUnitValue, CellSizeXY, Envelope, Extent, LinearUnitValue, MDomain,
+    Point, TimeUnitValue,
     XDomain, XYDomain,
     YDomain,
     ZDomain)
@@ -27,10 +28,13 @@ from autobox.parameter import (
     CalculatorExpressionParameter, CellSizeXYParameter,
     CoordinateSystemParameter, DateParameter,
     DoubleParameter,
-    EncryptedStringParameter, FeatureClassParameter, FeatureDatasetParameter,
+    EncryptedStringParameter, EnvelopeParameter, ExtentParameter,
+    FeatureClassParameter,
+    FeatureDatasetParameter,
     FeatureLayerParameter, FieldParameter, FileParameter, FolderParameter,
     InputOutputParameter, InputParameter, LinearUnitParameter, LongParameter,
-    MDomainParameter, RasterDatasetParameter, SACellSizeParameter,
+    MDomainParameter, PointParameter, RasterDatasetParameter,
+    SACellSizeParameter,
     SQLExpressionParameter, StringHiddenParameter, StringParameter,
     TableParameter, TimeUnitParameter, TinParameter, WorkspaceParameter,
     XYDomainParameter,
@@ -1088,10 +1092,10 @@ def test_default_value_coordinate_system():
     p = CoordinateSystemParameter(label='Coordinate System')
     with raises(TypeError):
         p.default_value = 100
-    cs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
-    p.default_value = cs
+    crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    p.default_value = crs
     data, _ = p.serialize({}, target=None)
-    assert data['value'] == cs
+    assert data['value'] == crs
 # End test_default_value_coordinate_system function
 
 
@@ -1102,11 +1106,11 @@ def test_default_value_coordinate_system_multi():
     p = CoordinateSystemParameter(label='Coordinate System', is_multi=True)
     with raises(TypeError):
         p.default_value = 100
-    cs1 = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
-    cs2 = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
-    p.default_value = (cs1, cs2)
+    crs1 = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    crs2 = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
+    p.default_value = (crs1, crs2)
     data, _ = p.serialize({}, target=None)
-    assert data['value'] == "'{}';'{}'".format(cs1, cs2).replace('"', '\"')
+    assert data['value'] == "'{}';'{}'".format(crs1, crs2)
 # End test_default_value_coordinate_system function
 
 
@@ -1117,11 +1121,102 @@ def test_default_value_spatial_reference():
     p = CoordinateSystemParameter(label='Coordinate System')
     with raises(TypeError):
         p.default_value = 100
-    cs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]];-20037700 -30241100 10000;-100000 10000;-100000 10000;0.001;0.001;0.001;IsHighPrecision'
-    p.default_value = cs
+    srs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]];-20037700 -30241100 10000;-100000 10000;-100000 10000;0.001;0.001;0.001;IsHighPrecision'
+    p.default_value = srs
     data, _ = p.serialize({}, target=None)
-    assert data['value'] == cs
+    assert data['value'] == srs
 # End test_default_value_spatial_reference function
+
+
+def test_default_value_envelope():
+    """
+    Test Default Value Envelope
+    """
+    p = EnvelopeParameter(label='Envelope')
+    with raises(TypeError):
+        p.default_value = 100
+    p.default_value = Envelope(XDomain(100, 200), YDomain(1000, 2000))
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '100 1000 200 2000'
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_envelope function
+
+
+def test_default_value_envelope_multi():
+    """
+    Test Default Value Envelope Multi
+    """
+    p = EnvelopeParameter(label='Envelope', is_multi=True)
+    envelopes = (Envelope(XDomain(100, 200), YDomain(1000, 2000)),
+                 Envelope(XDomain(111, 222), YDomain(3333, 4444)))
+    p.default_value = envelopes
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == "'100 1000 200 2000';'111 3333 222 4444'"
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_envelope_multi function
+
+
+def test_default_value_extent():
+    """
+    Test Default Value Extent
+    """
+    p = ExtentParameter(label='Extent')
+    with raises(TypeError):
+        p.default_value = 100
+    crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    p.default_value = Extent(XDomain(100, 200), YDomain(1000, 2000), crs=crs)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == f'100 1000 200 2000 {crs}'
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_extent function
+
+
+def test_default_value_extent_multi():
+    """
+    Test Default Value Extent Multi
+    """
+    p = ExtentParameter(label='Extent', is_multi=True)
+    crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    extents = (Extent(XDomain(100, 200), YDomain(1000, 2000)),
+               Extent(XDomain(111, 222), YDomain(3333, 4444), crs=crs))
+    p.default_value = extents
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == f"'100 1000 200 2000';'111 3333 222 4444 {crs}'"
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_extent_multi function
+
+
+def test_default_value_point():
+    """
+    Test Default Value Point
+    """
+    p = PointParameter(label='Point')
+    with raises(TypeError):
+        p.default_value = 100
+    p.default_value = Point(100, 200)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '100 200'
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_point function
+
+
+def test_default_value_point_multi():
+    """
+    Test Default Value Point Multi
+    """
+    p = PointParameter(label='Point', is_multi=True)
+    points = Point(100, 200), Point(123.4, 45.6)
+    p.default_value = points
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == "'100 200';'123.4 45.6'"
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_point_multi function
 
 
 if __name__ == '__main__':  # pragma: no cover

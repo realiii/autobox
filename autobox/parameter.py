@@ -16,8 +16,8 @@ from autobox.constant import (
     SchemaContentKeys, ScriptToolContentKeys, ScriptToolContentResourceKeys,
     TIME_FORMAT, TRUE)
 from autobox.default import (
-    ArealUnitValue, CellSizeXY, LinearUnitValue, MDomain, TimeUnitValue,
-    XYDomain, ZDomain)
+    ArealUnitValue, CellSizeXY, Envelope, Extent, LinearUnitValue, MDomain,
+    Point, TimeUnitValue, XYDomain, ZDomain)
 from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
@@ -688,25 +688,6 @@ class DiagramLayerParameter(InputOutputParameter):
 # End DiagramLayerParameter class
 
 
-class EnvelopeParameter(InputParameter):
-    """
-    The coordinate pairs that define the minimum bounding rectangle in
-    which the data source resides.
-    """
-    keyword: ClassVar[str] = 'GPEnvelope'
-# End EnvelopeParameter class
-
-
-class ExtentParameter(InputParameter):
-    """
-    The coordinate pairs that define the minimum bounding rectangle
-    (x-minimum, y-minimum and x-maximum, y-maximum) of a data source. All
-    coordinates for the data source are within this boundary.
-    """
-    keyword: ClassVar[str] = 'GPExtent'
-# End ExtentParameter class
-
-
 class FeatureDatasetParameter(InputOutputParameter):
     """
     A collection of feature classes that share a common geographic area
@@ -907,14 +888,6 @@ class NetworkDataSourceParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPNetworkDataSource'
 # End NetworkDataSourceParameter class
-
-
-class PointParameter(InputParameter):
-    """
-    A pair of x,y-coordinates.
-    """
-    keyword: ClassVar[str] = 'GPPoint'
-# End PointParameter class
 
 
 class PrjFileParameter(InputOutputParameter):
@@ -1493,6 +1466,27 @@ class EncryptedStringParameter(StringNotStoredMixin, InputParameter):
 # End EncryptedStringParameter class
 
 
+class EnvelopeParameter(InputParameter):
+    """
+    The coordinate pairs that define the minimum bounding rectangle in
+    which the data source resides.
+    """
+    keyword: ClassVar[str] = 'GPEnvelope'
+    default_types: ClassVar[TYPES] = Envelope,
+# End EnvelopeParameter class
+
+
+class ExtentParameter(InputParameter):
+    """
+    The coordinate pairs that define the minimum bounding rectangle
+    (x-minimum, y-minimum and x-maximum, y-maximum) of a data source. All
+    coordinates for the data source are within this boundary.
+    """
+    keyword: ClassVar[str] = 'GPExtent'
+    default_types: ClassVar[TYPES] = Extent,
+# End ExtentParameter class
+
+
 class FieldMappingParameter(InputParameter):
     """
     A collection of fields in one or more input tables.
@@ -1583,6 +1577,15 @@ class NetworkTravelModeParameter(InputParameter):
         NetworkDataSourceParameter)
     filter_types: ClassVar[TYPE_FILTERS] = TravelModeUnitTypeFilter,
 # End NetworkTravelModeParameter class
+
+
+class PointParameter(InputParameter):
+    """
+    A pair of x,y-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPPoint'
+    default_types: ClassVar[TYPES] = Point,
+# End PointParameter class
 
 
 class SACellSizeParameter(InputParameter):
