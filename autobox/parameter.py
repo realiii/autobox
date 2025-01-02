@@ -588,6 +588,38 @@ class InputOutputParameter(BaseParameter):
 # End InputOutputParameter class
 
 
+class PathEsqueMixin:
+    """
+    Path-esque Mixin
+    """
+    suffixes: STRINGS = ()
+    default_types: ClassVar[TYPES] = Path,
+
+    def _validate_default(self, value: Any) -> PATH | tuple[Path, ...] | NoReturn:
+        """
+        Validate Default, when no default types no validation occurs.
+        """
+        # noinspection PyProtectedMember,PyUnresolvedReferences
+        if not (value := super()._validate_default(value)):
+            return value
+        if not self.suffixes:
+            return value
+        # noinspection PyUnresolvedReferences
+        if self.is_multi:
+            if values := tuple(v for v in value
+                               if v.suffix.casefold() in self.suffixes):
+                return values
+            value = tuple(v for v in value
+                          if v.suffix.casefold() not in self.suffixes)
+        else:
+            if value.suffix.casefold() in self.suffixes:
+                return value
+        raise ValueError(
+            f'Incorrect file extension for {self.__class__.__name__}: {value}')
+    # End _validate_default method
+# End PathEsqueMixin class
+
+
 class SchemaMixin:
     """
     Schema Mixin
@@ -689,14 +721,6 @@ class DatasetTypeParameter(InputOutputParameter):
 # End DatasetTypeParameter class
 
 
-class DbaseTableParameter(InputOutputParameter):
-    """
-    Attribute data stored in dBASE format.
-    """
-    keyword: ClassVar[str] = 'DEDbaseTable'
-# End DbaseTableParameter class
-
-
 class DiagramLayerParameter(InputOutputParameter):
     """
     A diagram layer.
@@ -720,14 +744,6 @@ class FieldInfoParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPFieldInfo'
 # End FieldInfoParameter class
-
-
-class FolderParameter(InputOutputParameter):
-    """
-    A location on disk where data is stored.
-    """
-    keyword: ClassVar[str] = 'DEFolder'
-# End FolderParameter class
 
 
 class GALayerParameter(InputOutputParameter):
@@ -823,15 +839,6 @@ class LayerFileParameter(InputOutputParameter):
 # End LayerFileParameter class
 
 
-class MapDocumentParameter(InputParameter):
-    """
-    A file that contains one map, its layout, and its associated layers,
-    tables, charts, and reports.
-    """
-    keyword: ClassVar[str] = 'DEMapDocument'
-# End MapDocumentParameter class
-
-
 class MapParameter(InputOutputParameter):
     """
     An ArcGIS Pro map.
@@ -905,14 +912,6 @@ class NetworkDataSourceParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPNetworkDataSource'
 # End NetworkDataSourceParameter class
-
-
-class PrjFileParameter(InputOutputParameter):
-    """
-    A file storing coordinate system information for spatial data.
-    """
-    keyword: ClassVar[str] = 'DEPrjFile'
-# End PrjFileParameter class
 
 
 class RandomNumberGeneratorParameter(InputParameter):
@@ -1168,14 +1167,6 @@ class SchematicLayerParameter(InputOutputParameter):
 # End SchematicLayerParameter class
 
 
-class ShapeFileParameter(InputOutputParameter):
-    """
-    Spatial data in shapefile format.
-    """
-    keyword: ClassVar[str] = 'DEShapeFile'
-# End ShapeFileParameter class
-
-
 class TableViewParameter(InputOutputParameter):
     """
     A representation of tabular data for viewing and editing purposes
@@ -1192,14 +1183,6 @@ class TerrainLayerParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPTerrainLayer'
 # End TerrainLayerParameter class
-
-
-class TextfileParameter(InputOutputParameter):
-    """
-    A text file.
-    """
-    keyword: ClassVar[str] = 'DETextfile'
-# End TextfileParameter class
 
 
 class TinParameter(InputOutputParameter):
@@ -1465,6 +1448,15 @@ class DateParameter(InputOutputParameter):
 # End DateParameter class
 
 
+class DbaseTableParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    Attribute data stored in dBASE format.
+    """
+    keyword: ClassVar[str] = 'DEDbaseTable'
+    suffixes: STRINGS = DBF, SHP
+# End DbaseTableParameter class
+
+
 class DoubleParameter(InputOutputParameter):
     """
     Any floating-point number stored as a double precision, 64-bit value.
@@ -1523,13 +1515,21 @@ class FieldParameter(InputParameter):
 # End FieldParameter class
 
 
-class FileParameter(InputOutputParameter):
+class FileParameter(PathEsqueMixin, InputOutputParameter):
     """
     A file on disk.
     """
     keyword: ClassVar[str] = 'DEFile'
     filter_types: ClassVar[TYPE_FILTERS] = FileTypeFilter,
 # End FileParameter class
+
+
+class FolderParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    A location on disk where data is stored.
+    """
+    keyword: ClassVar[str] = 'DEFolder'
+# End FolderParameter class
 
 
 class GAValueTableParameter(InputParameter):
@@ -1561,6 +1561,16 @@ class LongParameter(InputOutputParameter):
     filter_types: ClassVar[TYPE_FILTERS] = LongRangeFilter, LongValueFilter
     default_types: ClassVar[TYPES] = int,
 # End LongParameter class
+
+
+class MapDocumentParameter(PathEsqueMixin, InputParameter):
+    """
+    A file that contains one map, its layout, and its associated layers,
+    tables, charts, and reports.
+    """
+    keyword: ClassVar[str] = 'DEMapDocument'
+    suffixes: STRING = MXD,
+# End MapDocumentParameter class
 
 
 class MDomainParameter(InputParameter):
@@ -1605,6 +1615,15 @@ class PointParameter(InputParameter):
 # End PointParameter class
 
 
+class PrjFileParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    A file storing coordinate system information for spatial data.
+    """
+    keyword: ClassVar[str] = 'DEPrjFile'
+    suffixes: STRINGS = PRJ,
+# End PrjFileParameter class
+
+
 class SACellSizeParameter(InputParameter):
     """
     The cell size used by the ArcGIS Spatial Analyst extension.
@@ -1622,6 +1641,15 @@ class SpatialReferenceParameter(InputOutputParameter):
     keyword: ClassVar[str] = 'GPSpatialReference'
     default_types: ClassVar[TYPES] = str,
 # End SpatialReferenceParameter class
+
+
+class ShapeFileParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    Spatial data in shapefile format.
+    """
+    keyword: ClassVar[str] = 'DEShapeFile'
+    suffixes: STRINGS = SHP,
+# End ShapeFileParameter class
 
 
 class SQLExpressionParameter(InputParameter):
@@ -1661,6 +1689,15 @@ class StringHiddenParameter(StringNotStoredMixin, InputParameter):
     """
     keyword: ClassVar[str] = 'GPStringHidden'
 # End StringHiddenParameter class
+
+
+class TextfileParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    A text file.
+    """
+    keyword: ClassVar[str] = 'DETextfile'
+    suffixes: STRINGS = CSV, TXT, TAB
+# End TextfileParameter class
 
 
 class TimeUnitParameter(InputParameter):
