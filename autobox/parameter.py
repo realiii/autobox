@@ -9,12 +9,12 @@ from pathlib import Path
 from typing import Any, ClassVar, NoReturn, Self
 
 from autobox.constant import (
-    DATETIME_FORMAT, DATE_FORMAT, DERIVED, DOLLAR_RC, DOT, FILTER,
+    CSV, DATETIME_FORMAT, DATE_FORMAT, DBF, DERIVED, DOLLAR_RC, DOT, FILTER,
     GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT, GP_MULTI_VALUE,
-    GP_TABLE_SCHEMA, GP_TIME_UNIT, OPTIONAL, OUT, PARAMETER,
-    ParameterContentKeys, ParameterContentResourceKeys, RELATIVE, SEMI_COLON,
-    SchemaContentKeys, ScriptToolContentKeys, ScriptToolContentResourceKeys,
-    TIME_FORMAT, TRUE)
+    GP_TABLE_SCHEMA, GP_TIME_UNIT, LYR, LYRX, MXD, OPTIONAL, OUT, PARAMETER,
+    PRJ, ParameterContentKeys, ParameterContentResourceKeys, RELATIVE,
+    SEMI_COLON, SHP, SchemaContentKeys, ScriptToolContentKeys,
+    ScriptToolContentResourceKeys, TAB, TIME_FORMAT, TRUE, TXT)
 from autobox.default import (
     ArealUnitValue, CellSizeXY, Envelope, Extent, LinearUnitValue, MDomain,
     Point, TimeUnitValue, XYDomain, ZDomain)
@@ -216,7 +216,7 @@ class BaseParameter:
             return
         text = 'layer file'
         path = validate_path(path, text=text)
-        if path.suffix.casefold() not in ('.lyrx', '.lyr'):
+        if path.suffix.casefold() not in (LYRX, LYR):
             raise TypeError(f'Invalid {text} type: {path.suffix}')
         return path
     # End _validate_layer_file method

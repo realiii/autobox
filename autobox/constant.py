@@ -24,6 +24,22 @@ TIME_FORMAT: str = '%H:%M:%S'
 DATETIME_FORMAT: str = f'{DATE_FORMAT} {TIME_FORMAT}'
 
 
+PNG: str = '.png'
+JPG: str = '.jpg'
+
+DBF: str = '.dbf'
+SHP: str = '.shp'
+MXD: str = '.mxd'
+CSV: str = '.csv'
+TXT: str = '.txt'
+TAB: str = '.tab'
+PRJ: str = '.prj'
+
+
+LYR: str = '.lyr'
+LYRX: str = '.lyrx'
+
+
 ATBX: str = '.atbx'
 PY: str = '.py'
 
