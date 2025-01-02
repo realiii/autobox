@@ -333,12 +333,28 @@ class BaseParameter:
                 value = ()
             elif not isinstance(value, (list, tuple)):  # pragma: no cover
                 value = value,
-            value = SEMI_COLON.join(quote(repr(v)) for v in value)
+            value = self._make_flattened_value(value)
         else:
             if value is not None:
                 value = str(value)
         return {ParameterContentKeys.value: value}
     # End _build_default_value method
+
+    @staticmethod
+    def _make_flattened_value(value: list | tuple) -> str:
+        """
+        Make Flattened Value
+        """
+        values = []
+        for v in value:
+            if isinstance(v, Path):
+                func = str
+            else:
+                func = repr
+            values.append(quote(func(v)))
+        value = SEMI_COLON.join(values)
+        return value
+    # End _make_flattened_value method
 
     def _build_description(self) -> tuple[MAP_STR, MAP_STR]:
         """
