@@ -9,7 +9,7 @@ from pathlib import Path
 
 from pytest import approx, mark, raises
 
-from autobox.constant import ParameterContentKeys
+from autobox.constant import ParameterContentKeys, SEMI_COLON
 from autobox.default import (
     ArealUnitValue, CellSizeXY, Envelope, Extent, LinearUnitValue, MDomain,
     Point, TimeUnitValue,
@@ -27,16 +27,19 @@ from autobox.parameter import (
     AnalysisCellSizeParameter, ArealUnitParameter, BooleanParameter,
     CalculatorExpressionParameter, CellSizeXYParameter,
     CoordinateSystemParameter, DateParameter,
-    DoubleParameter,
+    DbaseTableParameter, DoubleParameter,
     EncryptedStringParameter, EnvelopeParameter, ExtentParameter,
     FeatureClassParameter,
     FeatureDatasetParameter,
     FeatureLayerParameter, FieldParameter, FileParameter, FolderParameter,
     InputOutputParameter, InputParameter, LinearUnitParameter, LongParameter,
-    MDomainParameter, PointParameter, RasterDatasetParameter,
+    MDomainParameter, MapDocumentParameter, PointParameter,
+    PrjFileParameter, RasterDatasetParameter,
     SACellSizeParameter,
-    SQLExpressionParameter, StringHiddenParameter, StringParameter,
-    TableParameter, TimeUnitParameter, TinParameter, WorkspaceParameter,
+    SQLExpressionParameter, ShapeFileParameter, StringHiddenParameter,
+    StringParameter,
+    TableParameter, TextfileParameter, TimeUnitParameter, TinParameter,
+    WorkspaceParameter,
     XYDomainParameter,
     ZDomainParameter)
 
@@ -1217,6 +1220,42 @@ def test_default_value_point_multi():
     p.default_value = None
     assert p.default_value is None
 # End test_default_value_point_multi function
+
+
+@mark.parametrize('cls, expected', [
+    (DbaseTableParameter, 3),
+    (FileParameter, 9),
+    (MapDocumentParameter, 1),
+    (PrjFileParameter, 1),
+    (ShapeFileParameter, 2),
+    (TextfileParameter, 4)
+])
+def test_default_value_path_esque_multi(cls, expected):
+    """
+    Test Default Value Path Esque Multi
+    """
+    p = cls(label='Path Esque', is_multi=True)
+    with raises(TypeError):
+        p.default_value = ('/path/to/file1.txt', '/path/to/file2.txt')
+    p.default_value = None
+    assert p.default_value is None
+    files = ('file1.txt', 'file2.dbf', 'file3.shp', 'file4.mxd', 'file5.prj',
+             'file6.shp', 'file7.csv', 'file8.txt', 'file9.tab')
+    paths = [Path.home() / f for f in files]
+    p.default_value = paths
+    data, _ = p.serialize({}, target=None)
+    assert data['value'].count(SEMI_COLON) == (expected - 1)
+
+    paths = p.default_value
+    if p.suffixes:
+        with raises(ValueError):
+            p.default_value = Path.home() / 'file.xyz'
+    p = cls(label='Path Esque')
+    p.default_value = paths[0]
+    if p.suffixes:
+        with raises(ValueError):
+            p.default_value = Path.home() / 'file.xyz'
+# End test_default_value_path_esque_multi function
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -3,6 +3,7 @@
 Toolbox
 """
 
+
 from json import dump
 from operator import attrgetter
 from os import walk
@@ -12,7 +13,7 @@ from typing import NoReturn, TYPE_CHECKING
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from autobox.constant import (
-    DOLLAR_RC, DOT, ENCODING, EXT, ILLUSTRATION, NAME, PARENT, SEMI_COLON,
+    DOLLAR_RC, DOT, ENCODING, ATBX, ILLUSTRATION, NAME, PARENT, SEMI_COLON,
     SPACE, TOOLBOX_CONTENT, TOOLBOX_CONTENT_RC, TOOLSET, ToolboxContentKeys,
     ToolboxContentResourceKeys)
 from autobox.type import MAP_STR, PATH, STRING, TOOLS_MAP
@@ -124,7 +125,7 @@ class Toolbox:
         Get Toolbox Path, if the file exists and overwrite is False raise
         an exception otherwise delete the file and return the path.
         """
-        toolbox_path = folder.joinpath(f'{self.name}{EXT}')
+        toolbox_path = folder.joinpath(f'{self.name}{ATBX}')
         if toolbox_path.is_file():
             if not overwrite:
                 raise FileExistsError(f'File already exists: {toolbox_path}')

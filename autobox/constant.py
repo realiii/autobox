@@ -24,6 +24,26 @@ TIME_FORMAT: str = '%H:%M:%S'
 DATETIME_FORMAT: str = f'{DATE_FORMAT} {TIME_FORMAT}'
 
 
+PNG: str = '.png'
+JPG: str = '.jpg'
+
+DBF: str = '.dbf'
+SHP: str = '.shp'
+MXD: str = '.mxd'
+CSV: str = '.csv'
+TXT: str = '.txt'
+TAB: str = '.tab'
+PRJ: str = '.prj'
+
+
+LYR: str = '.lyr'
+LYRX: str = '.lyrx'
+
+
+ATBX: str = '.atbx'
+PY: str = '.py'
+
+
 GP_MULTI_VALUE: str = 'GPMultiValue'
 GP_FEATURE_SCHEMA: str = 'GPFeatureSchema'
 GP_TABLE_SCHEMA: str = 'GPTableSchema'
@@ -50,9 +70,6 @@ TRUE: str = 'true'
 
 ENCODING: str = 'utf-8'
 
-
-EXT: str = '.atbx'
-PY: str = '.py'
 
 RC: str = 'rc'
 DOLLAR_RC: str = f'${RC}{COLON}'

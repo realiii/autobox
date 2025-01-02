@@ -9,12 +9,12 @@ from pathlib import Path
 from typing import Any, ClassVar, NoReturn, Self
 
 from autobox.constant import (
-    DATETIME_FORMAT, DATE_FORMAT, DERIVED, DOLLAR_RC, DOT, FILTER,
+    CSV, DATETIME_FORMAT, DATE_FORMAT, DBF, DERIVED, DOLLAR_RC, DOT, FILTER,
     GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT, GP_MULTI_VALUE,
-    GP_TABLE_SCHEMA, GP_TIME_UNIT, OPTIONAL, OUT, PARAMETER,
-    ParameterContentKeys, ParameterContentResourceKeys, RELATIVE, SEMI_COLON,
-    SchemaContentKeys, ScriptToolContentKeys, ScriptToolContentResourceKeys,
-    TIME_FORMAT, TRUE)
+    GP_TABLE_SCHEMA, GP_TIME_UNIT, LYR, LYRX, MXD, OPTIONAL, OUT, PARAMETER,
+    PRJ, ParameterContentKeys, ParameterContentResourceKeys, RELATIVE,
+    SEMI_COLON, SHP, SchemaContentKeys, ScriptToolContentKeys,
+    ScriptToolContentResourceKeys, TAB, TIME_FORMAT, TRUE, TXT)
 from autobox.default import (
     ArealUnitValue, CellSizeXY, Envelope, Extent, LinearUnitValue, MDomain,
     Point, TimeUnitValue, XYDomain, ZDomain)
@@ -25,7 +25,8 @@ from autobox.filter import (
     LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
     TravelModeUnitTypeFilter, WorkspaceTypeFilter)
 from autobox.type import (
-    BOOL, DATETIME, MAP_STR, PATH, STRING, TYPES, TYPE_FILTERS, TYPE_PARAMS)
+    BOOL, DATETIME, MAP_STR, NUMBER, PATH, STRING, STRINGS, TYPES, TYPE_FILTERS,
+    TYPE_PARAMS)
 from autobox.util import (
     make_parameter_name, quote, resolve_layer_path, unique,
     validate_parameter_label, validate_parameter_name, validate_path,
@@ -216,7 +217,7 @@ class BaseParameter:
             return
         text = 'layer file'
         path = validate_path(path, text=text)
-        if path.suffix.casefold() not in ('.lyrx', '.lyr'):
+        if path.suffix.casefold() not in (LYRX, LYR):
             raise TypeError(f'Invalid {text} type: {path.suffix}')
         return path
     # End _validate_layer_file method
@@ -332,12 +333,28 @@ class BaseParameter:
                 value = ()
             elif not isinstance(value, (list, tuple)):  # pragma: no cover
                 value = value,
-            value = SEMI_COLON.join(quote(repr(v)) for v in value)
+            value = self._make_flattened_value(value)
         else:
             if value is not None:
                 value = str(value)
         return {ParameterContentKeys.value: value}
     # End _build_default_value method
+
+    @staticmethod
+    def _make_flattened_value(value: list | tuple) -> str:
+        """
+        Make Flattened Value
+        """
+        values = []
+        for v in value:
+            if isinstance(v, Path):
+                func = str
+            else:
+                func = repr
+            values.append(quote(func(v)))
+        value = SEMI_COLON.join(values)
+        return value
+    # End _make_flattened_value method
 
     def _build_description(self) -> tuple[MAP_STR, MAP_STR]:
         """
@@ -571,6 +588,38 @@ class InputOutputParameter(BaseParameter):
 # End InputOutputParameter class
 
 
+class PathEsqueMixin:
+    """
+    Path-esque Mixin
+    """
+    suffixes: STRINGS = ()
+    default_types: ClassVar[TYPES] = Path,
+
+    def _validate_default(self, value: Any) -> PATH | tuple[Path, ...] | NoReturn:
+        """
+        Validate Default, when no default types no validation occurs.
+        """
+        # noinspection PyProtectedMember,PyUnresolvedReferences
+        if not (value := super()._validate_default(value)):
+            return value
+        if not self.suffixes:
+            return value
+        # noinspection PyUnresolvedReferences
+        if self.is_multi:
+            if values := tuple(v for v in value
+                               if v.suffix.casefold() in self.suffixes):
+                return values
+            value = tuple(v for v in value
+                          if v.suffix.casefold() not in self.suffixes)
+        else:
+            if value.suffix.casefold() in self.suffixes:
+                return value
+        raise ValueError(
+            f'Incorrect file extension for {self.__class__.__name__}: {value}')
+    # End _validate_default method
+# End PathEsqueMixin class
+
+
 class SchemaMixin:
     """
     Schema Mixin
@@ -672,14 +721,6 @@ class DatasetTypeParameter(InputOutputParameter):
 # End DatasetTypeParameter class
 
 
-class DbaseTableParameter(InputOutputParameter):
-    """
-    Attribute data stored in dBASE format.
-    """
-    keyword: ClassVar[str] = 'DEDbaseTable'
-# End DbaseTableParameter class
-
-
 class DiagramLayerParameter(InputOutputParameter):
     """
     A diagram layer.
@@ -703,14 +744,6 @@ class FieldInfoParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPFieldInfo'
 # End FieldInfoParameter class
-
-
-class FolderParameter(InputOutputParameter):
-    """
-    A location on disk where data is stored.
-    """
-    keyword: ClassVar[str] = 'DEFolder'
-# End FolderParameter class
 
 
 class GALayerParameter(InputOutputParameter):
@@ -806,15 +839,6 @@ class LayerFileParameter(InputOutputParameter):
 # End LayerFileParameter class
 
 
-class MapDocumentParameter(InputParameter):
-    """
-    A file that contains one map, its layout, and its associated layers,
-    tables, charts, and reports.
-    """
-    keyword: ClassVar[str] = 'DEMapDocument'
-# End MapDocumentParameter class
-
-
 class MapParameter(InputOutputParameter):
     """
     An ArcGIS Pro map.
@@ -888,14 +912,6 @@ class NetworkDataSourceParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPNetworkDataSource'
 # End NetworkDataSourceParameter class
-
-
-class PrjFileParameter(InputOutputParameter):
-    """
-    A file storing coordinate system information for spatial data.
-    """
-    keyword: ClassVar[str] = 'DEPrjFile'
-# End PrjFileParameter class
 
 
 class RandomNumberGeneratorParameter(InputParameter):
@@ -1151,14 +1167,6 @@ class SchematicLayerParameter(InputOutputParameter):
 # End SchematicLayerParameter class
 
 
-class ShapeFileParameter(InputOutputParameter):
-    """
-    Spatial data in shapefile format.
-    """
-    keyword: ClassVar[str] = 'DEShapeFile'
-# End ShapeFileParameter class
-
-
 class TableViewParameter(InputOutputParameter):
     """
     A representation of tabular data for viewing and editing purposes
@@ -1175,14 +1183,6 @@ class TerrainLayerParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPTerrainLayer'
 # End TerrainLayerParameter class
-
-
-class TextfileParameter(InputOutputParameter):
-    """
-    A text file.
-    """
-    keyword: ClassVar[str] = 'DETextfile'
-# End TextfileParameter class
 
 
 class TinParameter(InputOutputParameter):
@@ -1300,7 +1300,7 @@ class AnalysisCellSizeParameter(InputParameter):
     keyword: ClassVar[str] = 'analysis_cell_size'
     default_types: ClassVar[TYPES] = Path, int, float
 
-    def _validate_default(self, value: Any) -> Path | int | float | None:
+    def _validate_default(self, value: Any) -> Path | NUMBER | None:
         """
         Validate Default, when no default types no validation occurs.
         """
@@ -1448,6 +1448,15 @@ class DateParameter(InputOutputParameter):
 # End DateParameter class
 
 
+class DbaseTableParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    Attribute data stored in dBASE format.
+    """
+    keyword: ClassVar[str] = 'DEDbaseTable'
+    suffixes: STRINGS = DBF, SHP
+# End DbaseTableParameter class
+
+
 class DoubleParameter(InputOutputParameter):
     """
     Any floating-point number stored as a double precision, 64-bit value.
@@ -1506,13 +1515,21 @@ class FieldParameter(InputParameter):
 # End FieldParameter class
 
 
-class FileParameter(InputOutputParameter):
+class FileParameter(PathEsqueMixin, InputOutputParameter):
     """
     A file on disk.
     """
     keyword: ClassVar[str] = 'DEFile'
     filter_types: ClassVar[TYPE_FILTERS] = FileTypeFilter,
 # End FileParameter class
+
+
+class FolderParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    A location on disk where data is stored.
+    """
+    keyword: ClassVar[str] = 'DEFolder'
+# End FolderParameter class
 
 
 class GAValueTableParameter(InputParameter):
@@ -1544,6 +1561,16 @@ class LongParameter(InputOutputParameter):
     filter_types: ClassVar[TYPE_FILTERS] = LongRangeFilter, LongValueFilter
     default_types: ClassVar[TYPES] = int,
 # End LongParameter class
+
+
+class MapDocumentParameter(PathEsqueMixin, InputParameter):
+    """
+    A file that contains one map, its layout, and its associated layers,
+    tables, charts, and reports.
+    """
+    keyword: ClassVar[str] = 'DEMapDocument'
+    suffixes: STRING = MXD,
+# End MapDocumentParameter class
 
 
 class MDomainParameter(InputParameter):
@@ -1588,6 +1615,15 @@ class PointParameter(InputParameter):
 # End PointParameter class
 
 
+class PrjFileParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    A file storing coordinate system information for spatial data.
+    """
+    keyword: ClassVar[str] = 'DEPrjFile'
+    suffixes: STRINGS = PRJ,
+# End PrjFileParameter class
+
+
 class SACellSizeParameter(InputParameter):
     """
     The cell size used by the ArcGIS Spatial Analyst extension.
@@ -1605,6 +1641,15 @@ class SpatialReferenceParameter(InputOutputParameter):
     keyword: ClassVar[str] = 'GPSpatialReference'
     default_types: ClassVar[TYPES] = str,
 # End SpatialReferenceParameter class
+
+
+class ShapeFileParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    Spatial data in shapefile format.
+    """
+    keyword: ClassVar[str] = 'DEShapeFile'
+    suffixes: STRINGS = SHP,
+# End ShapeFileParameter class
 
 
 class SQLExpressionParameter(InputParameter):
@@ -1644,6 +1689,15 @@ class StringHiddenParameter(StringNotStoredMixin, InputParameter):
     """
     keyword: ClassVar[str] = 'GPStringHidden'
 # End StringHiddenParameter class
+
+
+class TextfileParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    A text file.
+    """
+    keyword: ClassVar[str] = 'DETextfile'
+    suffixes: STRINGS = CSV, TXT, TAB
+# End TextfileParameter class
 
 
 class TimeUnitParameter(InputParameter):

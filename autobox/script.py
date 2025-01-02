@@ -13,10 +13,10 @@ from shutil import copyfile
 from typing import NoReturn, Self
 
 from autobox.constant import (
-    COLON, DEPENDENCY, DOT, ENCODING, ICON, ILLUSTRATION, ParameterContentKeys,
-    RELATIVE, SCRIPT, SCRIPT_STUB, SEMI_COLON, SPACE, ScriptToolContentKeys,
-    ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT, TOOL_CONTENT_RC,
-    TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
+    COLON, DEPENDENCY, DOT, ENCODING, ICON, ILLUSTRATION, JPG, PNG,
+    ParameterContentKeys, RELATIVE, SCRIPT, SCRIPT_STUB, SEMI_COLON, SPACE,
+    ScriptToolContentKeys, ScriptToolContentResourceKeys, TOOL, TOOL_CONTENT,
+    TOOL_CONTENT_RC, TOOL_ICON, TOOL_ILLUSTRATION, TOOL_SCRIPT_EXECUTE_LINK,
     TOOL_SCRIPT_EXECUTE_PY, TOOL_SCRIPT_VALIDATE_PY, ToolAttributeKeywords)
 from autobox.type import MAP_STR, PARAMETER, PATH, STRING, ToolAttributes
 from autobox.util import (
@@ -348,7 +348,7 @@ class ScriptTool:
         if not path:
             return
         path = validate_path(path, text=text)
-        if path.suffix.casefold() not in ('.png', '.jpg'):
+        if path.suffix.casefold() not in (PNG, JPG):
             raise TypeError(f'Invalid {text} file type: {path.suffix}')
         return path
     # End _validate_image method
