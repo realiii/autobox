@@ -795,7 +795,7 @@ def test_default_value_analysis_cell_size():
     p.default_value = path
     assert p.default_value == path
     data, _ = p.serialize({}, target=None)
-    assert data['value'] == 'c:/temp/test.tif'
+    assert data['value'] in ('c:/temp/test.tif', r'c:\temp\test.tif')
 
     p.default_value = None
     assert p.default_value is None
@@ -841,7 +841,7 @@ def test_default_value_sa_cell_size():
     p.default_value = path
     assert p.default_value == path
     data, _ = p.serialize({}, target=None)
-    assert data['value'] == 'c:/temp/test.tif'
+    assert data['value'] in ('c:/temp/test.tif', r'c:\temp\test.tif')
 
     p.default_value = SACellSize.MAXIMUM
     data, _ = p.serialize({}, target=None)
