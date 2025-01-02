@@ -25,7 +25,8 @@ from autobox.filter import (
     LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
     TravelModeUnitTypeFilter, WorkspaceTypeFilter)
 from autobox.type import (
-    BOOL, DATETIME, MAP_STR, PATH, STRING, TYPES, TYPE_FILTERS, TYPE_PARAMS)
+    BOOL, DATETIME, MAP_STR, NUMBER, PATH, STRING, STRINGS, TYPES, TYPE_FILTERS,
+    TYPE_PARAMS)
 from autobox.util import (
     make_parameter_name, quote, resolve_layer_path, unique,
     validate_parameter_label, validate_parameter_name, validate_path,
@@ -1300,7 +1301,7 @@ class AnalysisCellSizeParameter(InputParameter):
     keyword: ClassVar[str] = 'analysis_cell_size'
     default_types: ClassVar[TYPES] = Path, int, float
 
-    def _validate_default(self, value: Any) -> Path | int | float | None:
+    def _validate_default(self, value: Any) -> Path | NUMBER | None:
         """
         Validate Default, when no default types no validation occurs.
         """

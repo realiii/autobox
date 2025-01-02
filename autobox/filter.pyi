@@ -14,7 +14,7 @@ from autobox.enum import (
     TravelModeUnitType, WorkspaceType)
 from autobox.type import (
     AREAL_UNITS, FIELD_TYPES, GEOMETRY_TYPES, LINEAR_UNITS, MAP_DICT_STR_LIST,
-    MAP_STR, MAP_STR_LIST, STRING, STRINGS, TIME_UNITS, TRAVEL_MODES,
+    MAP_STR, MAP_STR_LIST, NUMBER, STRING, STRINGS, TIME_UNITS, TRAVEL_MODES,
     WORKSPACE_TYPES)
 
 
@@ -232,7 +232,7 @@ class AbstractRangeFilter(AbstractFilter):
     @abstractmethod
     def _validate_values(self, values: tuple) -> list: ...
     @staticmethod
-    def _validate_and_convert(values: tuple, type_: Type[float | int]) -> list: ...
+    def _validate_and_convert(values: tuple, type_: Type[NUMBER]) -> list: ...
     def _serialize(self, name: STRING = None) -> dict[str, MAP_STR]: ...
 # End AbstractRangeFilter class
 
@@ -261,7 +261,7 @@ class AbstractNumberValueFilter(AbstractFilter):
     @abstractmethod
     def _validate_values(self, values: list | tuple) -> list: ...
     @staticmethod
-    def _validate_and_convert(values: list | tuple, type_: Type[float | int]) -> list: ...
+    def _validate_and_convert(values: list | tuple, type_: Type[NUMBER]) -> list: ...
     def _serialize(self, name: STRING = None) -> MAP_STR_LIST: ...
 # End AbstractNumberValueFilter class
 

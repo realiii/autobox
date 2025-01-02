@@ -17,7 +17,8 @@ from autobox.filter import (
     LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
     TravelModeUnitTypeFilter, WorkspaceTypeFilter)
 from autobox.type import (
-    BOOL, DATETIME, MAP_STR, NUMBER, PATH, STRING, TYPES, TYPE_FILTERS, TYPE_PARAMS)
+    BOOL, DATETIME, MAP_STR, NUMBER, PATH, STRING, TYPES, TYPE_FILTERS,
+    TYPE_PARAMS)
 
 
 class BaseParameter:
@@ -287,12 +288,12 @@ class AnalysisCellSizeParameter(InputParameter):
     """
     The cell size used by raster tools.
     """
-    def _validate_default(self, value: Any) -> Path | int | float | None | NoReturn: ...
+    def _validate_default(self, value: Any) -> Path | NUMBER | None | NoReturn: ...
     @property
-    def default_value(self) -> Path | int | float | None: ...
+    def default_value(self) -> Path | NUMBER | None: ...
     # noinspection PyUnresolvedReferences
     @default_value.setter
-    def default_value(self, value: Path | int | float | None) -> None: ...
+    def default_value(self, value: Path | NUMBER | None) -> None: ...
 # End AnalysisCellSizeParameter class
 
 
