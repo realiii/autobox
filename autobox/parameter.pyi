@@ -276,14 +276,14 @@ class TableParameter(SchemaMixin, InputOutputParameter): ...
 
 _GEOG_TYPES: TypeAlias = (
         FeatureClassParameter | FeatureLayerParameter |
-        FeatureRecordSetLayerParameter |
-        RasterDatasetParameter | RasterLayerParameter | None
+        FeatureRecordSetLayerParameter | RasterDatasetParameter |
+        RasterLayerParameter | DatasetTypeParameter | None
 )
 _TABLE_AND_GEOGRAPHIC_TYPES: TypeAlias = (
     TableParameter | TableViewParameter | RecordSetParameter |
     FeatureClassParameter | FeatureLayerParameter |
-    FeatureRecordSetLayerParameter |
-    RasterDatasetParameter | RasterLayerParameter | None
+    FeatureRecordSetLayerParameter | RasterDatasetParameter |
+    RasterLayerParameter | DatasetTypeParameter | None
 )
 _NETWORK_TYPES: TypeAlias = (
     NetworkDatasetParameter | NetworkDatasetLayerParameter |
