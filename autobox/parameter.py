@@ -1289,7 +1289,7 @@ _TABLE_TYPES: TYPE_PARAMS = (
 _GEOGRAPHIC_TYPES: TYPE_PARAMS = (
     FeatureClassParameter, FeatureLayerParameter,
     FeatureRecordSetLayerParameter,
-    RasterDatasetParameter, RasterLayerParameter
+    RasterDatasetParameter, RasterLayerParameter, DatasetTypeParameter
 )
 
 
