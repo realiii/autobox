@@ -3,24 +3,34 @@
 Parameters
 """
 
+
+from datetime import date, datetime, time
 from pathlib import Path
-from typing import Any, ClassVar, NoReturn, Self, Type
+from typing import Any, ClassVar, NoReturn, Self
 
 from autobox.constant import (
-    DERIVED, DOLLAR_RC, DOT, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA,
-    GP_LINEAR_UNIT, GP_MULTI_VALUE, GP_TABLE_SCHEMA, GP_TIME_UNIT, OPTIONAL,
-    OUT, PARAMETER, ParameterContentKeys, ParameterContentResourceKeys,
-    RELATIVE, SEMI_COLON, SchemaContentKeys, ScriptToolContentKeys,
-    ScriptToolContentResourceKeys, TRUE)
+    CSV, DATETIME_FORMAT, DATE_FORMAT, DBF, DERIVED, DOLLAR_RC, DOT, FILTER,
+    GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT, GP_MULTI_VALUE,
+    GP_TABLE_SCHEMA, GP_TIME_UNIT, LYR, LYRX, MXD, OPTIONAL, OUT, PARAMETER,
+    PRJ, ParameterContentKeys, ParameterContentResourceKeys, RELATIVE,
+    SEMI_COLON, SHP, SchemaContentKeys, ScriptToolContentKeys,
+    ScriptToolContentResourceKeys, TAB, TIME_FORMAT, TRUE, TXT)
+from autobox.default import (
+    ArealUnitValue, CellSizeXY, Envelope, Extent, LinearUnitValue, MDomain,
+    Point, TimeUnitValue, XYDomain, ZDomain)
+from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
     LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
     TravelModeUnitTypeFilter, WorkspaceTypeFilter)
-from autobox.type import BOOL, MAP_STR, PATH, STRING, TYPE_FILTERS, TYPE_PARAMS
+from autobox.type import (
+    BOOL, DATETIME, MAP_STR, NUMBER, PATH, STRING, STRINGS, TYPES, TYPE_FILTERS,
+    TYPE_PARAMS)
 from autobox.util import (
-    make_parameter_name, resolve_layer_path, validate_parameter_label,
-    validate_parameter_name, validate_path, wrap_markup)
+    make_parameter_name, quote, resolve_layer_path, unique,
+    validate_parameter_label, validate_parameter_name, validate_path,
+    wrap_markup)
 
 
 __all__ = [
@@ -77,6 +87,7 @@ class BaseParameter:
     keyword: ClassVar[str] = ''
     dependency_types: ClassVar[TYPE_PARAMS] = ()
     filter_types: ClassVar[TYPE_FILTERS] = ()
+    default_types: ClassVar[TYPES] = ()
 
     def __init__(self, label: str, name: STRING = None, category: STRING = None,
                  description: STRING = None, default_value: Any = None,
@@ -104,11 +115,11 @@ class BaseParameter:
         self._name: str = self._validate_name(name, self._label)
         self._category: STRING = category
         self._description: STRING = description
-        self._default: Any = default_value
         self._is_input: bool = is_input
-        self._is_required: BOOL = is_required
+        self._is_required: BOOL = self._validate_required(is_required)
         self._is_multi: bool = is_multi
         self._is_enabled: bool = is_enabled
+        self._default: Any = self._validate_default(default_value)
         self._dependency: InputOutputParameter | None = None
         self._filter: AbstractFilter | None = None
         self._symbology: PATH = None
@@ -135,8 +146,45 @@ class BaseParameter:
         return validated_name
     # End _validate_name method
 
+    def _validate_multi_default(self, value: Any) -> Any:
+        """
+        Validate Multi Default, filter elements based on type then make unique,
+        return a tuple to avoid inplace modification.
+        """
+        if not isinstance(value, (list, tuple)):
+            value = value,
+        values = [v for v in value if isinstance(v, self.default_types)]
+        if values:
+            return tuple(unique(values))
+    # End _validate_multi_default method
+
+    def _validate_default(self, value: Any) -> Any:
+        """
+        Validate Default, when no default types no validation occurs.
+        """
+        if not self.default_types or value is None:
+            return value
+        if self.is_multi:
+            if values := self._validate_multi_default(value):
+                return values
+        else:
+            if isinstance(value, self.default_types):
+                return value
+        raise TypeError(
+            f'Invalid default value for {self.__class__.__name__}: {value}')
+    # End _validate_default method
+
+    def _validate_required(self, value: BOOL) -> BOOL:
+        """
+        Validate Required
+        """
+        if not (isinstance(value, bool) or value is None):
+            raise ValueError(f'Invalid is_required value: {value}')
+        return value
+    # End _validate_required method
+
     @staticmethod
-    def _validate_type(value: Any, types: tuple[Type, ...], text: str) -> Any:
+    def _validate_type(value: Any, types: TYPES, text: str) -> Any:
         """
         Validate Type
         """
@@ -169,7 +217,7 @@ class BaseParameter:
             return
         text = 'layer file'
         path = validate_path(path, text=text)
-        if path.suffix.casefold() not in ('.lyrx', '.lyr'):
+        if path.suffix.casefold() not in (LYRX, LYR):
             raise TypeError(f'Invalid {text} type: {path.suffix}')
         return path
     # End _validate_layer_file method
@@ -285,12 +333,28 @@ class BaseParameter:
                 value = ()
             elif not isinstance(value, (list, tuple)):  # pragma: no cover
                 value = value,
-            value = SEMI_COLON.join(repr(v) for v in value)
+            value = self._make_flattened_value(value)
         else:
             if value is not None:
                 value = str(value)
         return {ParameterContentKeys.value: value}
     # End _build_default_value method
+
+    @staticmethod
+    def _make_flattened_value(value: list | tuple) -> str:
+        """
+        Make Flattened Value
+        """
+        values = []
+        for v in value:
+            if isinstance(v, Path):
+                func = str
+            else:
+                func = repr
+            values.append(quote(func(v)))
+        value = SEMI_COLON.join(values)
+        return value
+    # End _make_flattened_value method
 
     def _build_description(self) -> tuple[MAP_STR, MAP_STR]:
         """
@@ -380,7 +444,7 @@ class BaseParameter:
 
     @default_value.setter
     def default_value(self, value: Any) -> None:
-        self._default = value
+        self._default = self._validate_default(value)
     # End default_value property
 
     @property
@@ -524,6 +588,38 @@ class InputOutputParameter(BaseParameter):
 # End InputOutputParameter class
 
 
+class PathEsqueMixin:
+    """
+    Path-esque Mixin
+    """
+    suffixes: STRINGS = ()
+    default_types: ClassVar[TYPES] = Path,
+
+    def _validate_default(self, value: Any) -> PATH | tuple[Path, ...] | NoReturn:
+        """
+        Validate Default, when no default types no validation occurs.
+        """
+        # noinspection PyProtectedMember,PyUnresolvedReferences
+        if not (value := super()._validate_default(value)):
+            return value
+        if not self.suffixes:
+            return value
+        # noinspection PyUnresolvedReferences
+        if self.is_multi:
+            if values := tuple(v for v in value
+                               if v.suffix.casefold() in self.suffixes):
+                return values
+            value = tuple(v for v in value
+                          if v.suffix.casefold() not in self.suffixes)
+        else:
+            if value.suffix.casefold() in self.suffixes:
+                return value
+        raise ValueError(
+            f'Incorrect file extension for {self.__class__.__name__}: {value}')
+    # End _validate_default method
+# End PathEsqueMixin class
+
+
 class SchemaMixin:
     """
     Schema Mixin
@@ -547,20 +643,20 @@ class SchemaMixin:
 # End SchemaMixin class
 
 
-class AnalysisCellSizeParameter(InputParameter):
+class StringNotStoredMixin:
     """
-    The cell size used by raster tools.
+    String Not Stored Mixin
     """
-    keyword: ClassVar[str] = 'analysis_cell_size'
-# End AnalysisCellSizeParameter class
-
-
-class BooleanParameter(InputOutputParameter):
-    """
-    A Boolean value.
-    """
-    keyword: ClassVar[str] = 'GPBoolean'
-# End BooleanParameter class
+    def _validate_default(self, value: str) -> None | NoReturn:
+        """
+        Validate Default
+        """
+        if value is None:
+            return
+        raise ValueError(
+            f'Default value for {self.__class__.__name__} is not stored')
+    # End _validate_default method
+# End StringNotStoredMixin class
 
 
 class CadDrawingDatasetParameter(InputOutputParameter):
@@ -572,14 +668,6 @@ class CadDrawingDatasetParameter(InputOutputParameter):
 # End CadDrawingDatasetParameter class
 
 
-class CalculatorExpressionParameter(InputParameter):
-    """
-    A calculator expression.
-    """
-    keyword: ClassVar[str] = 'GPCalculatorExpression'
-# End CalculatorExpressionParameter class
-
-
 class CatalogLayerParameter(InputParameter):
     """
     A collection of references to different data types. The data types can
@@ -588,24 +676,6 @@ class CatalogLayerParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPCatalogLayer'
 # End CatalogLayerParameter class
-
-
-class CellSizeXYParameter(InputParameter):
-    """
-    The size that defines the two sides of a raster cell.
-    """
-    keyword: ClassVar[str] = 'GPCellSizeXY'
-# End CellSizeXYParameter class
-
-
-class CoordinateSystemParameter(InputOutputParameter):
-    """
-    A reference framework, such as the UTM system consisting of a set of
-    points, lines, or surfaces, and a set of rules used to define the
-    positions of points in two- and three-dimensional space.
-    """
-    keyword: ClassVar[str] = 'GPCoordinateSystem'
-# End CoordinateSystemParameter class
 
 
 class CoverageParameter(InputParameter):
@@ -651,55 +721,12 @@ class DatasetTypeParameter(InputOutputParameter):
 # End DatasetTypeParameter class
 
 
-class DateParameter(InputOutputParameter):
-    """
-    A date value.
-    """
-    keyword: ClassVar[str] = 'GPDate'
-# End DateParameter class
-
-
-class DbaseTableParameter(InputOutputParameter):
-    """
-    Attribute data stored in dBASE format.
-    """
-    keyword: ClassVar[str] = 'DEDbaseTable'
-# End DbaseTableParameter class
-
-
 class DiagramLayerParameter(InputOutputParameter):
     """
     A diagram layer.
     """
     keyword: ClassVar[str] = 'GPDiagramLayer'
 # End DiagramLayerParameter class
-
-
-class EncryptedStringParameter(InputParameter):
-    """
-    An encrypted string for passwords.
-    """
-    keyword: ClassVar[str] = 'GPEncryptedString'
-# End EncryptedStringParameter class
-
-
-class EnvelopeParameter(InputParameter):
-    """
-    The coordinate pairs that define the minimum bounding rectangle in
-    which the data source resides.
-    """
-    keyword: ClassVar[str] = 'GPEnvelope'
-# End EnvelopeParameter class
-
-
-class ExtentParameter(InputParameter):
-    """
-    The coordinate pairs that define the minimum bounding rectangle
-    (x-minimum, y-minimum and x-maximum, y-maximum) of a data source. All
-    coordinates for the data source are within this boundary.
-    """
-    keyword: ClassVar[str] = 'GPExtent'
-# End ExtentParameter class
 
 
 class FeatureDatasetParameter(InputOutputParameter):
@@ -717,14 +744,6 @@ class FieldInfoParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPFieldInfo'
 # End FieldInfoParameter class
-
-
-class FolderParameter(InputOutputParameter):
-    """
-    A location on disk where data is stored.
-    """
-    keyword: ClassVar[str] = 'DEFolder'
-# End FolderParameter class
 
 
 class GALayerParameter(InputOutputParameter):
@@ -820,29 +839,12 @@ class LayerFileParameter(InputOutputParameter):
 # End LayerFileParameter class
 
 
-class MapDocumentParameter(InputParameter):
-    """
-    A file that contains one map, its layout, and its associated layers,
-    tables, charts, and reports.
-    """
-    keyword: ClassVar[str] = 'DEMapDocument'
-# End MapDocumentParameter class
-
-
 class MapParameter(InputOutputParameter):
     """
     An ArcGIS Pro map.
     """
     keyword: ClassVar[str] = 'GPMap'
 # End MapParameter class
-
-
-class MDomainParameter(InputParameter):
-    """
-    A range of lowest and highest possible value for m-coordinates.
-    """
-    keyword: ClassVar[str] = 'GPMDomain'
-# End MDomainParameter class
 
 
 class MosaicDatasetParameter(InputOutputParameter):
@@ -912,22 +914,6 @@ class NetworkDataSourceParameter(InputOutputParameter):
 # End NetworkDataSourceParameter class
 
 
-class PointParameter(InputParameter):
-    """
-    A pair of x,y-coordinates.
-    """
-    keyword: ClassVar[str] = 'GPPoint'
-# End PointParameter class
-
-
-class PrjFileParameter(InputOutputParameter):
-    """
-    A file storing coordinate system information for spatial data.
-    """
-    keyword: ClassVar[str] = 'DEPrjFile'
-# End PrjFileParameter class
-
-
 class RandomNumberGeneratorParameter(InputParameter):
     """
     The seed and the generator to use when creating random values.
@@ -992,14 +978,6 @@ class RelationshipClassParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'DERelationshipClass'
 # End RelationshipClassParameter class
-
-
-class SACellSizeParameter(InputParameter):
-    """
-    The cell size used by the ArcGIS Spatial Analyst extension.
-    """
-    keyword: ClassVar[str] = 'GPSACellSize'
-# End SACellSizeParameter class
 
 
 class SAExtractValuesParameter(InputParameter):
@@ -1189,31 +1167,6 @@ class SchematicLayerParameter(InputOutputParameter):
 # End SchematicLayerParameter class
 
 
-class ShapeFileParameter(InputOutputParameter):
-    """
-    Spatial data in shapefile format.
-    """
-    keyword: ClassVar[str] = 'DEShapeFile'
-# End ShapeFileParameter class
-
-
-class SpatialReferenceParameter(InputOutputParameter):
-    """
-    The coordinate system used to store a spatial dataset, including the
-    spatial domain.
-    """
-    keyword: ClassVar[str] = 'GPSpatialReference'
-# End SpatialReferenceParameter class
-
-
-class StringHiddenParameter(InputParameter):
-    """
-    A string that is masked by asterisk characters.
-    """
-    keyword: ClassVar[str] = 'GPStringHidden'
-# End StringHiddenParameter class
-
-
 class TableViewParameter(InputOutputParameter):
     """
     A representation of tabular data for viewing and editing purposes
@@ -1230,14 +1183,6 @@ class TerrainLayerParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPTerrainLayer'
 # End TerrainLayerParameter class
-
-
-class TextfileParameter(InputOutputParameter):
-    """
-    A text file.
-    """
-    keyword: ClassVar[str] = 'DETextfile'
-# End TextfileParameter class
 
 
 class TinParameter(InputOutputParameter):
@@ -1293,22 +1238,6 @@ class VectorLayerParameter(InputOutputParameter):
 # End VectorLayerParameter class
 
 
-class XYDomainParameter(InputParameter):
-    """
-    A range of lowest and highest possible values for x,y-coordinates.
-    """
-    keyword: ClassVar[str] = 'GPXYDomain'
-# End XYDomainParameter class
-
-
-class ZDomainParameter(InputParameter):
-    """
-    A range of lowest and highest possible values for z-coordinates.
-    """
-    keyword: ClassVar[str] = 'GPZDomain'
-# End ZDomainParameter class
-
-
 class FeatureClassParameter(SchemaMixin, InputOutputParameter):
     """
     A collection of spatial data with the same shape type: point,
@@ -1360,8 +1289,30 @@ _TABLE_TYPES: TYPE_PARAMS = (
 _GEOGRAPHIC_TYPES: TYPE_PARAMS = (
     FeatureClassParameter, FeatureLayerParameter,
     FeatureRecordSetLayerParameter,
-    RasterDatasetParameter, RasterLayerParameter
+    RasterDatasetParameter, RasterLayerParameter, DatasetTypeParameter
 )
+
+
+class AnalysisCellSizeParameter(InputParameter):
+    """
+    The cell size used by raster tools.
+    """
+    keyword: ClassVar[str] = 'analysis_cell_size'
+    default_types: ClassVar[TYPES] = Path, int, float
+
+    def _validate_default(self, value: Any) -> Path | NUMBER | None:
+        """
+        Validate Default, when no default types no validation occurs.
+        """
+        value = super()._validate_default(value)
+        if isinstance(value, Path) or value is None:
+            return value
+        if isinstance(value, (float, int)) and value > 0:
+            return value
+        raise ValueError(f'Default value for {self.__class__.__name__} '
+                         f'must be greater than 0: {value}')
+    # End _validate_default method
+# End AnalysisCellSizeParameter class
 
 
 class ArealUnitParameter(InputParameter):
@@ -1371,7 +1322,139 @@ class ArealUnitParameter(InputParameter):
     keyword: ClassVar[str] = GP_AREAL_UNIT
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = ArealUnitFilter,
+    default_types: ClassVar[TYPES] = ArealUnitValue,
 # End ArealUnitParameter class
+
+
+class BooleanParameter(InputOutputParameter):
+    """
+    A Boolean value.
+    """
+    keyword: ClassVar[str] = 'GPBoolean'
+    default_types: ClassVar[TYPES] = bool,
+
+    def __init__(self, label: str, name: STRING = None, category: STRING = None,
+                 description: STRING = None, default_value: BOOL = True,
+                 is_input: bool = True, is_required: BOOL = True,
+                 is_multi: bool = False, is_enabled: bool = True) -> None:
+        """
+        Initialize the BooleanParameter class.
+        """
+        super().__init__(
+            label=label, name=name, category=category, description=description,
+            default_value=default_value, is_input=is_input,
+            is_required=is_required, is_multi=is_multi, is_enabled=is_enabled)
+    # End init built-in
+
+    def _build_default_value(self) -> dict[str, Any]:
+        """
+        Build Default Value, stored as string version of lowercase.
+        """
+        value = self.default_value
+        if value is not None:
+            value = str(value).casefold()
+        return {ParameterContentKeys.value: value}
+    # End _build_default_value method
+
+    def _validate_required(self, value: BOOL) -> BOOL:
+        """
+        Validate Required, disallow optional Boolean parameters
+        """
+        if value not in (True, None):
+            raise ValueError(f'Invalid is_required value: {value}, can only '
+                             f'be True (Required) or None (Derived)')
+        return value
+    # End _validate_required method
+
+    def _validate_default(self, value: Any) -> bool | NoReturn:
+        """
+        Validate Default, specialization since None is considered invalid
+        """
+        if isinstance(value, bool):
+            return value
+        raise TypeError(
+            f'Invalid default value for {self.__class__.__name__}: {value}')
+    # End _validate_default method
+# End BooleanParameter class
+
+
+class CalculatorExpressionParameter(InputParameter):
+    """
+    A calculator expression.
+    """
+    keyword: ClassVar[str] = 'GPCalculatorExpression'
+    dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+    default_types: ClassVar[TYPES] = str,
+# End CalculatorExpressionParameter class
+
+
+class CellSizeXYParameter(InputParameter):
+    """
+    The size that defines the two sides of a raster cell.
+    """
+    keyword: ClassVar[str] = 'GPCellSizeXY'
+    default_types: ClassVar[TYPES] = CellSizeXY,
+# End CellSizeXYParameter class
+
+
+class CoordinateSystemParameter(InputOutputParameter):
+    """
+    A reference framework, such as the UTM system consisting of a set of
+    points, lines, or surfaces, and a set of rules used to define the
+    positions of points in two- and three-dimensional space.
+    """
+    keyword: ClassVar[str] = 'GPCoordinateSystem'
+    default_types: ClassVar[TYPES] = str,
+# End CoordinateSystemParameter class
+
+
+class DateParameter(InputOutputParameter):
+    """
+    A date value.
+    """
+    keyword: ClassVar[str] = 'GPDate'
+    default_types: ClassVar[TYPES] = datetime, date, time
+
+    @staticmethod
+    def _as_string(value: DATETIME) -> str:
+        """
+        Value as String
+        """
+        if isinstance(value, datetime):
+            fmt = DATETIME_FORMAT
+        elif isinstance(value, date):
+            fmt = DATE_FORMAT
+        else:
+            fmt = TIME_FORMAT
+        return value.strftime(fmt)
+    # End _as_string method
+
+    def _build_default_value(self) -> dict[str, Any]:
+        """
+        Build Default Value
+        """
+        value = self.default_value
+        if self.is_multi:
+            if value is None:
+                value = ()
+            elif not isinstance(value, (list, tuple)):  # pragma: no cover
+                value = value,
+            value = SEMI_COLON.join(quote(self._as_string(v)) for v in value)
+        else:
+            if value is not None:
+                value = self._as_string(value)
+        return {ParameterContentKeys.value: value}
+    # End _build_default_value method
+# End DateParameter class
+
+
+class DbaseTableParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    Attribute data stored in dBASE format.
+    """
+    keyword: ClassVar[str] = 'DEDbaseTable'
+    suffixes: STRINGS = DBF, SHP
+# End DbaseTableParameter class
 
 
 class DoubleParameter(InputOutputParameter):
@@ -1380,7 +1463,37 @@ class DoubleParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPDouble'
     filter_types: ClassVar[TYPE_FILTERS] = DoubleRangeFilter, DoubleValueFilter
+    default_types: ClassVar[TYPES] = float, int
 # End DoubleParameter class
+
+
+class EncryptedStringParameter(StringNotStoredMixin, InputParameter):
+    """
+    An encrypted string for passwords.
+    """
+    keyword: ClassVar[str] = 'GPEncryptedString'
+# End EncryptedStringParameter class
+
+
+class EnvelopeParameter(InputParameter):
+    """
+    The coordinate pairs that define the minimum bounding rectangle in
+    which the data source resides.
+    """
+    keyword: ClassVar[str] = 'GPEnvelope'
+    default_types: ClassVar[TYPES] = Envelope,
+# End EnvelopeParameter class
+
+
+class ExtentParameter(InputParameter):
+    """
+    The coordinate pairs that define the minimum bounding rectangle
+    (x-minimum, y-minimum and x-maximum, y-maximum) of a data source. All
+    coordinates for the data source are within this boundary.
+    """
+    keyword: ClassVar[str] = 'GPExtent'
+    default_types: ClassVar[TYPES] = Extent,
+# End ExtentParameter class
 
 
 class FieldMappingParameter(InputParameter):
@@ -1402,13 +1515,21 @@ class FieldParameter(InputParameter):
 # End FieldParameter class
 
 
-class FileParameter(InputOutputParameter):
+class FileParameter(PathEsqueMixin, InputOutputParameter):
     """
     A file on disk.
     """
     keyword: ClassVar[str] = 'DEFile'
     filter_types: ClassVar[TYPE_FILTERS] = FileTypeFilter,
 # End FileParameter class
+
+
+class FolderParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    A location on disk where data is stored.
+    """
+    keyword: ClassVar[str] = 'DEFolder'
+# End FolderParameter class
 
 
 class GAValueTableParameter(InputParameter):
@@ -1428,6 +1549,7 @@ class LinearUnitParameter(InputParameter):
     keyword: ClassVar[str] = GP_LINEAR_UNIT
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
     filter_types: ClassVar[TYPE_FILTERS] = LinearUnitFilter,
+    default_types: ClassVar[TYPES] = LinearUnitValue,
 # End LinearUnitParameter class
 
 
@@ -1437,7 +1559,27 @@ class LongParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPLong'
     filter_types: ClassVar[TYPE_FILTERS] = LongRangeFilter, LongValueFilter
+    default_types: ClassVar[TYPES] = int,
 # End LongParameter class
+
+
+class MapDocumentParameter(PathEsqueMixin, InputParameter):
+    """
+    A file that contains one map, its layout, and its associated layers,
+    tables, charts, and reports.
+    """
+    keyword: ClassVar[str] = 'DEMapDocument'
+    suffixes: STRING = MXD,
+# End MapDocumentParameter class
+
+
+class MDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible value for m-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPMDomain'
+    default_types: ClassVar[TYPES] = MDomain,
+# End MDomainParameter class
 
 
 class NAHierarchySettingsParameter(InputParameter):
@@ -1464,6 +1606,52 @@ class NetworkTravelModeParameter(InputParameter):
 # End NetworkTravelModeParameter class
 
 
+class PointParameter(InputParameter):
+    """
+    A pair of x,y-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPPoint'
+    default_types: ClassVar[TYPES] = Point,
+# End PointParameter class
+
+
+class PrjFileParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    A file storing coordinate system information for spatial data.
+    """
+    keyword: ClassVar[str] = 'DEPrjFile'
+    suffixes: STRINGS = PRJ,
+# End PrjFileParameter class
+
+
+class SACellSizeParameter(InputParameter):
+    """
+    The cell size used by the ArcGIS Spatial Analyst extension.
+    """
+    keyword: ClassVar[str] = 'GPSACellSize'
+    default_types: ClassVar[TYPES] = Path, SACellSize
+# End SACellSizeParameter class
+
+
+class SpatialReferenceParameter(InputOutputParameter):
+    """
+    The coordinate system used to store a spatial dataset, including the
+    spatial domain.
+    """
+    keyword: ClassVar[str] = 'GPSpatialReference'
+    default_types: ClassVar[TYPES] = str,
+# End SpatialReferenceParameter class
+
+
+class ShapeFileParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    Spatial data in shapefile format.
+    """
+    keyword: ClassVar[str] = 'DEShapeFile'
+    suffixes: STRINGS = SHP,
+# End ShapeFileParameter class
+
+
 class SQLExpressionParameter(InputParameter):
     """
     A syntax for defining and manipulating data from a relational
@@ -1471,6 +1659,7 @@ class SQLExpressionParameter(InputParameter):
     """
     keyword: ClassVar[str] = 'GPSQLExpression'
     dependency_types: ClassVar[TYPE_PARAMS] = *_GEOGRAPHIC_TYPES, *_TABLE_TYPES
+    default_types: ClassVar[TYPES] = str,
 # End SQLExpressionParameter class
 
 
@@ -1480,6 +1669,7 @@ class StringParameter(InputOutputParameter):
     """
     keyword: ClassVar[str] = 'GPString'
     filter_types: ClassVar[TYPE_FILTERS] = StringValueFilter,
+    default_types: ClassVar[TYPES] = str,
 
     def _build_filter(self) -> tuple[dict, MAP_STR]:
         """
@@ -1493,12 +1683,30 @@ class StringParameter(InputOutputParameter):
 # End StringParameter class
 
 
+class StringHiddenParameter(StringNotStoredMixin, InputParameter):
+    """
+    A string that is masked by asterisk characters.
+    """
+    keyword: ClassVar[str] = 'GPStringHidden'
+# End StringHiddenParameter class
+
+
+class TextfileParameter(PathEsqueMixin, InputOutputParameter):
+    """
+    A text file.
+    """
+    keyword: ClassVar[str] = 'DETextfile'
+    suffixes: STRINGS = CSV, TXT, TAB
+# End TextfileParameter class
+
+
 class TimeUnitParameter(InputParameter):
     """
     A time unit type and value such as minutes or hours.
     """
     keyword: ClassVar[str] = GP_TIME_UNIT
     filter_types: ClassVar[TYPE_FILTERS] = TimeUnitFilter,
+    default_types: ClassVar[TYPES] = TimeUnitValue,
 # End TimeUnitParameter class
 
 
@@ -1509,6 +1717,24 @@ class WorkspaceParameter(InputOutputParameter):
     keyword: ClassVar[str] = 'DEWorkspace'
     filter_types: ClassVar[TYPE_FILTERS] = WorkspaceTypeFilter,
 # End WorkspaceParameter class
+
+
+class XYDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible values for x,y-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPXYDomain'
+    default_types: ClassVar[TYPES] = XYDomain,
+# End XYDomainParameter class
+
+
+class ZDomainParameter(InputParameter):
+    """
+    A range of lowest and highest possible values for z-coordinates.
+    """
+    keyword: ClassVar[str] = 'GPZDomain'
+    default_types: ClassVar[TYPES] = ZDomain,
+# End ZDomainParameter class
 
 
 if __name__ == '__main__':  # pragma: no cover

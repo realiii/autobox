@@ -10,9 +10,10 @@ from sys import platform
 from pytest import mark, param
 from autobox.util import (
     _remove_leading_non_alpha, _validate_alpha_start_sans_special,
-    make_parameter_name, resolve_layer_path, validate_parameter_label,
-    validate_parameter_name, validate_script_folder_name, validate_toolbox_name,
-    validate_toolset_name, wrap_markup)
+    make_parameter_name, quote, resolve_layer_path, unique,
+    validate_parameter_label, validate_parameter_name,
+    validate_script_folder_name, validate_toolbox_name, validate_toolset_name,
+    wrap_markup)
 
 
 @mark.parametrize('value, expected', [
@@ -209,6 +210,35 @@ def test_resolve_layer_path(layer, toolbox, expected):
         layer_file=Path(layer), toolbox_folder=Path(toolbox))
     assert path.replace('/', '\\') == expected
 # End test_resolve_layer_path function
+
+
+@mark.parametrize('value, expected', [
+    ('asdf', 'asdf'),
+    ('as df', "'as df'"),
+    ('"as df"', '"as df"'),
+    ("'as df'", "'as df'"),
+])
+def test_quote(value, expected):
+    """
+    Test quote
+    """
+    assert quote(value) == expected
+# End test_quote function
+
+
+@mark.parametrize('values, expected', [
+    ([1, 2, 2, 3, 2, 4, 5], [1, 2, 3, 4, 5]),
+    (['C', 'B', 'A', 'A'], ['C', 'B', 'A']),
+    ([], []),
+    ([1, 2, 3], [1, 2, 3]),
+    ([1, 2, 3, 1, 2, 3], [1, 2, 3]),
+])
+def test_unique(values, expected):
+    """
+    Test unique
+    """
+    assert unique(values) == expected
+# End test_unique function
 
 
 if __name__ == '__main__':  # pragma: no cover

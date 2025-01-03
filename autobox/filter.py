@@ -21,7 +21,7 @@ from autobox.enum import (
     ArealUnit, FieldType, GeometryType, LinearUnit, TimeUnit,
     TravelModeUnitType, WorkspaceType)
 from autobox.type import (
-    MAP_DICT_STR_LIST, MAP_STR, MAP_STR_LIST, STRING, STRINGS)
+    MAP_DICT_STR_LIST, MAP_STR, MAP_STR_LIST, NUMBER, STRING, STRINGS)
 from autobox.util import unique
 
 
@@ -284,7 +284,7 @@ class AbstractRangeFilter(AbstractFilter):
     # End _validate_values method
 
     @staticmethod
-    def _validate_and_convert(values: tuple, type_: Type[float | int]) -> list:
+    def _validate_and_convert(values: tuple, type_: Type[NUMBER]) -> list:
         """
         Validate minimum and maximum and convert to float or int.
         """
@@ -358,8 +358,7 @@ class AbstractNumberValueFilter(AbstractFilter):
     # End _validate_values method
 
     @staticmethod
-    def _validate_and_convert(values: list | tuple,
-                              type_: Type[float | int]) -> list:
+    def _validate_and_convert(values: list | tuple, type_: Type[NUMBER]) -> list:
         """
         Validate values and convert to float or int.
         """

@@ -11,7 +11,7 @@ from tempfile import mkdtemp
 from typing import NoReturn, TYPE_CHECKING
 
 from autobox.constant import (
-    DOT_DOT_SLASH, DOUBLE_SPACE, DOUBLE_UNDERSCORE, EXT, RELATIVE, SPACE,
+    DOT_DOT_SLASH, DOUBLE_SPACE, DOUBLE_UNDERSCORE, ATBX, RELATIVE, SPACE,
     UNDERSCORE)
 from autobox.type import STRING
 
@@ -38,8 +38,8 @@ def validate_toolbox_name(value: str) -> STRING:
         return
     if not (value := value.strip()):
         return
-    if value.casefold().endswith(EXT):
-        if not (value := value[:-len(EXT)]):
+    if value.casefold().endswith(ATBX):
+        if not (value := value[:-len(ATBX)]):
             return
     value = sub(r'[<>:"/\\|?*\x00-\x1F]', repl=UNDERSCORE, string=value)
     while DOUBLE_UNDERSCORE in value:
@@ -225,6 +225,19 @@ def unique(values: list | tuple) -> list:
     """
     return list(dict.fromkeys(values))
 # End unique function
+
+
+def quote(value: str) -> str:
+    """
+    Add quotes when space encountered and not already enclosed in quotes.
+    """
+    if SPACE not in value:
+        return value
+    if (value.startswith("'") and value.endswith("'")) or (
+            value.startswith('"') and value.endswith('"')):
+        return value
+    return f"'{value}'"
+# End quote function
 
 
 def get_repeated_names(values: list['Toolset'] | list['ScriptTool'] |

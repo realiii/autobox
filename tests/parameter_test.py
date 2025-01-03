@@ -4,21 +4,44 @@ Parameter Test
 """
 
 
+from datetime import datetime
+from pathlib import Path
+
 from pytest import approx, mark, raises
 
-from autobox.constant import ParameterContentKeys
+from autobox.constant import ParameterContentKeys, SEMI_COLON
+from autobox.default import (
+    ArealUnitValue, CellSizeXY, Envelope, Extent, LinearUnitValue, MDomain,
+    Point, TimeUnitValue,
+    XDomain, XYDomain,
+    YDomain,
+    ZDomain)
 from autobox.enum import (
-    ArealUnit, FieldType, GeometryType, LinearUnit, WorkspaceType)
+    ArealUnit, SACellSize, FieldType, GeometryType, LinearUnit, TimeUnit,
+    WorkspaceType)
 from autobox.filter import (
     ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
     FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
     LongRangeFilter, LongValueFilter, StringValueFilter, WorkspaceTypeFilter)
 from autobox.parameter import (
-    ArealUnitParameter, DoubleParameter, FeatureClassParameter,
-    FeatureDatasetParameter, FeatureLayerParameter, FieldParameter,
-    FileParameter, FolderParameter, InputOutputParameter, InputParameter,
-    LinearUnitParameter, LongParameter, RasterDatasetParameter, StringParameter,
-    TableParameter, TinParameter, WorkspaceParameter)
+    AnalysisCellSizeParameter, ArealUnitParameter, BooleanParameter,
+    CalculatorExpressionParameter, CellSizeXYParameter,
+    CoordinateSystemParameter, DateParameter,
+    DbaseTableParameter, DoubleParameter,
+    EncryptedStringParameter, EnvelopeParameter, ExtentParameter,
+    FeatureClassParameter,
+    FeatureDatasetParameter,
+    FeatureLayerParameter, FieldParameter, FileParameter, FolderParameter,
+    InputOutputParameter, InputParameter, LinearUnitParameter, LongParameter,
+    MDomainParameter, MapDocumentParameter, PointParameter,
+    PrjFileParameter, RasterDatasetParameter,
+    SACellSizeParameter,
+    SQLExpressionParameter, ShapeFileParameter, StringHiddenParameter,
+    StringParameter,
+    TableParameter, TextfileParameter, TimeUnitParameter, TinParameter,
+    WorkspaceParameter,
+    XYDomainParameter,
+    ZDomainParameter)
 
 
 def test_parameter_instantiate():
@@ -718,8 +741,521 @@ def test_parameter_sans_dep_types_accepts_same():
     another = FolderParameter(label='another folder')
     folder.dependency = another
     assert folder.dependency is not None
-
 # End test_parameter_sans_dep_types_accepts_same function
+
+
+def test_parameter_validate_required():
+    """
+    Test Parameter _validate_required
+    """
+    with raises(ValueError):
+        FeatureClassParameter(label='Feature Class', is_required=3)
+# End test_parameter_validate_required function
+
+
+def test_boolean_specialization():
+    """
+    Test Boolean Specialization
+    """
+    with raises(TypeError):
+        BooleanParameter(label='Boolean', name='Boolean', default_value=1)
+    with raises(ValueError):
+        BooleanParameter(label='Boolean', name='Boolean', is_required=False)
+    b = BooleanParameter(label='Boolean', name='Boolean')
+    assert b.default_value is True
+    with raises(TypeError):
+        b.default_value = 'True'
+    data, _ = b.serialize({}, target=None)
+    assert data['value'] == 'true'
+# End test_boolean_specialization function
+
+
+def test_default_value_analysis_cell_size():
+    """
+    Test default value analysis cell size
+    """
+    p = AnalysisCellSizeParameter(label='Analysis Cell Size')
+    with raises(TypeError):
+        p.default_value = '100'
+
+    with raises(ValueError):
+        p.default_value = -10
+
+    p.default_value = 100
+    assert p.default_value == 100
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '100'
+
+    p.default_value = 123.45
+    assert p.default_value == 123.45
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '123.45'
+
+    path = Path('c:/temp/test.tif')
+    p.default_value = path
+    assert p.default_value == path
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] in ('c:/temp/test.tif', r'c:\temp\test.tif')
+
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_analysis_cell_size function
+
+
+def test_default_value_cell_size_xy():
+    """
+    Test default value cell size xy
+    """
+    p = CellSizeXYParameter(label='Cell Size XY')
+    with raises(TypeError):
+        p.default_value = '100'
+    with raises(TypeError):
+        p.default_value = 100
+
+    xy = CellSizeXY(100, 200)
+    p.default_value = xy
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '100 200'
+
+    xy = CellSizeXY(100.123, 200.456)
+    p.default_value = xy
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '100.123 200.456'
+
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_cell_size_xy function
+
+
+def test_default_value_sa_cell_size():
+    """
+    Test default value sa cell size
+    """
+    p = SACellSizeParameter(label='SA Cell Size')
+    with raises(TypeError):
+        p.default_value = '100'
+    with raises(TypeError):
+        p.default_value = 100
+
+    path = Path('c:/temp/test.tif')
+    p.default_value = path
+    assert p.default_value == path
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] in ('c:/temp/test.tif', r'c:\temp\test.tif')
+
+    p.default_value = SACellSize.MAXIMUM
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == 'Maximum of Inputs'
+
+    p.default_value = SACellSize.MINIMUM
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == 'Minimum of Inputs'
+
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_sa_cell_size function
+
+
+@mark.parametrize('param_cls, default_cls', [
+    (MDomainParameter, MDomain),
+    (ZDomainParameter, ZDomain)
+])
+def test_default_value_range_domain(param_cls, default_cls):
+    """
+    Test Default Value for M Domain and Z Domain
+    """
+    p = param_cls(label='Domain')
+    with raises(TypeError):
+        p.default_value = '100'
+
+    p.default_value = default_cls(-1000, 1000)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '-1000 1000'
+# End test_default_value_m_domain function
+
+
+def test_default_value_xy_domain():
+    """
+    Test Default Value for XY Domain
+    """
+    p = XYDomainParameter(label='XY Domain')
+    with raises(TypeError):
+        p.default_value = '100'
+
+    p.default_value = XYDomain(XDomain(-1000, 1000), YDomain(-2000, 2000))
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '-1000 -2000 1000 2000'
+# End test_default_value_xy_domain function
+
+
+@mark.parametrize('cls', [
+    StringHiddenParameter,
+    EncryptedStringParameter
+])
+def test_default_value_string_hidden_encrypted(cls):
+    """
+    Test Default Value for Hidden and Encrypted Strings
+    """
+    with raises(ValueError):
+        cls(label='String', default_value='abc')
+    p = cls(label='String')
+    with raises(ValueError):
+        p.default_value = 'abc'
+    assert p.default_value is None
+# End test_default_value_string_hidden_encrypted function
+
+
+@mark.parametrize('cls', [
+    CalculatorExpressionParameter,
+    StringParameter,
+    SQLExpressionParameter
+])
+def test_default_value_string_calc_sql(cls):
+    """
+    Test Default Value String, Calculator Expression, and SQL Expression
+    """
+    p = cls(label='String')
+    with raises(TypeError):
+        p.default_value = 12345
+    assert p.default_value is None
+    value = 'abcdefg'
+    p.default_value = value
+    assert p.default_value == value
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == value
+# End test_default_value_string_calc_sql function
+
+
+@mark.parametrize('value, expected', [
+    ('100', ('100',)),
+    (['100'], ('100',)),
+    (['100', '100'], ('100',)),
+])
+def test_default_value_string_multi(value, expected):
+    """
+    Test Default Value String Multi
+    """
+    p = StringParameter(label='String', is_multi=True, default_value=value)
+    assert p.default_value == expected
+# End test_default_value_string_multi function
+
+
+@mark.parametrize('param_cls, default_cls, value, unit, expected', [
+    (ArealUnitParameter, ArealUnitValue, 10, ArealUnit.HECTARES, '10 Hectares'),
+    (LinearUnitParameter, LinearUnitValue, 123.45, LinearUnit.METERS, '123.45 Meters'),
+    (TimeUnitParameter, TimeUnitValue, 31, TimeUnit.DAYS, '31 Days'),
+])
+def test_default_value_unit(param_cls, default_cls, value, unit, expected):
+    """
+    Test Default Value Unit
+    """
+    p = param_cls(label='Unit')
+    with raises(TypeError):
+        p.default_value = 12345
+    assert p.default_value is None
+
+    unit = default_cls(value, unit)
+    p.default_value = unit
+    assert p.default_value == unit
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == expected
+# End test_default_value_unit function
+
+
+@mark.parametrize('param_cls, default_cls, args, expected', [
+    (ArealUnitParameter, ArealUnitValue, ((10, ArealUnit.HECTARES), (5, ArealUnit.SQUARE_MILES)), "'10 Hectares';'5 SquareMiles'"),
+    (LinearUnitParameter, LinearUnitValue, ((123.45, LinearUnit.METERS), (100, LinearUnit.FEET)), "'123.45 Meters';'100 Feet'"),
+    (TimeUnitParameter, TimeUnitValue, (( 31, TimeUnit.DAYS), (2, TimeUnit.HOURS)), "'31 Days';'2 Hours'"),
+])
+def test_default_value_multi_unit(param_cls, default_cls, args, expected):
+    """
+    Test Default Value Unit
+    """
+    p = param_cls(label='Unit', is_multi=True)
+    assert p.default_value is None
+    units = [default_cls(*arg) for arg in args]
+    p.default_value = units
+    assert p.default_value == tuple(units)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == expected
+# End test_default_value_unit function
+
+
+@mark.parametrize('value, expected', [
+    (123, '123'),
+    (123., None),
+])
+def test_default_value_long(value, expected):
+    """
+    Test Default Value for Long
+    """
+    if expected is None:
+        with raises(TypeError):
+            LongParameter(label='Long', default_value=value)
+    else:
+        p = LongParameter(label='Long', default_value=value)
+        data, _ = p.serialize({}, target=None)
+        assert data['value'] == expected
+# End test_default_value_long function
+
+
+@mark.parametrize('value, expected', [
+    ((123, 456), '123;456'),
+])
+def test_default_value_long(value, expected):
+    """
+    Test Default Value for Long
+    """
+    p = LongParameter(label='Long', default_value=value, is_multi=True)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == expected
+# End test_default_value_long function
+
+
+@mark.parametrize('value, expected', [
+    (123, '123'),
+    (123., '123.0'),
+    (123.45, '123.45'),
+    ('123.45', None),
+])
+def test_default_value_double(value, expected):
+    """
+    Test Default Value for Double
+    """
+    if expected is None:
+        with raises(TypeError):
+            DoubleParameter(label='Double', default_value=value)
+    else:
+        p = DoubleParameter(label='Double', default_value=value)
+        data, _ = p.serialize({}, target=None)
+        assert data['value'] == expected
+# End test_default_value_double function
+
+
+@mark.parametrize('value, expected', [
+    ((123, 456), '123;456'),
+    ((123., 456.), '123.0;456.0'),
+    ((123.45, 456.78), '123.45;456.78'),
+])
+def test_default_value_double_multi(value, expected):
+    """
+    Test Default Value for Double
+    """
+    p = DoubleParameter(label='Double', default_value=value, is_multi=True)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == expected
+# End test_default_value_double_multi function
+
+
+@mark.parametrize('value, expected', [
+    ('12/12/12', None),
+    ('12:12:12', None),
+    ('12/12/12 12:12:12', None),
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56), '01/05/2025 12:34:56'),
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56).date(), '01/05/2025'),
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56).time(), '12:34:56'),
+])
+def test_default_value_date(value, expected):
+    """
+    Test Default Value for Date
+    """
+    if expected is None:
+        with raises(TypeError):
+            DateParameter(label='Date', default_value=value)
+    else:
+        p = DateParameter(label='Date', default_value=value)
+        data, _ = p.serialize({}, target=None)
+        assert data['value'] == expected
+# End test_default_value_date function
+
+
+@mark.parametrize('value, expected', [
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56), "'01/05/2025 12:34:56'"),
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56).date(), '01/05/2025'),
+    (datetime(year=2025, month=1, day=5, hour=12, minute=34, second=56).time(), '12:34:56'),
+    (None, '12:34:56'),
+])
+def test_default_value_date_multi(value, expected):
+    """
+    Test Default Value for Date
+    """
+    p = DateParameter(label='Date', default_value=value, is_multi=True)
+    data, _ = p.serialize({}, target=None)
+    if value is None:
+        assert 'value' not in data
+    else:
+        assert data['value'] == expected
+# End test_default_value_date_multi function
+
+
+def test_default_value_coordinate_system():
+    """
+    Test Default Value Coordinate System
+    """
+    p = CoordinateSystemParameter(label='Coordinate System')
+    with raises(TypeError):
+        p.default_value = 100
+    crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    p.default_value = crs
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == crs
+# End test_default_value_coordinate_system function
+
+
+def test_default_value_coordinate_system_multi():
+    """
+    Test Default Value Coordinate System
+    """
+    p = CoordinateSystemParameter(label='Coordinate System', is_multi=True)
+    with raises(TypeError):
+        p.default_value = 100
+    crs1 = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    crs2 = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
+    p.default_value = (crs1, crs2)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == "'{}';'{}'".format(crs1, crs2)
+# End test_default_value_coordinate_system function
+
+
+def test_default_value_spatial_reference():
+    """
+    Test Default Value Spatial Reference
+    """
+    p = CoordinateSystemParameter(label='Coordinate System')
+    with raises(TypeError):
+        p.default_value = 100
+    srs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]];-20037700 -30241100 10000;-100000 10000;-100000 10000;0.001;0.001;0.001;IsHighPrecision'
+    p.default_value = srs
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == srs
+# End test_default_value_spatial_reference function
+
+
+def test_default_value_envelope():
+    """
+    Test Default Value Envelope
+    """
+    p = EnvelopeParameter(label='Envelope')
+    with raises(TypeError):
+        p.default_value = 100
+    p.default_value = Envelope(XDomain(100, 200), YDomain(1000, 2000))
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '100 1000 200 2000'
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_envelope function
+
+
+def test_default_value_envelope_multi():
+    """
+    Test Default Value Envelope Multi
+    """
+    p = EnvelopeParameter(label='Envelope', is_multi=True)
+    envelopes = (Envelope(XDomain(100, 200), YDomain(1000, 2000)),
+                 Envelope(XDomain(111, 222), YDomain(3333, 4444)))
+    p.default_value = envelopes
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == "'100 1000 200 2000';'111 3333 222 4444'"
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_envelope_multi function
+
+
+def test_default_value_extent():
+    """
+    Test Default Value Extent
+    """
+    p = ExtentParameter(label='Extent')
+    with raises(TypeError):
+        p.default_value = 100
+    crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    p.default_value = Extent(XDomain(100, 200), YDomain(1000, 2000), crs=crs)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == f'100 1000 200 2000 {crs}'
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_extent function
+
+
+def test_default_value_extent_multi():
+    """
+    Test Default Value Extent Multi
+    """
+    p = ExtentParameter(label='Extent', is_multi=True)
+    crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
+    extents = (Extent(XDomain(100, 200), YDomain(1000, 2000)),
+               Extent(XDomain(111, 222), YDomain(3333, 4444), crs=crs))
+    p.default_value = extents
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == f"'100 1000 200 2000';'111 3333 222 4444 {crs}'"
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_extent_multi function
+
+
+def test_default_value_point():
+    """
+    Test Default Value Point
+    """
+    p = PointParameter(label='Point')
+    with raises(TypeError):
+        p.default_value = 100
+    p.default_value = Point(100, 200)
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == '100 200'
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_point function
+
+
+def test_default_value_point_multi():
+    """
+    Test Default Value Point Multi
+    """
+    p = PointParameter(label='Point', is_multi=True)
+    points = Point(100, 200), Point(123.4, 45.6)
+    p.default_value = points
+    data, _ = p.serialize({}, target=None)
+    assert data['value'] == "'100 200';'123.4 45.6'"
+    p.default_value = None
+    assert p.default_value is None
+# End test_default_value_point_multi function
+
+
+@mark.parametrize('cls, expected', [
+    (DbaseTableParameter, 3),
+    (FileParameter, 9),
+    (MapDocumentParameter, 1),
+    (PrjFileParameter, 1),
+    (ShapeFileParameter, 2),
+    (TextfileParameter, 4)
+])
+def test_default_value_path_esque_multi(cls, expected):
+    """
+    Test Default Value Path Esque Multi
+    """
+    p = cls(label='Path Esque', is_multi=True)
+    with raises(TypeError):
+        p.default_value = ('/path/to/file1.txt', '/path/to/file2.txt')
+    p.default_value = None
+    assert p.default_value is None
+    files = ('file1.txt', 'file2.dbf', 'file3.shp', 'file4.mxd', 'file5.prj',
+             'file6.shp', 'file7.csv', 'file8.txt', 'file9.tab')
+    paths = [Path.home() / f for f in files]
+    p.default_value = paths
+    data, _ = p.serialize({}, target=None)
+    assert data['value'].count(SEMI_COLON) == (expected - 1)
+
+    paths = p.default_value
+    if p.suffixes:
+        with raises(ValueError):
+            p.default_value = Path.home() / 'file.xyz'
+    p = cls(label='Path Esque')
+    p.default_value = paths[0]
+    if p.suffixes:
+        with raises(ValueError):
+            p.default_value = Path.home() / 'file.xyz'
+# End test_default_value_path_esque_multi function
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -4,6 +4,7 @@ Types and Aliases
 """
 
 
+from datetime import date, datetime, time
 from pathlib import Path
 from typing import NamedTuple, TYPE_CHECKING, Type, TypeAlias, Union
 
@@ -20,13 +21,16 @@ if TYPE_CHECKING:  # pragma: no cover
 
 PATH: TypeAlias = Path | None
 BOOL: TypeAlias = bool | None
+DATETIME: TypeAlias = datetime | date | time
 STRING: TypeAlias = str | None
 STRINGS: TypeAlias = list[str] | tuple[str, ...]
+NUMBER: TypeAlias = int | float
 MAP_STR: TypeAlias = dict[str, STRING]
 MAP_STR_LIST: TypeAlias = dict[str, str | list[MAP_STR]]
 MAP_DICT_STR_LIST: TypeAlias = dict[str, dict[str, str | list[str]]]
 TOOLS_MAP: TypeAlias = dict[str, dict[str, list[str]]]
 PARAMETER: TypeAlias = Union['InputOutputParameter', 'InputParameter']
+TYPES: TypeAlias = tuple[Type, ...]
 TYPE_PARAMS: TypeAlias = tuple[Union[Type['InputOutputParameter'], Type['InputParameter']], ...]
 TYPE_FILTERS: TypeAlias = tuple[Type['AbstractFilter'], ...]
 AREAL_UNITS: TypeAlias = list['ArealUnit'] | tuple['ArealUnit', ...]
