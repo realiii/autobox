@@ -176,12 +176,13 @@ points = FeatureClassParameter(
 ![](https://github.com/realiii/autobox/blob/develop/resources/images/parameter_doc.png?raw=true)
 
 ### Extended Example
-This example shows use of `Filters`, setting a dependency `Parameter`, and using a category 
-for grouping parameters:
+This example shows use of `Filters`, setting a dependency `Parameter`, using a category 
+for grouping parameters, and setting default value.
 
 ```python
 from pathlib import Path
 from autobox import ScriptTool, Toolbox, Toolset
+from autobox.default import LinearUnitValue
 from autobox.enum import GeometryType, LinearUnit
 from autobox.filter import (
     FeatureClassTypeFilter, LinearUnitFilter, LongRangeFilter)
@@ -196,13 +197,16 @@ points = FeatureClassParameter(
                 'points over the area of interest')
 points.filter = FeatureClassTypeFilter((GeometryType.POINT, GeometryType.MULTIPOINT))
 
-# NOTE keep the sample size between 100 and 1000
+# NOTE keep the sample size between 100 and 1000 with default of 500
 sample_size = LongParameter(
-    label='Sample Size', category='Pieces of Flair', is_required=False)
+    label='Sample Size', category='Pieces of Flair', is_required=False, 
+    default_value=500)
 sample_size.filter = LongRangeFilter(minimum=100, maximum=1000)
 
+# NOTE use of default value based on non-primitive data type
 buffer_units = LinearUnitParameter(
-    label='Buffer Units', category='Pieces of Flair', is_required=False)
+    label='Buffer Units', category='Pieces of Flair', is_required=False, 
+    default_value=LinearUnitValue(value=100, unit=LinearUnit.METERS))
 # NOTE use of dependency
 buffer_units.dependency = points
 buffer_units.filter = LinearUnitFilter((LinearUnit.METERS, LinearUnit.FEET))
@@ -269,6 +273,44 @@ tool.validation_script = ValidationScript.from_file(Path('../data/scripts/valida
 
 ## Release History
 
+### v0.3.0
+* Enforce `BooleanParameter` to be required, ensure value is serialized as text
+* Allow `DatasetTypeParameter` to used with `dependency` on `FieldParameter`
+* Enable dependency on `CalculatorExpressionParameter`
+* Add and Improve handling for single and multi value `default_value` on:
+  * `ArealUnitParameter`
+  * `DateParameter`
+  * `DbaseTableParameter`
+  * `DoubleParameter`
+  * `CoordinateSystemParameter`
+  * `EnvelopeParameter`
+  * `FileParameter`
+  * `FolderParameter`
+  * `LinearUnitParameter`
+  * `LongParameter`
+  * `MapDocumentParameter`
+  * `PointParameter`
+  * `PrjFileParameter`
+  * `ShapeFileParameter`
+  * `SpatialReferenceParameter`
+  * `StringParameter`
+  * `TextFileParameter`
+  * `TimeUnitParameter`
+* Add handling for `default_value` (single value only) on:
+  * `AnalysisCellSizeParameter`
+  * `BooleanParameter`
+  * `CalculatorExpressionParameter`
+  * `CellSizeXYParameter`
+  * `EncryptedStringParameter`
+  * `ExtentParameter`
+  * `MDomainParameter`
+  * `SACellSizeParameter`
+  * `SQLExpressionParameter`
+  * `StringHiddenParameter`
+  * `XYDomainParameter`
+  * `ZDomainParameter`
+
+
 ### v0.2.1
 * Fix failing test on Windows, incorrect parametrization
 
@@ -277,9 +319,9 @@ tool.validation_script = ValidationScript.from_file(Path('../data/scripts/valida
 * Include type tuples in `enum` for Rational Numbers, Integers, Numbers, Strings, and Identifiers
 * Extend dependency types to include `FeatureRecordSetLayerParameter` and `RecordSetParameter` on: 
   * `AreaUnitParameter`
-  * `Field`
-  * `LinearUnit`
-  * `SQLExpression`
+  * `FieldParameter`
+  * `LinearUnitParameter`
+  * `SQLExpressionParameter`
 * Add dependency types to:
   * `FieldMappingParameter`
   * `GAValueTableParameter`
@@ -337,6 +379,7 @@ tool.validation_script = ValidationScript.from_file(Path('../data/scripts/valida
   * `SchematicFolderParameter`
   * `SchematicLayerParameter`
   * `TerrainLayerParameter`
+  * `TimeUnitParameter`
   * `TopologyLayerParameter`
   * `ValueTableParameter`
   * `VectorLayerParameter`
