@@ -273,6 +273,9 @@ tool.validation_script = ValidationScript.from_file(Path('../data/scripts/valida
 
 ## Release History
 
+### v0.3.1
+* Fix `filter` type hint on `FieldParameter` and `ArealUnitParameter`
+
 ### v0.3.0
 * Enforce `BooleanParameter` to be required, ensure value is serialized as text
 * Allow `DatasetTypeParameter` to used with `dependency` on `FieldParameter`
