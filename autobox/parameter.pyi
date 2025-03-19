@@ -319,6 +319,7 @@ class ArealUnitParameter(InputParameter):
     # noinspection PyUnresolvedReferences
     @dependency.setter
     def dependency(self, value: _TABLE_AND_GEOGRAPHIC_TYPES) -> None: ...
+    @property
     def filter(self) -> ArealUnitFilter | None: ...
     # noinspection PyUnresolvedReferences
     @filter.setter
@@ -483,6 +484,7 @@ class FieldParameter(InputParameter):
     # noinspection PyUnresolvedReferences
     @dependency.setter
     def dependency(self, value: _TABLE_AND_GEOGRAPHIC_TYPES) -> None: ...
+    @property
     def filter(self) -> FieldTypeFilter | None: ...
     # noinspection PyUnresolvedReferences
     @filter.setter
