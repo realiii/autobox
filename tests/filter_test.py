@@ -58,6 +58,15 @@ def test_areal_unit_filter():
 # End test_areal_unit_filter function
 
 
+def test_areal_unit_filter_repr():
+    """
+    Test Areal Unit Filter repr
+    """
+    ftr = ArealUnitFilter([ArealUnit.SQUARE_MILES, ArealUnit.SQUARE_METERS])
+    assert repr(ftr) == 'ArealUnitFilter(values=[ArealUnit.SQUARE_MILES, ArealUnit.SQUARE_METERS])'
+# End test_areal_unit_filter_repr function
+
+
 def test_feature_class_type_filter():
     """
     Test Feature Class Type Filter
@@ -83,6 +92,15 @@ def test_feature_class_type_filter():
 # End test_feature_class_type_filter function
 
 
+def test_feature_class_type_filter_repr():
+    """
+    Test Feature Class Type Filter repr
+    """
+    ftr = FeatureClassTypeFilter(list(GeometryType))
+    assert repr(ftr) == 'FeatureClassTypeFilter(values=[GeometryType.POINT, GeometryType.MULTIPOINT, GeometryType.POLYGON, GeometryType.POLYLINE, GeometryType.MULTIPATCH, GeometryType.ANNOTATION, GeometryType.DIMENSION])'
+# End test_feature_class_type_filter_repr function
+
+
 def test_field_type_filter():
     """
     Test Field Type Filter
@@ -96,6 +114,15 @@ def test_field_type_filter():
     ftr = FieldTypeFilter(list(FieldType))
     assert ftr.serialize() == expected
 # End test_field_type_filter function
+
+
+def test_field_type_filter_repr():
+    """
+    Test Field Type Filter repr
+    """
+    ftr = FieldTypeFilter(list(FieldType))
+    assert repr(ftr) == 'FieldTypeFilter(values=[FieldType.SHORT, FieldType.LONG, FieldType.FLOAT, FieldType.BIG_INTEGER, FieldType.DOUBLE, FieldType.TEXT, FieldType.DATE, FieldType.OID, FieldType.TIME_ONLY, FieldType.DATE_ONLY, FieldType.TIMESTAMP_OFFSET, FieldType.GEOMETRY, FieldType.BLOB, FieldType.RASTER, FieldType.GUID, FieldType.GLOBAL_ID, FieldType.XML])'
+# End test_field_type_filter_repr function
 
 
 def test_file_type_filter():
@@ -115,6 +142,15 @@ def test_file_type_filter():
     ftr = FileTypeFilter(('.txt', '.csv ', None, 'shp'))
     assert ftr.serialize() == expected
 # End test_file_type_filter function
+
+
+def test_file_type_filter_repr():
+    """
+    Test File Type Filter repr
+    """
+    ftr = FileTypeFilter(('.txt', '.csv ', None, 'shp'))
+    assert repr(ftr) == "FileTypeFilter(values=['txt', 'csv', 'shp'])"
+# End test_file_type_filter_repr function
 
 
 def test_linear_unit_filter():
@@ -148,6 +184,15 @@ def test_linear_unit_filter():
 # End test_linear_unit_filter function
 
 
+def test_linear_unit_filter_repr():
+    """
+    Test Linear Unit Filter repr
+    """
+    ftr = LinearUnitFilter((LinearUnit.MILES, LinearUnit.METERS))
+    assert repr(ftr) == 'LinearUnitFilter(values=[LinearUnit.MILES, LinearUnit.METERS])'
+# End test_linear_unit_filter_repr function
+
+
 def test_travel_mode_unit_type():
     """
     Test Travel Mode Unit Type
@@ -161,6 +206,17 @@ def test_travel_mode_unit_type():
     ftr = TravelModeUnitTypeFilter([])
     assert ftr.serialize() == {}
 # End test_travel_mode_unit_type function
+
+
+def test_travel_mode_unit_type_repr():
+    """
+    Test Travel Mode Unit Type repr
+    """
+    ftr = TravelModeUnitTypeFilter(list(TravelModeUnitType))
+    assert repr(ftr) == 'TravelModeUnitTypeFilter(values=[TravelModeUnitType.TIME, TravelModeUnitType.DISTANCE, TravelModeUnitType.OTHER])'
+    ftr = TravelModeUnitTypeFilter([])
+    assert repr(ftr) == 'TravelModeUnitTypeFilter(values=[])'
+# End test_travel_mode_unit_type_repr function
 
 
 def test_time_unit_filter():
@@ -184,6 +240,15 @@ def test_time_unit_filter():
 # End test_time_unit_filter function
 
 
+def test_time_unit_filter_repr():
+    """
+    Test Time Unit Filter repr
+    """
+    ftr = TimeUnitFilter([TimeUnit.UNKNOWN, TimeUnit.MONTHS])
+    assert repr(ftr) == 'TimeUnitFilter(values=[TimeUnit.UNKNOWN, TimeUnit.MONTHS])'
+# End test_time_unit_filter_repr function
+
+
 def test_workspace_type_filter():
     """
     Test Workspace Type Filter
@@ -195,6 +260,15 @@ def test_workspace_type_filter():
     ftr = WorkspaceTypeFilter(list(WorkspaceType))
     assert ftr.serialize() == expected
 # End test_workspace_type_filter function
+
+
+def test_workspace_type_filter_repr():
+    """
+    Test Workspace Type Filter repr
+    """
+    ftr = WorkspaceTypeFilter(list(WorkspaceType))
+    assert repr(ftr) == 'WorkspaceTypeFilter(values=[WorkspaceType.FILE_SYSTEM, WorkspaceType.LOCAL_DATABASE, WorkspaceType.REMOTE_DATABASE])'
+# End test_workspace_type_filter_repr function
 
 
 def test_long_range_filter():
@@ -213,6 +287,15 @@ def test_long_range_filter():
 # End test_long_range_filter function
 
 
+def test_long_range_filter_repr():
+    """
+    Test Long Range Filter repr
+    """
+    ftr = LongRangeFilter(-1, 9876543210)
+    assert repr(ftr) == 'LongRangeFilter(minimum=-1, maximum=9876543210)'
+# End test_long_range_filter_repr function
+
+
 def test_double_range_filter():
     """
     Test Double Range Filter
@@ -226,6 +309,16 @@ def test_double_range_filter():
     max_value = float(domain['max'])
     assert approx(values, abs=0.001) == (min_value, max_value)
 # End test_double_range_filter function
+
+
+def test_double_range_filter_repr():
+    """
+    Test Double Range Filter repr
+    """
+    values = -999.999, 9876.543
+    ftr = DoubleRangeFilter(*values)
+    assert repr(ftr) == 'DoubleRangeFilter(minimum=-999.999, maximum=9876.543)'
+# End test_double_range_filter_repr function
 
 
 def test_long_value_filter():
@@ -248,6 +341,15 @@ def test_long_value_filter():
 # End test_long_value_filter function
 
 
+def test_long_value_filter_repr():
+    """
+    Test Long Value Filter repr
+    """
+    ftr = LongValueFilter((-999, 0, 1, 2, 3, 4, 5, 1234567890))
+    assert repr(ftr) == 'LongValueFilter(values=[-999, 0, 1, 2, 3, 4, 5, 1234567890])'
+# End test_long_value_filter_repr function
+
+
 def test_double_value_filter():
     """
     Test Double Value Filter
@@ -267,6 +369,15 @@ def test_double_value_filter():
 # End test_double_value_filter function
 
 
+def test_double_value_filter_repr():
+    """
+    Test Double Value Filter repr
+    """
+    ftr = DoubleValueFilter((-999.999, 1.1, 2.22, 3.333, 4.4444, 5.55555, 123.456))
+    assert repr(ftr) == 'DoubleValueFilter(values=[-999.999, 1.1, 2.22, 3.333, 4.4444, 5.55555, 123.456])'
+# End test_double_value_filter_repr function
+
+
 def test_string_value_filter():
     """
     Test String Value Filter
@@ -284,18 +395,27 @@ def test_string_value_filter():
         "string_value.domain.DDDD": "DDDD",
     }
     param_name = 'string_value'
-    ftp = StringValueFilter(('A', 'BB', 'CCC', 'DDDD'))
-    content, resource = ftp.serialize(param_name)
+    ftr = StringValueFilter(('A', 'BB', 'CCC', 'DDDD'))
+    content, resource = ftr.serialize(param_name)
     assert content == expected_content
     assert resource == expected_resource
 # End test_string_value_filter function
+
+
+def test_string_value_filter_repr():
+    """
+    Test String Value Filter repr
+    """
+    ftr = StringValueFilter(('A', 'BB', 'CCC', 'DDDD'))
+    assert repr(ftr) == "StringValueFilter(values=['A', 'BB', 'CCC', 'DDDD'])"
+# End test_string_value_filter_repr function
 
 
 @mark.parametrize('values, expected', [
     (None, {}),
     ({}, {}),
     (WorkspaceType.LOCAL_DATABASE, {}),
-    (ArealUnit.ACRES_US, {'domain': {'items': [{'code': 'AcresUS', 'type': 'GPArealUnit', 'value': 'AcresUS'}], 'type': 'GPCodedValueDomain'}} ),
+    (ArealUnit.ACRES_US, {'domain': {'items': [{'code': 'AcresUS', 'type': 'GPArealUnit', 'value': 'AcresUS'}], 'type': 'GPCodedValueDomain'}}),
     (123, {}),
 ])
 def test_coded_domain(values, expected):
