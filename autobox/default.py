@@ -52,8 +52,16 @@ class BaseRangeDomain(BaseDefault):
         """
         String Representation
         """
-        return f'{self.minimum} {self.maximum}'
+        return (f'{self.__class__.__name__}('
+                f'minimum={self.minimum!r}, maximum={self.maximum!r})')
     # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
+        return f'{self.minimum} {self.maximum}'
+    # End str built-in
 
     def _validate_range(self, minimum: NUMBER, maximum: NUMBER) \
             -> tuple[NUMBER, NUMBER]:
@@ -167,8 +175,17 @@ class BaseUnitValue(BaseDefault):
         """
         String Representation
         """
-        return f'{self._value} {self._unit}'
+        unit_repr = f'{self._unit.__class__.__name__}.{self._unit._name_}'
+        return (f'{self.__class__.__name__}('
+                f'value={self._value!r}, unit={unit_repr})')
     # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
+        return f'{self._value} {self._unit}'
+    # End str built-in
 
     @staticmethod
     def _validate_value(value: NUMBER) -> NUMBER | NoReturn:
@@ -255,9 +272,16 @@ class BaseBoundingBox(BaseDefault):
         """
         String Representation
         """
+        return f'{self.__class__.__name__}(x={self._x!r}, y={self._y!r})'
+    # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
         return (f'{self._x.minimum} {self._y.minimum} '
                 f'{self._x.maximum} {self._y.maximum}')
-    # End repr built-in
+    # End str built-in
 
     @staticmethod
     def _validate_domain(value, type_) -> BaseRangeDomain | NoReturn:
@@ -304,9 +328,19 @@ class Extent(BaseBoundingBox):
         """
         values = super().__repr__()
         if self._crs:
-            return f'{values} {self._crs}'
+            return f'{values[:-1]}, crs={self._crs!r})'
         return values
     # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
+        values = super().__str__()
+        if self._crs:
+            return f'{values} {self._crs}'
+        return values
+    # End str built-in
 
     @staticmethod
     def _validate_coordinate_system(value: STRING) -> STRING | NoReturn:
@@ -369,8 +403,15 @@ class CellSizeXY(BaseDefault):
         """
         String Representation
         """
-        return f'{self._x} {self._y}'
+        return f'{self.__class__.__name__}(x={self._x!r}, y={self._y!r})'
     # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
+        return f'{self._x} {self._y}'
+    # End str built-in
 
     @staticmethod
     def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn:
@@ -426,8 +467,15 @@ class Point(BaseDefault):
         """
         String Representation
         """
-        return f'{self._x} {self._y}'
+        return f'{self.__class__.__name__}(x={self._x!r}, y={self._y!r})'
     # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
+        return f'{self._x} {self._y}'
+    # End str built-in
 
     @staticmethod
     def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn:
