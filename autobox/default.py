@@ -11,7 +11,14 @@ from autobox.enum import ArealUnit, LinearUnit, TimeUnit
 from autobox.type import NUMBER, STRING
 
 
-class BaseRangeDomain:
+class BaseDefault:
+    """
+    Base Default
+    """
+# End BaseDefault class
+
+
+class BaseRangeDomain(BaseDefault):
     """
     Base Range Domain
     """
@@ -125,7 +132,7 @@ class ZDomain(BaseRangeDomain):
 # End ZDomain class
 
 
-class BaseUnitValue:
+class BaseUnitValue(BaseDefault):
     """
     Base Unit Value
     """
@@ -215,7 +222,7 @@ class TimeUnitValue(BaseUnitValue):
 # End TimeUnitValue class
 
 
-class BaseBoundingBox:
+class BaseBoundingBox(BaseDefault):
     """
     Base Bounding Box
     """
@@ -329,7 +336,7 @@ class XYDomain(BaseBoundingBox):
 # End XYDomain class
 
 
-class CellSizeXY:
+class CellSizeXY(BaseDefault):
     """
     Cell Size XY
     """
@@ -386,7 +393,7 @@ class CellSizeXY:
 # End CellSizeXY class
 
 
-class Point:
+class Point(BaseDefault):
     """
     Point
     """

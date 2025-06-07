@@ -16,8 +16,8 @@ from autobox.constant import (
     SEMI_COLON, SHP, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TAB, TIME_FORMAT, TRUE, TXT)
 from autobox.default import (
-    ArealUnitValue, CellSizeXY, Envelope, Extent, LinearUnitValue, MDomain,
-    Point, TimeUnitValue, XYDomain, ZDomain)
+    ArealUnitValue, BaseDefault, CellSizeXY, Envelope, Extent,
+    LinearUnitValue, MDomain, Point, TimeUnitValue, XYDomain, ZDomain)
 from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
@@ -347,7 +347,7 @@ class BaseParameter:
         """
         values = []
         for v in value:
-            if isinstance(v, Path):
+            if isinstance(v, (Path, BaseDefault)):
                 func = str
             else:
                 func = repr
