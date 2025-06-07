@@ -241,8 +241,7 @@ def quote(value: str) -> str:
 # End quote function
 
 
-def get_repeated_names(values: list['Toolset'] | list['ScriptTool'] |
-                               list['BaseParameter']) -> set[str]:
+def get_repeated_names(values: list['Toolset'] | list['ScriptTool'] | list['BaseParameter']) -> set[str]:
     """
     Get Repeated Names, case-insensitive check.
     """
