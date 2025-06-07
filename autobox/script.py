@@ -183,7 +183,7 @@ class ScriptTool:
         :param label: An optional label for the script tool.
         :param description: An optional description of the script tool,
             this should be plain text only.
-        :param description: An optional summary of the script tool,
+        :param summary: An optional summary of the script tool,
             this text can be plain text or html.
         :param attributes: An optional tuple of booleans which set special
             attributes on the script tool.
@@ -206,8 +206,13 @@ class ScriptTool:
         """
         Class Representation
         """
+        if any(self.attributes):
+            attributes = f', attributes={self.attributes!r}'
+        else:
+            attributes = ''
         return (f'{self.__class__.__name__}(name={self.name!r}, '
-                f'label={self.label!r}, description={self.description!r})')
+                f'label={self.label!r}, description={self.description!r}, '
+                f'summary={self.summary!r}{attributes})')
     # End repr built-in
 
     @staticmethod
