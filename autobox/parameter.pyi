@@ -47,6 +47,8 @@ class BaseParameter:
                  description: STRING = None, default_value: Any = None,
                  is_input: bool = True, is_required: BOOL = True,
                  is_multi: bool = False, is_enabled: bool = True) -> None: ...
+    def __repr__(self) -> str: ...
+    def _build_attributes(self) -> STRINGS:
     @staticmethod
     def _validate_label(label: str) -> str | NoReturn: ...
     @staticmethod
@@ -126,6 +128,7 @@ class InputParameter(BaseParameter):
                  description: STRING = None, default_value: Any = None,
                  is_required: BOOL = True, is_multi: bool = False,
                  is_enabled: bool = True) -> None: ...
+    def __repr__(self) -> str: ...
 # End InputParameter class
 
 
