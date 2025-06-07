@@ -9,6 +9,7 @@ from typing import ClassVar, NoReturn, Self, Type
 
 from autobox.enum import ArealUnit, LinearUnit, TimeUnit
 from autobox.type import NUMBER, STRING
+from autobox.util import enum_repr
 
 
 class BaseDefault:
@@ -175,9 +176,8 @@ class BaseUnitValue(BaseDefault):
         """
         String Representation
         """
-        unit_repr = f'{self._unit.__class__.__name__}.{self._unit._name_}'
         return (f'{self.__class__.__name__}('
-                f'value={self._value!r}, unit={unit_repr})')
+                f'value={self._value!r}, unit={enum_repr(self._unit)})')
     # End repr built-in
 
     def __str__(self) -> str:

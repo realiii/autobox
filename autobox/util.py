@@ -5,6 +5,7 @@ Utility Functionality
 
 
 from collections import Counter
+from enum import StrEnum
 from pathlib import Path
 from re import sub
 from tempfile import mkdtemp
@@ -288,6 +289,16 @@ def _build_relative(layer_parts: tuple[str, ...],
     count = len(toolbox_parts)
     return f'{(DOT_DOT_SLASH * count)}{RELATIVE}{tail}'
 # End _build_relative function
+
+
+def enum_repr(value: StrEnum) -> str:
+    """
+    String Representation for an Enumeration Value
+    """
+    if not hasattr(value, '_name_'):
+        return repr(value)
+    return f'{value.__class__.__name__}.{value._name_}'
+# End enum_repr function
 
 
 if __name__ == '__main__':  # pragma: no cover
