@@ -13,9 +13,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from autobox.enum import (
         ArealUnit, FieldType, GeometryType, LinearUnit, TimeUnit,
         TravelModeUnitType, WorkspaceType)
-    # noinspection PyProtectedMember
     from autobox.filter import AbstractFilter
-    # noinspection PyProtectedMember
     from autobox.parameter import InputOutputParameter, InputParameter
 
 

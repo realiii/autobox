@@ -192,7 +192,6 @@ class BaseBoundingBox:
         return hash(self.as_tuple())
     # End hash built-in
 
-    # noinspection PyUnresolvedReferences
     def __repr__(self):
         """
         String Representation
@@ -211,7 +210,6 @@ class BaseBoundingBox:
         raise TypeError(f'Expected a {type_.__name__}, got: {value}')
     # End _validate_domain method
 
-    # noinspection PyUnresolvedReferences
     def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]:
         """
         As Tuple
@@ -333,7 +331,6 @@ class Extent(BaseBoundingBox):
         """
         As Tuple
         """
-        # noinspection PyTypeChecker
         return *super().as_tuple(), self._crs
     # End as_tuple method
 # End Extent class

@@ -365,7 +365,6 @@ class ScriptTool:
                               (content, resource)):
             file_path = script_path.joinpath(name)
             with file_path.open(mode='w', encoding=ENCODING) as fout:
-                # noinspection PyTypeChecker
                 dump(data, fp=fout, indent=2)
         if not self.execution_script:
             self.execution_script = DEFAULT_EXECUTION_SCRIPT
