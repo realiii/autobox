@@ -156,6 +156,7 @@ class BaseParameter:
         values = [v for v in value if isinstance(v, self.default_types)]
         if values:
             return tuple(unique(values))
+        return None
     # End _validate_multi_default method
 
     def _validate_default(self, value: Any) -> Any:
@@ -189,7 +190,7 @@ class BaseParameter:
         Validate Type
         """
         if value is None or not types:
-            return
+            return None
         if not isinstance(value, types):
             raise TypeError(f'Invalid {text} type: {value}')
         return value
@@ -214,7 +215,7 @@ class BaseParameter:
         Validate Layer File
         """
         if not path:
-            return
+            return None
         text = 'layer file'
         path = validate_path(path, text=text)
         if path.suffix.casefold() not in (LYRX, LYR):
