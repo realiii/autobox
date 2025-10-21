@@ -10,7 +10,7 @@ from typing import Any, ClassVar, NoReturn, Self
 
 from autobox.constant import (
     COMMA_SPACE, CSV, DATETIME_FORMAT, DATE_FORMAT, DBF, DERIVED, DOLLAR_RC,
-    DOT, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT,
+    DOT, ENUM_NAME, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT,
     GP_MULTI_VALUE, GP_TABLE_SCHEMA, GP_TIME_UNIT, LYR, LYRX, MXD, OPTIONAL,
     OUT, PARAMETER, PRJ, ParameterContentKeys, ParameterContentResourceKeys,
     RELATIVE, SEMI_COLON, SHP, SchemaContentKeys, ScriptToolContentKeys,
@@ -152,7 +152,7 @@ class BaseParameter:
         if (value := self.default_value) is not None:
             if isinstance(value, Path):
                 default_value = f'default_value={str(value)!r}'
-            elif hasattr(value, '_name_'):
+            elif hasattr(value, ENUM_NAME):
                 default_value = f'default_value={enum_repr(value)}'
             else:
                 default_value = f'default_value={value!r}'

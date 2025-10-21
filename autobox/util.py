@@ -12,8 +12,8 @@ from tempfile import mkdtemp
 from typing import NoReturn, TYPE_CHECKING
 
 from autobox.constant import (
-    DOT_DOT_SLASH, DOUBLE_SPACE, DOUBLE_UNDERSCORE, ATBX, RELATIVE, SPACE,
-    UNDERSCORE)
+    DOT_DOT_SLASH, DOUBLE_SPACE, DOUBLE_UNDERSCORE, ATBX, ENUM_NAME, RELATIVE,
+    SPACE, UNDERSCORE)
 from autobox.type import STRING
 
 
@@ -294,7 +294,7 @@ def enum_repr(value: StrEnum) -> str:
     """
     String Representation for an Enumeration Value
     """
-    if not hasattr(value, '_name_'):
+    if not hasattr(value, ENUM_NAME):
         return repr(value)
     return f'{value.__class__.__name__}.{value._name_}'
 # End enum_repr function
