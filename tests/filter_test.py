@@ -287,12 +287,16 @@ def test_long_range_filter():
 # End test_long_range_filter function
 
 
-def test_long_range_filter_repr():
+@mark.parametrize('min_, max_, expected', [
+    (-1, 9876543210, 'LongRangeFilter(minimum=-1, maximum=9876543210)'),
+    ('a', 'b', 'LongRangeFilter(minimum=0, maximum=0)'),
+])
+def test_long_range_filter_repr(min_, max_, expected):
     """
     Test Long Range Filter repr
     """
-    ftr = LongRangeFilter(-1, 9876543210)
-    assert repr(ftr) == 'LongRangeFilter(minimum=-1, maximum=9876543210)'
+    ftr = LongRangeFilter(min_, max_)
+    assert repr(ftr) == expected
 # End test_long_range_filter_repr function
 
 
