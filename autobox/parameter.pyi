@@ -409,6 +409,7 @@ class EncryptedStringParameter(StringNotStoredMixin, InputParameter):
     """
     An encrypted string for passwords.
     """
+    @property
     def default_value(self) -> None: ...
     @default_value.setter
     def default_value(self, value: str) -> None: ...
@@ -638,6 +639,7 @@ class StringHiddenParameter(StringNotStoredMixin, InputParameter):
     """
     A string that is masked by asterisk characters.
     """
+    @property
     def default_value(self) -> None: ...
     @default_value.setter
     def default_value(self, value: str) -> None: ...
