@@ -5,6 +5,7 @@ Utility Functionality
 
 
 from collections import Counter
+from enum import StrEnum
 from pathlib import Path
 from re import sub
 from tempfile import mkdtemp
@@ -35,20 +36,20 @@ def validate_toolbox_name(value: str) -> STRING:
     Returns a sanitized version of it if possible, otherwise None.
     """
     if not isinstance(value, str):
-        return
+        return None
     if not (value := value.strip()):
-        return
+        return None
     if value.casefold().endswith(ATBX):
         if not (value := value[:-len(ATBX)]):
-            return
+            return None
     value = sub(r'[<>:"/\\|?*\x00-\x1F]', repl=UNDERSCORE, string=value)
     while DOUBLE_UNDERSCORE in value:
         value = value.replace(DOUBLE_UNDERSCORE, UNDERSCORE)
     value = value.strip(UNDERSCORE)
     if not value or value == UNDERSCORE:
-        return
+        return None
     if value.upper() in WINDOWS_RESERVED:
-        return
+        return None
     return value
 # End validate_toolbox_name function
 
@@ -89,11 +90,11 @@ def _validate_alpha_start_sans_special(value: str) -> STRING:
     contain any special characters.  Attempt to make a valid name.
     """
     if not isinstance(value, str):
-        return
+        return None
     if not (value := value.strip()):
-        return
+        return None
     if not (value := ''.join(c for c in value if c.isalnum())):
-        return
+        return None
     return _remove_leading_non_alpha(value)
 # End _validate_alpha_start_sans_special function
 
@@ -103,11 +104,11 @@ def _remove_leading_non_alpha(value: str) -> STRING:
     Remove Leading Non-alpha characters
     """
     if not value:
-        return
+        return None
     first, *_ = value
     while not first.isalpha():
         if not (value := value[1:]):
-            return
+            return None
         first, *_ = value
     return value
 # End _remove_leading_non_alpha function
@@ -129,14 +130,14 @@ def _validate_name_no_special(value: str, single: str, double: str) -> STRING:
     contain special characters.
     """
     if not isinstance(value, str):
-        return
+        return None
     if not (value := value.strip()):
-        return
+        return None
     value = sub(r'[\\/:*?&"<>|]', repl=single, string=value)
     while double in value:
         value = value.replace(double, single)
     if not (value := value.strip()):
-        return
+        return None
     return value
 # End _validate_name_no_special function
 
@@ -159,9 +160,9 @@ def validate_parameter_label(value: str) -> STRING:
     Validate Parameter Label
     """
     if not isinstance(value, str):
-        return
+        return None
     if not (value := value.strip()):
-        return
+        return None
     while DOUBLE_SPACE in value:
         value = value.replace(DOUBLE_SPACE, SPACE)
     return value
@@ -175,7 +176,7 @@ def make_parameter_name(value: str) -> STRING:
     """
     value = ''.join(c if c.isalnum() else UNDERSCORE for c in value)
     if not (value := _remove_leading_non_alpha(value)):
-        return
+        return None
     return value.casefold()
 # End make_parameter_name function
 
@@ -193,9 +194,9 @@ def wrap_markup(value: STRING) -> STRING:
     Wrap text with xdoc if the text appears to be html-ish.
     """
     if not isinstance(value, str):
-        return
+        return None
     if not (value := value.strip()):
-        return
+        return None
     begin, end = '<xdoc>', '</xdoc>'
     if value.startswith(begin) and value.endswith(end):
         return value
@@ -240,8 +241,7 @@ def quote(value: str) -> str:
 # End quote function
 
 
-def get_repeated_names(values: list['Toolset'] | list['ScriptTool'] |
-                               list['BaseParameter']) -> set[str]:
+def get_repeated_names(values: list['Toolset'] | list['ScriptTool'] | list['BaseParameter']) -> set[str]:
     """
     Get Repeated Names, case-insensitive check.
     """
@@ -288,6 +288,16 @@ def _build_relative(layer_parts: tuple[str, ...],
     count = len(toolbox_parts)
     return f'{(DOT_DOT_SLASH * count)}{RELATIVE}{tail}'
 # End _build_relative function
+
+
+def enum_repr(value: StrEnum) -> str:
+    """
+    String Representation for an Enumeration Value
+    """
+    if not hasattr(value, '_name_'):
+        return repr(value)
+    return f'{value.__class__.__name__}.{value._name_}'
+# End enum_repr function
 
 
 if __name__ == '__main__':  # pragma: no cover

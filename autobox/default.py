@@ -9,9 +9,17 @@ from typing import ClassVar, NoReturn, Self, Type
 
 from autobox.enum import ArealUnit, LinearUnit, TimeUnit
 from autobox.type import NUMBER, STRING
+from autobox.util import enum_repr
 
 
-class BaseRangeDomain:
+class BaseDefault:
+    """
+    Base Default
+    """
+# End BaseDefault class
+
+
+class BaseRangeDomain(BaseDefault):
     """
     Base Range Domain
     """
@@ -45,8 +53,16 @@ class BaseRangeDomain:
         """
         String Representation
         """
-        return f'{self.minimum} {self.maximum}'
+        return (f'{self.__class__.__name__}('
+                f'minimum={self.minimum!r}, maximum={self.maximum!r})')
     # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
+        return f'{self.minimum} {self.maximum}'
+    # End str built-in
 
     def _validate_range(self, minimum: NUMBER, maximum: NUMBER) \
             -> tuple[NUMBER, NUMBER]:
@@ -97,7 +113,35 @@ class BaseRangeDomain:
 # End BaseRangeDomain class
 
 
-class BaseUnitValue:
+class MDomain(BaseRangeDomain):
+    """
+    M Domain
+    """
+# End MDomain class
+
+
+class XDomain(BaseRangeDomain):
+    """
+    X Domain
+    """
+# End XDomain class
+
+
+class YDomain(BaseRangeDomain):
+    """
+    Y Domain
+    """
+# End YDomain class
+
+
+class ZDomain(BaseRangeDomain):
+    """
+    Z Domain
+    """
+# End ZDomain class
+
+
+class BaseUnitValue(BaseDefault):
     """
     Base Unit Value
     """
@@ -132,8 +176,16 @@ class BaseUnitValue:
         """
         String Representation
         """
-        return f'{self._value} {self._unit}'
+        return (f'{self.__class__.__name__}('
+                f'value={self._value!r}, unit={enum_repr(self._unit)})')
     # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
+        return f'{self._value} {self._unit}'
+    # End str built-in
 
     @staticmethod
     def _validate_value(value: NUMBER) -> NUMBER | NoReturn:
@@ -163,7 +215,31 @@ class BaseUnitValue:
 # End BaseUnitValue class
 
 
-class BaseBoundingBox:
+class ArealUnitValue(BaseUnitValue):
+    """
+    Areal Unit Value
+    """
+    unit_type: ClassVar[Type[ArealUnit]] = ArealUnit
+# End ArealUnitValue class
+
+
+class LinearUnitValue(BaseUnitValue):
+    """
+    Linear Unit Value
+    """
+    unit_type: ClassVar[Type[LinearUnit]] = LinearUnit
+# End LinearUnitValue class
+
+
+class TimeUnitValue(BaseUnitValue):
+    """
+    Time Unit Value
+    """
+    unit_type: ClassVar[Type[TimeUnit]] = TimeUnit
+# End TimeUnitValue class
+
+
+class BaseBoundingBox(BaseDefault):
     """
     Base Bounding Box
     """
@@ -192,14 +268,20 @@ class BaseBoundingBox:
         return hash(self.as_tuple())
     # End hash built-in
 
-    # noinspection PyUnresolvedReferences
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         String Representation
         """
+        return f'{self.__class__.__name__}(x={self._x!r}, y={self._y!r})'
+    # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
         return (f'{self._x.minimum} {self._y.minimum} '
                 f'{self._x.maximum} {self._y.maximum}')
-    # End repr built-in
+    # End str built-in
 
     @staticmethod
     def _validate_domain(value, type_) -> BaseRangeDomain | NoReturn:
@@ -211,7 +293,6 @@ class BaseBoundingBox:
         raise TypeError(f'Expected a {type_.__name__}, got: {value}')
     # End _validate_domain method
 
-    # noinspection PyUnresolvedReferences
     def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]:
         """
         As Tuple
@@ -222,15 +303,74 @@ class BaseBoundingBox:
 # End BaseBoundingBox class
 
 
-class ArealUnitValue(BaseUnitValue):
+class Envelope(BaseBoundingBox):
     """
-    Areal Unit Value
+    Envelope
     """
-    unit_type: ClassVar[Type[ArealUnit]] = ArealUnit
-# End ArealUnitValue class
+# End Envelope class
 
 
-class CellSizeXY:
+class Extent(BaseBoundingBox):
+    """
+    Extent
+    """
+    def __init__(self, x: 'XDomain', y: 'YDomain', crs: STRING = None) -> None:
+        """
+        Initialize the Extent class
+        """
+        super().__init__(x=x, y=y)
+        self._crs: STRING = self._validate_coordinate_system(crs)
+    # End init built-in
+
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        values = super().__repr__()
+        if self._crs:
+            return f'{values[:-1]}, crs={self._crs!r})'
+        return values
+    # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
+        values = super().__str__()
+        if self._crs:
+            return f'{values} {self._crs}'
+        return values
+    # End str built-in
+
+    @staticmethod
+    def _validate_coordinate_system(value: STRING) -> STRING | NoReturn:
+        """
+        Validate Coordinate System
+        """
+        if value is None:
+            return value
+        if not isinstance(value, str):
+            raise TypeError('coordinate system must be a string or None')
+        return value.strip() or None
+    # End _validate_coordinate_system method
+
+    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER, STRING]:
+        """
+        As Tuple
+        """
+        return *super().as_tuple(), self._crs
+    # End as_tuple method
+# End Extent class
+
+
+class XYDomain(BaseBoundingBox):
+    """
+    XY Domain
+    """
+# End XYDomain class
+
+
+class CellSizeXY(BaseDefault):
     """
     Cell Size XY
     """
@@ -263,8 +403,15 @@ class CellSizeXY:
         """
         String Representation
         """
-        return f'{self._x} {self._y}'
+        return f'{self.__class__.__name__}(x={self._x!r}, y={self._y!r})'
     # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
+        return f'{self._x} {self._y}'
+    # End str built-in
 
     @staticmethod
     def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn:
@@ -287,67 +434,7 @@ class CellSizeXY:
 # End CellSizeXY class
 
 
-class Envelope(BaseBoundingBox):
-    """
-    Envelope
-    """
-
-# End Envelope class
-
-
-class Extent(BaseBoundingBox):
-    """
-    Extent
-    """
-    def __init__(self, x: 'XDomain', y: 'YDomain', crs: STRING = None) -> None:
-        """
-        Initialize the Extent class
-        """
-        super().__init__(x=x, y=y)
-        self._crs: STRING = self._validate_coordinate_system(crs)
-    # End init built-in
-
-    def __repr__(self) -> str:
-        """
-        String Representation
-        """
-        values = super().__repr__()
-        if self._crs:
-            return f'{values} {self._crs}'
-        return values
-    # End repr built-in
-
-    @staticmethod
-    def _validate_coordinate_system(value: STRING) -> STRING | NoReturn:
-        """
-        Validate Coordinate System
-        """
-        if value is None:
-            return value
-        if not isinstance(value, str):
-            raise TypeError('coordinate system must be a string or None')
-        return value.strip() or None
-    # End _validate_coordinate_system method
-
-    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER, STRING]:
-        """
-        As Tuple
-        """
-        # noinspection PyTypeChecker
-        return *super().as_tuple(), self._crs
-    # End as_tuple method
-# End Extent class
-
-
-class LinearUnitValue(BaseUnitValue):
-    """
-    Linear Unit Value
-    """
-    unit_type: ClassVar[Type[LinearUnit]] = LinearUnit
-# End LinearUnitValue class
-
-
-class Point:
+class Point(BaseDefault):
     """
     Point
     """
@@ -380,8 +467,15 @@ class Point:
         """
         String Representation
         """
-        return f'{self._x} {self._y}'
+        return f'{self.__class__.__name__}(x={self._x!r}, y={self._y!r})'
     # End repr built-in
+
+    def __str__(self) -> str:
+        """
+        String
+        """
+        return f'{self._x} {self._y}'
+    # End str built-in
 
     @staticmethod
     def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn:
@@ -400,49 +494,6 @@ class Point:
         return self._x, self._y
     # End as_tuple method
 # End Point class
-
-
-class TimeUnitValue(BaseUnitValue):
-    """
-    Time Unit Value
-    """
-    unit_type: ClassVar[Type[TimeUnit]] = TimeUnit
-# End TimeUnitValue class
-
-
-class MDomain(BaseRangeDomain):
-    """
-    M Domain
-    """
-# End MDomain class
-
-
-class XDomain(BaseRangeDomain):
-    """
-    X Domain
-    """
-# End XDomain class
-
-
-class YDomain(BaseRangeDomain):
-    """
-    Y Domain
-    """
-# End YDomain class
-
-
-class XYDomain(BaseBoundingBox):
-    """
-    XY Domain
-    """
-# End XYDomain class
-
-
-class ZDomain(BaseRangeDomain):
-    """
-    Z Domain
-    """
-# End ZDomain class
 
 
 if __name__ == '__main__':  # pragma: no cover

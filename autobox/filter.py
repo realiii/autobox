@@ -10,19 +10,18 @@ from math import isfinite
 from numbers import Real
 from typing import ClassVar, Type
 
-
 from autobox.constant import (
-    DOLLAR_RC, DOT, DomainContentKeys, GP_AREAL_UNIT, GP_CODED_VALUE_DOMAIN,
-    GP_DOUBLE, GP_FEATURE_CLASS_DOMAIN, GP_FIELD_DOMAIN, GP_FILE_DOMAIN,
-    GP_LINEAR_UNIT, GP_LONG, GP_RANGE_DOMAIN, GP_TIME_UNIT, GP_WORKSPACE_DOMAIN,
-    ItemsContentKeys, ParameterContentKeys, TRAVEL_MODES_STUB, XML,
-    XML_SERIALIZE)
+    COMMA_SPACE, DOLLAR_RC, DOT, DomainContentKeys, GP_AREAL_UNIT,
+    GP_CODED_VALUE_DOMAIN, GP_DOUBLE, GP_FEATURE_CLASS_DOMAIN, GP_FIELD_DOMAIN,
+    GP_FILE_DOMAIN, GP_LINEAR_UNIT, GP_LONG, GP_RANGE_DOMAIN, GP_TIME_UNIT,
+    GP_WORKSPACE_DOMAIN, ItemsContentKeys, ParameterContentKeys,
+    TRAVEL_MODES_STUB, XML, XML_SERIALIZE)
 from autobox.enum import (
     ArealUnit, FieldType, GeometryType, LinearUnit, TimeUnit,
     TravelModeUnitType, WorkspaceType)
 from autobox.type import (
     MAP_DICT_STR_LIST, MAP_STR, MAP_STR_LIST, NUMBER, STRING, STRINGS)
-from autobox.util import unique
+from autobox.util import enum_repr, unique
 
 
 __all__ = ['ArealUnitFilter', 'FeatureClassTypeFilter', 'FieldTypeFilter',
@@ -80,6 +79,14 @@ class AbstractEnumerationFilter(AbstractFilter):
     """
     keyword: ClassVar[str] = ''
     enumeration: ClassVar[Type[StrEnum]] = StrEnum
+
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        values = COMMA_SPACE.join(enum_repr(v) for v in self.values)
+        return f'{self.__class__.__name__}(values=[{values}])'
+    # End repr built-in
 
     def _validate_values(self, values: list[StrEnum] | tuple[StrEnum, ...]) \
             -> list[StrEnum]:
@@ -275,6 +282,18 @@ class AbstractRangeFilter(AbstractFilter):
         super().__init__((minimum, maximum))
     # End init built-in
 
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        if self.values:
+            minimum, maximum = self.values
+        else:
+            minimum = maximum = 0
+        return (f'{self.__class__.__name__}('
+                f'minimum={minimum!r}, maximum={maximum!r})')
+    # End repr built-in
+
     @abstractmethod
     def _validate_values(self, values: tuple) -> list:  # pragma: no cover
         """
@@ -348,6 +367,13 @@ class AbstractNumberValueFilter(AbstractFilter):
     Abstract Number Value Filter
     """
     keyword: ClassVar[str] = ''
+
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        return f'{self.__class__.__name__}(values={self.values!r})'
+    # End repr built-in
 
     @abstractmethod
     def _validate_values(self, values: list | tuple) -> list:  # pragma: no cover
@@ -424,6 +450,13 @@ class StringValueFilter(AbstractFilter):
     """
     String Value Filter
     """
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        return f'{self.__class__.__name__}(values={self.values!r})'
+    # End repr built-in
+
     def _validate_values(self, values: STRINGS) -> list[str]:
         """
         Validate Values

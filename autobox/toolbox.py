@@ -102,7 +102,6 @@ class Toolbox:
                               (content, resource)):
             file_path = source.joinpath(name)
             with file_path.open(mode='w', encoding=ENCODING) as fout:
-                # noinspection PyTypeChecker
                 dump(data, fp=fout, indent=2)
     # End _serialize method
 

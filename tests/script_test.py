@@ -49,7 +49,8 @@ def test_script_tool_repr():
     """
     Test Script Tool Representation
     """
-    assert repr(ScriptTool(name='AbCdE')) == "ScriptTool(name='AbCdE', label='AbCdE', description=None)"
+    assert repr(ScriptTool(name='AbCdE')) == "ScriptTool(name='AbCdE', label='AbCdE', description=None, summary=None)"
+    assert repr(ScriptTool(name='AbCdE', attributes=ToolAttributes(show_modifies_input=True))) == "ScriptTool(name='AbCdE', label='AbCdE', description=None, summary=None, attributes=ToolAttributes(show_modifies_input=True, do_not_add_to_map=False, show_enable_undo=False, show_consumes_credits=False))"
 # End test_script_tool_repr function
 
 
