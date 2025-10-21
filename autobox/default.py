@@ -34,7 +34,7 @@ class AbstractDefault(metaclass=ABCMeta):
     # End hash built-in
 
     @abstractmethod
-    def as_tuple(self) -> tuple:
+    def as_tuple(self) -> tuple:  # pragma: no cover
         """
         As Tuple
         """
