@@ -125,6 +125,22 @@ class BaseParameter:
         self._symbology: PATH = None
     # End init built-in
 
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):  # pragma: no cover
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
     def __repr__(self) -> str:
         """
         String Representation
@@ -587,6 +603,16 @@ class BaseParameter:
         """
         return self._serialize(categories, target=target)
     # End serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return (self.keyword, self.label, self.name, self.category,
+                self.description, self.is_input, self.is_required,
+                self.is_multi, self.is_enabled, self.default_value,
+                self.dependency, self.filter, self.symbology)
+    # End as_tuple method
 # End BaseParameter class
 
 
