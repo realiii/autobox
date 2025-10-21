@@ -4,7 +4,7 @@ Filter Stubs
 """
 
 
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from enum import StrEnum
 from numbers import Real
 from typing import ClassVar, Type
@@ -18,7 +18,7 @@ from autobox.type import (
     WORKSPACE_TYPES)
 
 
-class AbstractFilter:
+class AbstractFilter(metaclass=ABCMeta):
     """
     Abstract Filter
     """
@@ -35,7 +35,7 @@ class AbstractFilter:
 # End AbstractFilter class
 
 
-class AbstractEnumerationFilter(AbstractFilter):
+class AbstractEnumerationFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Enumeration Filter
     """
@@ -46,6 +46,7 @@ class AbstractEnumerationFilter(AbstractFilter):
     def __init__(self, values: list[StrEnum] | tuple[StrEnum, ...]) -> None: ...
     def __repr__(self) -> str: ...
     def _validate_values(self, values: list[StrEnum] | tuple[StrEnum, ...]) -> list[StrEnum]: ...
+    @abstractmethod
     def _serialize(self, name: STRING = None) -> dict: ...
     @property
     def values(self) -> list[StrEnum]: ...
@@ -225,7 +226,7 @@ class WorkspaceTypeFilter(BaseTypeListFilter):
 # End WorkspaceTypeFilter class
 
 
-class AbstractRangeFilter(AbstractFilter):
+class AbstractRangeFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Range Filter
     """
@@ -255,7 +256,7 @@ class DoubleRangeFilter(AbstractRangeFilter):
 # End DoubleRangeFilter class
 
 
-class AbstractNumberValueFilter(AbstractFilter):
+class AbstractNumberValueFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Number Value Filter
     """

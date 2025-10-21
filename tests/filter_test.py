@@ -9,10 +9,9 @@ from autobox.enum import (
     ArealUnit, FieldType, GeometryType, LinearUnit, TimeUnit,
     TravelModeUnitType, WorkspaceType)
 from autobox.filter import (
-    AbstractNumberValueFilter, AbstractRangeFilter, ArealUnitFilter,
-    DoubleRangeFilter, DoubleValueFilter, FeatureClassTypeFilter,
-    FieldTypeFilter, FileTypeFilter, LinearUnitFilter, LongRangeFilter,
-    LongValueFilter, StringValueFilter, TimeUnitFilter,
+    ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
+    FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
+    LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
     TravelModeUnitTypeFilter, WorkspaceTypeFilter)
 
 
@@ -491,7 +490,7 @@ def test_range_filter_edge_cases(values, expected):
     """
     Test Range Filter Edge Cases
     """
-    a = AbstractRangeFilter(0, 0)
+    a = LongRangeFilter(0, 0)
     assert a._validate_and_convert(values, type_=int) == expected
     assert a.serialize() == {}
 # End test_range_filter_edge_cases function
@@ -511,7 +510,7 @@ def test_number_value_filter_edge_cases(values, expected):
     """
     Test Number Value Filter Edge Cases
     """
-    ftr = AbstractNumberValueFilter([])
+    ftr = LongValueFilter([])
     assert ftr._validate_and_convert(values, type_=int) == expected
     assert ftr.serialize() == {}
 # End test_number_value_filter_edge_cases function
