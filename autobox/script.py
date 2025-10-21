@@ -39,6 +39,22 @@ class AbstractScript(metaclass=ABCMeta):
         self._embed: bool = embed
     # End init built-in
 
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
     def _serialize(self, source: Path, target: Path) -> Path:
         """
         Serialize File to Temporary Folder
@@ -91,6 +107,13 @@ class AbstractScript(metaclass=ABCMeta):
         """
         return self._serialize(source=source, target=target)
     # End serialize method
+
+    def as_tuple(self) -> tuple[STRING, PATH, bool]:
+        """
+        As Tuple
+        """
+        return self._code, self._path, self._embed
+    # End as_tuple method
 # End AbstractScript class
 
 

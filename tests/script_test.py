@@ -5,6 +5,7 @@ Script Tool Class Tests
 
 
 from json import loads
+from pathlib import Path
 
 from pytest import mark, raises
 
@@ -199,6 +200,39 @@ def test_execution_script_instantiation():
     assert not es._path
     assert not es._embed
 # End test_execution_script_instantiation function
+
+
+def test_execution_script_hash():
+    """
+    Test hash of ExecutionScript
+    """
+    code = 'print("Hello World")'
+    path = Path.home()
+    a = ExecutionScript(code=code, path=path, embed=True)
+    b = ExecutionScript(code=code, path=path, embed=True)
+    c = ExecutionScript(code=code, path=path)
+    assert a == b
+    assert a != c
+    assert a != Ellipsis
+    assert hash(a) == hash(b)
+    assert hash(a) != hash(c)
+    assert {a, b} == {a}
+# End test_execution_script_hash function
+
+
+def test_validation_script_hash():
+    """
+    Test hash of ValidationScript
+    """
+    code = 'print("Hello World")'
+    path = Path.home()
+    a = ValidationScript(code=code, path=path)
+    b = ValidationScript(code=code, path=path)
+    assert a == b
+    assert a != Ellipsis
+    assert hash(a) == hash(b)
+    assert {a, b} == {a}
+# End test_validation_script_hash function
 
 
 def test_execution_script_from_code():
