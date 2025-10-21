@@ -55,6 +55,30 @@ class AbstractScript(metaclass=ABCMeta):
         return hash(self.as_tuple())
     # End hash built-in
 
+    @property
+    def code(self) -> STRING:
+        """
+        Code
+        """
+        return self._code
+    # End code property
+
+    @property
+    def path(self) -> PATH:
+        """
+        Path
+        """
+        return self._path
+    # End path property
+
+    @property
+    def embed(self) -> bool:
+        """
+        Embed
+        """
+        return self._embed
+    # End embed property
+
     def _serialize(self, source: Path, target: Path) -> Path:
         """
         Serialize File to Temporary Folder
@@ -71,16 +95,16 @@ class AbstractScript(metaclass=ABCMeta):
         """
         Get Content
         """
-        if not self._path and not self._code:
+        if not self.path and not self.code:
             raise ValueError('No code or path provided')
-        if self._code:
-            return self._code
-        if self._embed:
-            return self._path.read_text(encoding=ENCODING)
+        if self.code:
+            return self.code
+        if self.embed:
+            return self.path.read_text(encoding=ENCODING)
         try:
-            path = self._path.relative_to(target.resolve())
+            path = self.path.relative_to(target.resolve())
         except ValueError:
-            return str(self._path)
+            return str(self.path)
         return f'{RELATIVE}{path}'
     # End _get_content method
 
@@ -112,7 +136,7 @@ class AbstractScript(metaclass=ABCMeta):
         """
         As Tuple
         """
-        return self._code, self._path, self._embed
+        return self.code, self.path, self.embed
     # End as_tuple method
 # End AbstractScript class
 
@@ -224,6 +248,22 @@ class ScriptTool:
         self._illustration: PATH = None
         self._parameters: list[PARAMETER] = []
     # End init built-in
+
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):  # pragma: no cover
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
 
     def __repr__(self) -> str:
         """
@@ -524,6 +564,16 @@ class ScriptTool:
         """
         return self._serialize(source=source, target=target)
     # End serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return (self.name, self._folder, self.label, self.description,
+                self.summary, self.attributes, self._execution,
+                self._validation, self.icon, self.illustration,
+                tuple(self.parameters))
+    # End as_tuple method
 # End ScriptTool class
 
 
