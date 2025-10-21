@@ -351,7 +351,7 @@ class ScriptTool:
         Validate Image Path
         """
         if not path:
-            return
+            return None
         path = validate_path(path, text=text)
         if path.suffix.casefold() not in (PNG, JPG):
             raise TypeError(f'Invalid {text} file type: {path.suffix}')

@@ -334,7 +334,7 @@ class Toolbox:
         Save toolbox into specified folder.
         """
         if not folder.is_dir():
-            return
+            return None
         toolbox = self._get_toolbox_path(folder=folder, overwrite=overwrite)
         temporary = make_temp_folder()
         self._serialize(source=temporary, target=folder)
