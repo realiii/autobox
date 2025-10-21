@@ -21,6 +21,9 @@ DOT_DOT_SLASH: str = f'{DOT}{DOT}\\'
 RELATIVE: str = f'{DOT_DOT_SLASH}{DOT_DOT_SLASH}'
 
 
+ENUM_NAME: str = '_name_'
+
+
 DATE_FORMAT: str = '%m/%d/%Y'
 TIME_FORMAT: str = '%H:%M:%S'
 DATETIME_FORMAT: str = f'{DATE_FORMAT} {TIME_FORMAT}'

@@ -10,13 +10,13 @@ from typing import Any, ClassVar, NoReturn, Self
 
 from autobox.constant import (
     COMMA_SPACE, CSV, DATETIME_FORMAT, DATE_FORMAT, DBF, DERIVED, DOLLAR_RC,
-    DOT, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT,
+    DOT, ENUM_NAME, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT,
     GP_MULTI_VALUE, GP_TABLE_SCHEMA, GP_TIME_UNIT, LYR, LYRX, MXD, OPTIONAL,
     OUT, PARAMETER, PRJ, ParameterContentKeys, ParameterContentResourceKeys,
     RELATIVE, SEMI_COLON, SHP, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TAB, TIME_FORMAT, TRUE, TXT)
 from autobox.default import (
-    ArealUnitValue, BaseDefault, CellSizeXY, Envelope, Extent,
+    AbstractDefault, ArealUnitValue, CellSizeXY, Envelope, Extent,
     LinearUnitValue, MDomain, Point, TimeUnitValue, XYDomain, ZDomain)
 from autobox.enum import SACellSize
 from autobox.filter import (
@@ -125,6 +125,22 @@ class BaseParameter:
         self._symbology: PATH = None
     # End init built-in
 
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):  # pragma: no cover
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
     def __repr__(self) -> str:
         """
         String Representation
@@ -152,7 +168,7 @@ class BaseParameter:
         if (value := self.default_value) is not None:
             if isinstance(value, Path):
                 default_value = f'default_value={str(value)!r}'
-            elif hasattr(value, '_name_'):
+            elif hasattr(value, ENUM_NAME):
                 default_value = f'default_value={enum_repr(value)}'
             else:
                 default_value = f'default_value={value!r}'
@@ -396,7 +412,7 @@ class BaseParameter:
         """
         values = []
         for v in value:
-            if isinstance(v, (Path, BaseDefault)):
+            if isinstance(v, (Path, AbstractDefault)):
                 func = str
             else:
                 func = repr
@@ -587,6 +603,16 @@ class BaseParameter:
         """
         return self._serialize(categories, target=target)
     # End serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return (self.keyword, self.label, self.name, self.category,
+                self.description, self.is_input, self.is_required,
+                self.is_multi, self.is_enabled, self.default_value,
+                self.dependency, self.filter, self.symbology)
+    # End as_tuple method
 # End BaseParameter class
 
 

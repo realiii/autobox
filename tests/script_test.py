@@ -5,6 +5,7 @@ Script Tool Class Tests
 
 
 from json import loads
+from pathlib import Path
 
 from pytest import mark, raises
 
@@ -52,6 +53,23 @@ def test_script_tool_repr():
     assert repr(ScriptTool(name='AbCdE')) == "ScriptTool(name='AbCdE', label='AbCdE', description=None, summary=None)"
     assert repr(ScriptTool(name='AbCdE', attributes=ToolAttributes(show_modifies_input=True))) == "ScriptTool(name='AbCdE', label='AbCdE', description=None, summary=None, attributes=ToolAttributes(show_modifies_input=True, do_not_add_to_map=False, show_enable_undo=False, show_consumes_credits=False))"
 # End test_script_tool_repr function
+
+
+def test_script_tool_hash():
+    """
+    Test Script Tool hash
+    """
+    a = ScriptTool(name='AbCdE')
+    b = ScriptTool(name='AbCdE')
+    assert a == b
+    assert hash(a) == hash(b)
+
+    a = ScriptTool(name='AbCdE', attributes=ToolAttributes(show_modifies_input=True))
+    b = ScriptTool(name='AbCdE', attributes=ToolAttributes(show_modifies_input=True))
+
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_script_tool_hash function
 
 
 def test_script_tool_bad_add():
@@ -194,11 +212,47 @@ def test_execution_script_instantiation():
     """
     Test instantiation of ExecutionScript
     """
-    es = ExecutionScript()
-    assert not es._code
-    assert not es._path
-    assert not es._embed
+    a = ExecutionScript()
+    b = ExecutionScript()
+    assert not a.code
+    assert not a.path
+    assert not a.embed
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_execution_script_instantiation function
+
+
+def test_execution_script_hash():
+    """
+    Test hash of ExecutionScript
+    """
+    code = 'print("Hello World")'
+    path = Path.home()
+    a = ExecutionScript(code=code, path=path, embed=True)
+    b = ExecutionScript(code=code, path=path, embed=True)
+    c = ExecutionScript(code=code, path=path)
+    assert a == b
+    assert a != c
+    assert a != Ellipsis
+    assert hash(a) == hash(b)
+    assert hash(a) != hash(c)
+    assert {a, b} == {a}
+# End test_execution_script_hash function
+
+
+def test_validation_script_hash():
+    """
+    Test hash of ValidationScript
+    """
+    code = 'print("Hello World")'
+    path = Path.home()
+    a = ValidationScript(code=code, path=path)
+    b = ValidationScript(code=code, path=path)
+    assert a == b
+    assert a != Ellipsis
+    assert hash(a) == hash(b)
+    assert {a, b} == {a}
+# End test_validation_script_hash function
 
 
 def test_execution_script_from_code():
@@ -210,9 +264,9 @@ def test_execution_script_from_code():
     with raises(ValueError):
         ExecutionScript.from_code(None)
     es = ExecutionScript.from_code('print("Hello World")')
-    assert es._code
-    assert not es._path
-    assert es._embed
+    assert es.code
+    assert not es.path
+    assert es.embed
     assert es._get_file_name() == TOOL_SCRIPT_EXECUTE_PY
 # End test_execution_script_from_code function
 
@@ -232,9 +286,9 @@ def test_execution_script_from_file(data_path, embed, expected):
     with raises(FileNotFoundError):
         ExecutionScript.from_file('', embed=True)
     es = ExecutionScript.from_file(scripts_path / 'example.py', embed=embed)
-    assert not es._code
-    assert es._path
-    assert es._embed is embed
+    assert not es.code
+    assert es.path
+    assert es.embed is embed
     assert es._get_file_name() == expected
 # End test_execution_script_from_file function
 
@@ -285,9 +339,9 @@ def test_validation_script_instantiation():
     Test instantiation of ValidationScript
     """
     es = ValidationScript()
-    assert not es._code
-    assert not es._path
-    assert es._embed
+    assert not es.code
+    assert not es.path
+    assert es.embed
 # End test_validation_script_instantiation function
 
 
@@ -300,9 +354,9 @@ def test_validation_script_from_code():
     with raises(ValueError):
         ValidationScript.from_code(None)
     es = ValidationScript.from_code('print("Hello World")')
-    assert es._code
-    assert not es._path
-    assert es._embed
+    assert es.code
+    assert not es.path
+    assert es.embed
     assert es._get_file_name() == TOOL_SCRIPT_VALIDATE_PY
 # End test_validation_script_from_code function
 
@@ -318,9 +372,9 @@ def test_validation_script_from_file(data_path):
     with raises(FileNotFoundError):
         ValidationScript.from_file('')
     es = ValidationScript.from_file(scripts_path / 'validator.py')
-    assert not es._code
-    assert es._path
-    assert es._embed
+    assert not es.code
+    assert es.path
+    assert es.embed
     assert es._get_file_name() == TOOL_SCRIPT_VALIDATE_PY
 # End test_validation_script_from_file function
 

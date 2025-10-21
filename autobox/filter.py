@@ -8,7 +8,7 @@ from abc import ABCMeta, abstractmethod
 from enum import StrEnum
 from math import isfinite
 from numbers import Real
-from typing import ClassVar, Type
+from typing import ClassVar, Self, Type
 
 from autobox.constant import (
     COMMA_SPACE, DOLLAR_RC, DOT, DomainContentKeys, GP_AREAL_UNIT,
@@ -40,6 +40,22 @@ class AbstractFilter(metaclass=ABCMeta):
         self._values: list = self._validate_values(values)
     # End init built-in
 
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):  # pragma: no cover
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
     @abstractmethod
     def _validate_values(self, values: list | tuple) -> list:  # pragma: no cover
         """
@@ -70,6 +86,14 @@ class AbstractFilter(metaclass=ABCMeta):
         """
         return self._serialize(name)
     # End serialize method
+
+    @abstractmethod
+    def as_tuple(self) -> tuple:  # pragma: no cover
+        """
+        As Tuple
+        """
+        pass
+    # End as_tuple method
 # End AbstractFilter class
 
 
@@ -106,6 +130,13 @@ class AbstractEnumerationFilter(AbstractFilter, metaclass=ABCMeta):
         """
         pass
     # End _serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return self.keyword, frozenset(v.value for v in self.values)
+    # End as_tuple method
 # End AbstractEnumerationFilter class
 
 
@@ -219,6 +250,13 @@ class FileTypeFilter(AbstractEnumerationFilter):
             DomainContentKeys.type: GP_FILE_DOMAIN,
             DomainContentKeys.file_types: list(self.values)}}
     # End _serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return self.keyword, frozenset(self.values)
+    # End as_tuple method
 # End FileTypeFilter class
 
 
@@ -333,6 +371,13 @@ class AbstractRangeFilter(AbstractFilter, metaclass=ABCMeta):
             DomainContentKeys.minimum: repr(minimum),
             DomainContentKeys.maximum: repr(maximum)}}
     # End _serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return self.__class__.__name__, frozenset(self.values)
+    # End as_tuple method
 # End AbstractRangeFilter class
 
 
@@ -413,6 +458,13 @@ class AbstractNumberValueFilter(AbstractFilter, metaclass=ABCMeta):
             DomainContentKeys.type: GP_CODED_VALUE_DOMAIN,
             DomainContentKeys.items: items}}
     # End _serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return self.keyword, frozenset(self.values)
+    # End as_tuple method
 # End AbstractNumberValueFilter class
 
 
@@ -491,6 +543,13 @@ class StringValueFilter(AbstractFilter):
         """
         return self._serialize(name)
     # End serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return self.__class__.__name__, frozenset(self.values)
+    # End as_tuple method
 # End StringValueFilter class
 
 

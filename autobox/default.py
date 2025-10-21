@@ -4,6 +4,7 @@ Classes for Default Value
 """
 
 
+from abc import ABCMeta, abstractmethod
 from enum import StrEnum
 from typing import ClassVar, NoReturn, Self, Type
 
@@ -12,27 +13,10 @@ from autobox.type import NUMBER, STRING
 from autobox.util import enum_repr
 
 
-class BaseDefault:
+class AbstractDefault(metaclass=ABCMeta):
     """
-    Base Default
+    Abstract Default
     """
-# End BaseDefault class
-
-
-class BaseRangeDomain(BaseDefault):
-    """
-    Base Range Domain
-    """
-    def __init__(self, minimum: NUMBER, maximum: NUMBER) -> None:
-        """
-        Initialize the BaseRangeDomain class
-        """
-        super().__init__()
-        minimum, maximum = self._validate_range(minimum, maximum)
-        self._min: NUMBER = minimum
-        self._max: NUMBER = maximum
-    # End init built-in
-
     def __eq__(self, other: Self) -> bool:
         """
         Equality
@@ -48,6 +32,30 @@ class BaseRangeDomain(BaseDefault):
         """
         return hash(self.as_tuple())
     # End hash built-in
+
+    @abstractmethod
+    def as_tuple(self) -> tuple:  # pragma: no cover
+        """
+        As Tuple
+        """
+        pass
+    # End as_tuple method
+# End AbstractDefault class
+
+
+class BaseRangeDomain(AbstractDefault):
+    """
+    Base Range Domain
+    """
+    def __init__(self, minimum: NUMBER, maximum: NUMBER) -> None:
+        """
+        Initialize the BaseRangeDomain class
+        """
+        super().__init__()
+        minimum, maximum = self._validate_range(minimum, maximum)
+        self._min: NUMBER = minimum
+        self._max: NUMBER = maximum
+    # End init built-in
 
     def __repr__(self) -> str:
         """
@@ -141,7 +149,7 @@ class ZDomain(BaseRangeDomain):
 # End ZDomain class
 
 
-class BaseUnitValue(BaseDefault):
+class BaseUnitValue(AbstractDefault):
     """
     Base Unit Value
     """
@@ -155,22 +163,6 @@ class BaseUnitValue(BaseDefault):
         self._value: NUMBER = self._validate_value(value)
         self._unit: StrEnum = self._validate_unit(unit)
     # End init built-in
-
-    def __eq__(self, other: Self) -> bool:
-        """
-        Equality
-        """
-        if not isinstance(other, self.__class__):
-            return False
-        return self.as_tuple() == other.as_tuple()
-    # End eq built-in
-
-    def __hash__(self) -> int:
-        """
-        Hash
-        """
-        return hash(self.as_tuple())
-    # End hash built-in
 
     def __repr__(self) -> str:
         """
@@ -239,7 +231,7 @@ class TimeUnitValue(BaseUnitValue):
 # End TimeUnitValue class
 
 
-class BaseBoundingBox(BaseDefault):
+class BaseBoundingBox(AbstractDefault):
     """
     Base Bounding Box
     """
@@ -251,22 +243,6 @@ class BaseBoundingBox(BaseDefault):
         self._x: XDomain = self._validate_domain(x, XDomain)
         self._y: YDomain = self._validate_domain(y, YDomain)
     # End init built-in
-
-    def __eq__(self, other: Self) -> bool:
-        """
-        Equality
-        """
-        if not isinstance(other, self.__class__):
-            return False
-        return self.as_tuple() == other.as_tuple()
-    # End eq built-in
-
-    def __hash__(self) -> int:
-        """
-        Hash
-        """
-        return hash(self.as_tuple())
-    # End hash built-in
 
     def __repr__(self) -> str:
         """
@@ -370,7 +346,7 @@ class XYDomain(BaseBoundingBox):
 # End XYDomain class
 
 
-class CellSizeXY(BaseDefault):
+class CellSizeXY(AbstractDefault):
     """
     Cell Size XY
     """
@@ -382,22 +358,6 @@ class CellSizeXY(BaseDefault):
         self._x: NUMBER = self._validate_value(x, 'x')
         self._y: NUMBER = self._validate_value(y, 'y')
     # End init built-in
-
-    def __eq__(self, other: Self) -> bool:
-        """
-        Equality
-        """
-        if not isinstance(other, CellSizeXY):
-            return False
-        return self.as_tuple() == other.as_tuple()
-    # End eq built-in
-
-    def __hash__(self) -> int:
-        """
-        Hash
-        """
-        return hash(self.as_tuple())
-    # End hash built-in
 
     def __repr__(self) -> str:
         """
@@ -434,7 +394,7 @@ class CellSizeXY(BaseDefault):
 # End CellSizeXY class
 
 
-class Point(BaseDefault):
+class Point(AbstractDefault):
     """
     Point
     """
@@ -446,22 +406,6 @@ class Point(BaseDefault):
         self._x: NUMBER = self._validate_value(x, 'x')
         self._y: NUMBER = self._validate_value(y, 'y')
     # End init built-in
-
-    def __eq__(self, other: Self) -> bool:
-        """
-        Equality
-        """
-        if not isinstance(other, self.__class__):
-            return False
-        return self.as_tuple() == other.as_tuple()
-    # End eq built-in
-
-    def __hash__(self) -> int:
-        """
-        Hash
-        """
-        return hash(self.as_tuple())
-    # End hash built-in
 
     def __repr__(self) -> str:
         """

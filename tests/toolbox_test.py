@@ -63,6 +63,17 @@ def test_toolbox_repr():
 # End test_toolbox_repr function
 
 
+def test_toolbox_hash():
+    """
+    Test Toolbox hash
+    """
+    a = Toolbox(name='AbCdE')
+    b = Toolbox(name='AbCdE')
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_toolbox_hash function
+
+
 def test_toolbox_bad_add():
     """
     Test Toolbox Bad Add
@@ -113,6 +124,8 @@ def test_toolbox_save_with_root_script(tmp_path, data_path):
 
     assert source_content == compare_content
     assert source_resource == compare_resource
+
+    assert hash(tbx)
 # End test_toolbox_save_with_root_script function
 
 
@@ -165,6 +178,8 @@ def test_toolbox_with_toolsets_sans_tools(tmp_path, data_path):
 
     assert source_content == compare_content
     assert source_resource == compare_resource
+
+    assert hash(tbx)
 # End test_toolbox_with_toolsets_sans_tools function
 
 

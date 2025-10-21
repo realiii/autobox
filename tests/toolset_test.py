@@ -46,6 +46,17 @@ def test_toolset_repr():
 # End test_toolset_repr function
 
 
+def test_toolset_hash():
+    """
+    Test Toolset hash
+    """
+    a = Toolset(name='AbCdE')
+    b = Toolset(name='AbCdE')
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_toolset_hash function
+
+
 def test_toolset_bad_add():
     """
     Test Toolset Bad Add
