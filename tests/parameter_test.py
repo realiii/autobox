@@ -6,10 +6,11 @@ Parameter Test
 
 from datetime import datetime
 from pathlib import Path
+from sys import platform
 
 from pytest import approx, mark, raises
 
-from autobox.constant import ParameterContentKeys, SEMI_COLON
+from autobox.constant import ParameterContentKeys
 from autobox.default import (
     ArealUnitValue, CellSizeXY, Envelope, Extent, LinearUnitValue, MDomain,
     Point, TimeUnitValue, XDomain, XYDomain, YDomain, ZDomain)
@@ -1308,39 +1309,43 @@ def test_default_value_point_multi():
 # End test_default_value_point_multi function
 
 
-@mark.parametrize('cls, expected', [
-    (DbaseTableParameter, 3),
-    (FileParameter, 9),
-    (MapDocumentParameter, 1),
-    (PrjFileParameter, 1),
-    (ShapeFileParameter, 2),
-    (TextfileParameter, 4)
+@mark.parametrize('cls, expected_value, expected_repr', [
+    (DbaseTableParameter, 'file2.dbf;file3.shp;file6.shp', ("DbaseTableParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file2.dbf'), PosixPath('file3.shp'), PosixPath('file6.shp')), is_multi=True)")),
+    (FileParameter, 'file1.txt;file2.dbf;file3.shp;file4.mxd;file5.prj;file6.shp;file7.csv;file8.txt;file9.tab', "FileParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file1.txt'), PosixPath('file2.dbf'), PosixPath('file3.shp'), PosixPath('file4.mxd'), PosixPath('file5.prj'), PosixPath('file6.shp'), PosixPath('file7.csv'), PosixPath('file8.txt'), PosixPath('file9.tab')), is_multi=True)"),
+    (MapDocumentParameter, 'file4.mxd', "MapDocumentParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file4.mxd'),), is_multi=True)"),
+    (PrjFileParameter, 'file5.prj', "PrjFileParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file5.prj'),), is_multi=True)"),
+    (ShapeFileParameter, 'file3.shp;file6.shp', "ShapeFileParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file3.shp'), PosixPath('file6.shp')), is_multi=True)"),
+    (TextfileParameter, 'file1.txt;file7.csv;file8.txt;file9.tab', "TextfileParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file1.txt'), PosixPath('file7.csv'), PosixPath('file8.txt'), PosixPath('file9.tab')), is_multi=True)")
 ])
-def test_default_value_path_esque_multi(cls, expected):
+def test_default_value_path_esque_multi(cls, expected_value, expected_repr):
     """
     Test Default Value Path Esque Multi
     """
-    p = cls(label='Path Esque', is_multi=True)
+    if platform == 'win32':
+        expected_repr = expected_repr.replace('PosixPath', 'WindowsPath')
+    param = cls(label='Path Esque', is_multi=True)
     with raises(TypeError):
-        p.default_value = ('/path/to/file1.txt', '/path/to/file2.txt')
-    p.default_value = None
-    assert p.default_value is None
+        param.default_value = ('/path/to/file1.txt', '/path/to/file2.txt')
+    param.default_value = None
+    assert param.default_value is None
     files = ('file1.txt', 'file2.dbf', 'file3.shp', 'file4.mxd', 'file5.prj',
              'file6.shp', 'file7.csv', 'file8.txt', 'file9.tab')
-    paths = [Path.home() / f for f in files]
-    p.default_value = paths
-    data, _ = p.serialize({}, target=None)
-    assert data['value'].count(SEMI_COLON) == (expected - 1)
+    paths = [Path(f) for f in files]
+    param.default_value = paths
+    data, _ = param.serialize({}, target=None)
+    assert data['value'] == expected_value
 
-    paths = p.default_value
-    if p.suffixes:
+    assert repr(param) == expected_repr
+
+    paths = param.default_value
+    if param.suffixes:
         with raises(ValueError):
-            p.default_value = Path.home() / 'file.xyz'
-    p = cls(label='Path Esque')
-    p.default_value = paths[0]
-    if p.suffixes:
+            param.default_value = Path.home() / 'file.xyz'
+    param = cls(label='Path Esque')
+    param.default_value = paths[0]
+    if param.suffixes:
         with raises(ValueError):
-            p.default_value = Path.home() / 'file.xyz'
+            param.default_value = Path.home() / 'file.xyz'
 # End test_default_value_path_esque_multi function
 
 
