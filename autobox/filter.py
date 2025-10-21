@@ -4,7 +4,7 @@ Enumerations
 """
 
 
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from enum import StrEnum
 from math import isfinite
 from numbers import Real
@@ -28,7 +28,7 @@ __all__ = ['ArealUnitFilter', 'FeatureClassTypeFilter', 'FieldTypeFilter',
            'FileTypeFilter', 'LinearUnitFilter', 'WorkspaceTypeFilter']
 
 
-class AbstractFilter:
+class AbstractFilter(metaclass=ABCMeta):
     """
     Abstract Filter
     """
@@ -73,7 +73,7 @@ class AbstractFilter:
 # End AbstractFilter class
 
 
-class AbstractEnumerationFilter(AbstractFilter):
+class AbstractEnumerationFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Enumeration Filter
     """
@@ -271,7 +271,7 @@ class WorkspaceTypeFilter(BaseTypeListFilter):
 # End WorkspaceTypeFilter class
 
 
-class AbstractRangeFilter(AbstractFilter):
+class AbstractRangeFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Range Filter
     """
@@ -362,7 +362,7 @@ class DoubleRangeFilter(AbstractRangeFilter):
 # End DoubleRangeFilter class
 
 
-class AbstractNumberValueFilter(AbstractFilter):
+class AbstractNumberValueFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Number Value Filter
     """

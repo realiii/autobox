@@ -4,7 +4,7 @@ Script Tool
 """
 
 
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from json import dump
 from operator import itemgetter
@@ -24,7 +24,7 @@ from autobox.util import (
     validate_script_name, wrap_markup)
 
 
-class AbstractScript:
+class AbstractScript(metaclass=ABCMeta):
     """
     Abstract Script
     """
