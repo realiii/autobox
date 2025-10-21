@@ -9,7 +9,7 @@ from operator import attrgetter
 from os import walk
 from pathlib import Path
 from shutil import rmtree
-from typing import NoReturn, TYPE_CHECKING
+from typing import NoReturn, Self, TYPE_CHECKING
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from autobox.constant import (
@@ -50,6 +50,22 @@ class Toolbox:
         self._toolsets: list['Toolset'] = []
         self._tools: list['ScriptTool'] = []
     # End init built-in
+
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):  # pragma: no cover
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
 
     def __repr__(self) -> str:
         """
@@ -341,6 +357,14 @@ class Toolbox:
         self._save_toolbox(source=temporary, target=toolbox)
         return toolbox
     # End save method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return (self.name, self.label, self.alias, self.description,
+                tuple(self.tools), tuple(self.toolsets))
+    # End as_tuple method
 # End Toolbox class
 
 
