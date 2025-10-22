@@ -10,7 +10,7 @@ from typing import ClassVar, NoReturn, Self, Type
 
 from autobox.enum import ArealUnit, LinearUnit, TimeUnit
 from autobox.type import NUMBER, STRING
-from autobox.util import enum_repr
+from autobox.util import copier, enum_repr
 
 
 class AbstractDefault(metaclass=ABCMeta):
@@ -61,12 +61,8 @@ class BaseRangeDomain(AbstractDefault):
         """
         Deep Copy
         """
-        id_ = id(self)
-        if id_ in memo:  # pragma: no cover
-            return memo[id_]
-        obj = self.__class__(minimum=self.minimum, maximum=self.maximum)
-        memo[id_] = obj
-        return obj
+        kwargs = dict(minimum=self.minimum, maximum=self.maximum)
+        return copier(instance=self, memo=memo, kwargs=kwargs)
     # End deepcopy built-in
 
     def __repr__(self) -> str:
@@ -180,12 +176,8 @@ class BaseUnitValue(AbstractDefault):
         """
         Deep Copy
         """
-        id_ = id(self)
-        if id_ in memo:  # pragma: no cover
-            return memo[id_]
-        obj = self.__class__(value=self.value, unit=self.unit)
-        memo[id_] = obj
-        return obj
+        kwargs = dict(value=self.value, unit=self.unit)
+        return copier(instance=self, memo=memo, kwargs=kwargs)
     # End deepcopy built-in
 
     def __repr__(self) -> str:
@@ -288,12 +280,8 @@ class BaseBoundingBox(AbstractDefault):
         """
         Deep Copy
         """
-        id_ = id(self)
-        if id_ in memo:  # pragma: no cover
-            return memo[id_]
-        obj = self.__class__(x=self.x_domain, y=self.y_domain)
-        memo[id_] = obj
-        return obj
+        kwargs = dict(x=self.x_domain, y=self.y_domain)
+        return copier(instance=self, memo=memo, kwargs=kwargs)
     # End deepcopy built-in
 
     def __repr__(self) -> str:
@@ -371,12 +359,8 @@ class Extent(BaseBoundingBox):
         """
         Deep Copy
         """
-        id_ = id(self)
-        if id_ in memo:  # pragma: no cover
-            return memo[id_]
-        obj = self.__class__(x=self.x_domain, y=self.y_domain, crs=self.crs)
-        memo[id_] = obj
-        return obj
+        kwargs = dict(x=self.x_domain, y=self.y_domain, crs=self.crs)
+        return copier(instance=self, memo=memo, kwargs=kwargs)
     # End deepcopy built-in
 
     def __repr__(self) -> str:
@@ -453,12 +437,8 @@ class CellSizeXY(AbstractDefault):
         """
         Deep Copy
         """
-        id_ = id(self)
-        if id_ in memo:  # pragma: no cover
-            return memo[id_]
-        obj = self.__class__(x=self.x_size, y=self.y_size)
-        memo[id_] = obj
-        return obj
+        kwargs = dict(x=self.x_size, y=self.y_size)
+        return copier(instance=self, memo=memo, kwargs=kwargs)
     # End deepcopy built-in
 
     def __repr__(self) -> str:
@@ -530,12 +510,8 @@ class Point(AbstractDefault):
         """
         Deep Copy
         """
-        id_ = id(self)
-        if id_ in memo:  # pragma: no cover
-            return memo[id_]
-        obj = self.__class__(x=self.x, y=self.y)
-        memo[id_] = obj
-        return obj
+        kwargs = dict(x=self.x, y=self.y)
+        return copier(instance=self, memo=memo, kwargs=kwargs)
     # End deepcopy built-in
 
     def __repr__(self) -> str:
