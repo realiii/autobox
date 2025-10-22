@@ -24,8 +24,11 @@ from autobox.type import (
 from autobox.util import enum_repr, unique
 
 
-__all__ = ['ArealUnitFilter', 'FeatureClassTypeFilter', 'FieldTypeFilter',
-           'FileTypeFilter', 'LinearUnitFilter', 'WorkspaceTypeFilter']
+__all__ = ['ArealUnitFilter', 'DoubleRangeFilter', 'DoubleValueFilter',
+           'FeatureClassTypeFilter', 'FieldTypeFilter', 'FileTypeFilter',
+           'LinearUnitFilter', 'LongRangeFilter', 'LongValueFilter',
+           'StringValueFilter', 'TimeUnitFilter', 'TravelModeUnitTypeFilter',
+           'WorkspaceTypeFilter']
 
 
 class AbstractFilter(metaclass=ABCMeta):
