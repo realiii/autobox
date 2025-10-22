@@ -5,10 +5,11 @@ Enumerations
 
 
 from abc import ABCMeta, abstractmethod
+from copy import deepcopy
 from enum import StrEnum
 from math import isfinite
 from numbers import Real
-from typing import ClassVar, Self, Type
+from typing import Any, ClassVar, Self, Type
 
 from autobox.constant import (
     COMMA_SPACE, DOLLAR_RC, DOT, DomainContentKeys, GP_AREAL_UNIT,
@@ -21,11 +22,14 @@ from autobox.enum import (
     TravelModeUnitType, WorkspaceType)
 from autobox.type import (
     MAP_DICT_STR_LIST, MAP_STR, MAP_STR_LIST, NUMBER, STRING, STRINGS)
-from autobox.util import enum_repr, unique
+from autobox.util import copier, enum_repr, unique
 
 
-__all__ = ['ArealUnitFilter', 'FeatureClassTypeFilter', 'FieldTypeFilter',
-           'FileTypeFilter', 'LinearUnitFilter', 'WorkspaceTypeFilter']
+__all__ = ['ArealUnitFilter', 'DoubleRangeFilter', 'DoubleValueFilter',
+           'FeatureClassTypeFilter', 'FieldTypeFilter', 'FileTypeFilter',
+           'LinearUnitFilter', 'LongRangeFilter', 'LongValueFilter',
+           'StringValueFilter', 'TimeUnitFilter', 'TravelModeUnitTypeFilter',
+           'WorkspaceTypeFilter']
 
 
 class AbstractFilter(metaclass=ABCMeta):
@@ -39,6 +43,14 @@ class AbstractFilter(metaclass=ABCMeta):
         super().__init__()
         self._values: list = self._validate_values(values)
     # End init built-in
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
+        """
+        Deep Copy
+        """
+        kwargs = dict(values=deepcopy(self.values, memo=memo))
+        return copier(instance=self, memo=memo, kwargs=kwargs)
+    # End deepcopy built-in
 
     def __eq__(self, other: Self) -> bool:
         """
@@ -320,16 +332,20 @@ class AbstractRangeFilter(AbstractFilter, metaclass=ABCMeta):
         super().__init__((minimum, maximum))
     # End init built-in
 
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
+        """
+        Deep Copy
+        """
+        kwargs = dict(minimum=self.minimum, maximum=self.maximum)
+        return copier(instance=self, memo=memo, kwargs=kwargs)
+    # End deepcopy built-in
+
     def __repr__(self) -> str:
         """
         String Representation
         """
-        if self.values:
-            minimum, maximum = self.values
-        else:
-            minimum = maximum = 0
         return (f'{self.__class__.__name__}('
-                f'minimum={minimum!r}, maximum={maximum!r})')
+                f'minimum={self.minimum!r}, maximum={self.maximum!r})')
     # End repr built-in
 
     @abstractmethod
@@ -365,12 +381,33 @@ class AbstractRangeFilter(AbstractFilter, metaclass=ABCMeta):
         """
         if not self.values:
             return {}
-        minimum, maximum = self.values
         return {ParameterContentKeys.domain: {
             DomainContentKeys.type: GP_RANGE_DOMAIN,
-            DomainContentKeys.minimum: repr(minimum),
-            DomainContentKeys.maximum: repr(maximum)}}
+            DomainContentKeys.minimum: repr(self.minimum),
+            DomainContentKeys.maximum: repr(self.maximum)}}
     # End _serialize method
+
+    @property
+    def minimum(self) -> NUMBER:
+        """
+        Minimum
+        """
+        if not self.values:
+            return 0
+        value, _ = self.values
+        return value
+    # End minimum property
+
+    @property
+    def maximum(self) -> NUMBER:
+        """
+        Maximum
+        """
+        if not self.values:
+            return 0
+        _, value = self.values
+        return value
+    # End maximum property
 
     def as_tuple(self) -> tuple:
         """

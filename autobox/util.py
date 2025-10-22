@@ -9,7 +9,7 @@ from enum import StrEnum
 from pathlib import Path
 from re import sub
 from tempfile import mkdtemp
-from typing import NoReturn, TYPE_CHECKING
+from typing import Any, NoReturn, TYPE_CHECKING
 
 from autobox.constant import (
     DOT_DOT_SLASH, DOUBLE_SPACE, DOUBLE_UNDERSCORE, ATBX, ENUM_NAME, RELATIVE,
@@ -298,6 +298,19 @@ def enum_repr(value: StrEnum) -> str:
         return repr(value)
     return f'{value.__class__.__name__}.{value._name_}'
 # End enum_repr function
+
+
+def copier(instance: Any, memo: dict[int, Any], kwargs: dict[str, Any]) -> Any:
+    """
+    Copier
+    """
+    id_ = id(instance)
+    if id_ in memo:  # pragma: no cover
+        return memo[id_]
+    obj = instance.__class__(**kwargs)
+    memo[id_] = obj
+    return obj
+# End copier function
 
 
 if __name__ == '__main__':  # pragma: no cover
