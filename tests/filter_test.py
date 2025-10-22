@@ -3,16 +3,18 @@
 Filter Tests
 """
 
+
+from copy import deepcopy
+
 from pytest import approx, mark
 
 from autobox.enum import (
     ArealUnit, FieldType, GeometryType, LinearUnit, TimeUnit,
     TravelModeUnitType, WorkspaceType)
 from autobox.filter import (
-    AbstractNumberValueFilter, AbstractRangeFilter, ArealUnitFilter,
-    DoubleRangeFilter, DoubleValueFilter, FeatureClassTypeFilter,
-    FieldTypeFilter, FileTypeFilter, LinearUnitFilter, LongRangeFilter,
-    LongValueFilter, StringValueFilter, TimeUnitFilter,
+    ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
+    FeatureClassTypeFilter, FieldTypeFilter, FileTypeFilter, LinearUnitFilter,
+    LongRangeFilter, LongValueFilter, StringValueFilter, TimeUnitFilter,
     TravelModeUnitTypeFilter, WorkspaceTypeFilter)
 
 
@@ -58,6 +60,39 @@ def test_areal_unit_filter():
 # End test_areal_unit_filter function
 
 
+def test_areal_unit_filter_repr():
+    """
+    Test Areal Unit Filter repr
+    """
+    ftr = ArealUnitFilter([ArealUnit.SQUARE_MILES, ArealUnit.SQUARE_METERS])
+    assert repr(ftr) == 'ArealUnitFilter(values=[ArealUnit.SQUARE_MILES, ArealUnit.SQUARE_METERS])'
+# End test_areal_unit_filter_repr function
+
+
+def test_areal_unit_filter_hash():
+    """
+    Test Areal Unit Filter hash
+    """
+    a = ArealUnitFilter([ArealUnit.SQUARE_MILES, ArealUnit.SQUARE_METERS])
+    b = ArealUnitFilter([ArealUnit.SQUARE_METERS, ArealUnit.SQUARE_MILES])
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_areal_unit_filter_hash function
+
+
+def test_areal_unit_filter_deep_copy():
+    """
+    Test Areal Unit Filter deep copy
+    """
+    a = ArealUnitFilter([ArealUnit.SQUARE_MILES, ArealUnit.SQUARE_METERS])
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_areal_unit_filter_deep_copy function
+
+
 def test_feature_class_type_filter():
     """
     Test Feature Class Type Filter
@@ -83,6 +118,39 @@ def test_feature_class_type_filter():
 # End test_feature_class_type_filter function
 
 
+def test_feature_class_type_filter_repr():
+    """
+    Test Feature Class Type Filter repr
+    """
+    ftr = FeatureClassTypeFilter(list(GeometryType))
+    assert repr(ftr) == 'FeatureClassTypeFilter(values=[GeometryType.POINT, GeometryType.MULTIPOINT, GeometryType.POLYGON, GeometryType.POLYLINE, GeometryType.MULTIPATCH, GeometryType.ANNOTATION, GeometryType.DIMENSION])'
+# End test_feature_class_type_filter_repr function
+
+
+def test_feature_class_type_filter_hash():
+    """
+    Test Feature Class Type Filter hash
+    """
+    a = FeatureClassTypeFilter([GeometryType.POLYGON, GeometryType.DIMENSION])
+    b = FeatureClassTypeFilter([GeometryType.DIMENSION, GeometryType.POLYGON])
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_feature_class_type_filter_hash function
+
+
+def test_feature_class_type_filter_deep_copy():
+    """
+    Test Feature Class Type Filter deep copy
+    """
+    a = FeatureClassTypeFilter([GeometryType.POLYGON, GeometryType.DIMENSION])
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_feature_class_type_filter_deep_copy function
+
+
 def test_field_type_filter():
     """
     Test Field Type Filter
@@ -96,6 +164,39 @@ def test_field_type_filter():
     ftr = FieldTypeFilter(list(FieldType))
     assert ftr.serialize() == expected
 # End test_field_type_filter function
+
+
+def test_field_type_filter_repr():
+    """
+    Test Field Type Filter repr
+    """
+    ftr = FieldTypeFilter(list(FieldType))
+    assert repr(ftr) == 'FieldTypeFilter(values=[FieldType.SHORT, FieldType.LONG, FieldType.FLOAT, FieldType.BIG_INTEGER, FieldType.DOUBLE, FieldType.TEXT, FieldType.DATE, FieldType.OID, FieldType.TIME_ONLY, FieldType.DATE_ONLY, FieldType.TIMESTAMP_OFFSET, FieldType.GEOMETRY, FieldType.BLOB, FieldType.RASTER, FieldType.GUID, FieldType.GLOBAL_ID, FieldType.XML])'
+# End test_field_type_filter_repr function
+
+
+def test_field_type_filter_hash():
+    """
+    Test Field Type Filter hash
+    """
+    a = FieldTypeFilter([FieldType.SHORT, FieldType.LONG, FieldType.FLOAT])
+    b = FieldTypeFilter([FieldType.LONG, FieldType.SHORT, FieldType.FLOAT])
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_field_type_filter_hash function
+
+
+def test_field_type_filter_deep_copy():
+    """
+    Test Field Type Filter deep copy
+    """
+    a = FieldTypeFilter([FieldType.SHORT, FieldType.LONG, FieldType.FLOAT])
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_field_type_filter_deep_copy function
 
 
 def test_file_type_filter():
@@ -115,6 +216,39 @@ def test_file_type_filter():
     ftr = FileTypeFilter(('.txt', '.csv ', None, 'shp'))
     assert ftr.serialize() == expected
 # End test_file_type_filter function
+
+
+def test_file_type_filter_repr():
+    """
+    Test File Type Filter repr
+    """
+    ftr = FileTypeFilter(('.txt', '.csv ', None, 'shp'))
+    assert repr(ftr) == "FileTypeFilter(values=['txt', 'csv', 'shp'])"
+# End test_file_type_filter_repr function
+
+
+def test_file_type_filter_hash():
+    """
+    Test File Type Filter hash
+    """
+    a = FileTypeFilter(('.txt', '.csv ', None, 'shp'))
+    b = FileTypeFilter(('.txt', '.shp ', 'csv'))
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_file_type_filter_hash function
+
+
+def test_file_type_filter_deep_copy():
+    """
+    Test File Type Filter deep copy
+    """
+    a = FileTypeFilter(('.txt', '.csv ', None, 'shp'))
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_file_type_filter_deep_copy function
 
 
 def test_linear_unit_filter():
@@ -148,6 +282,39 @@ def test_linear_unit_filter():
 # End test_linear_unit_filter function
 
 
+def test_linear_unit_filter_repr():
+    """
+    Test Linear Unit Filter repr
+    """
+    ftr = LinearUnitFilter((LinearUnit.MILES, LinearUnit.METERS))
+    assert repr(ftr) == 'LinearUnitFilter(values=[LinearUnit.MILES, LinearUnit.METERS])'
+# End test_linear_unit_filter_repr function
+
+
+def test_linear_unit_filter_hash():
+    """
+    Test Linear Unit Filter hash
+    """
+    a = LinearUnitFilter((LinearUnit.MILES, LinearUnit.METERS))
+    b = LinearUnitFilter((LinearUnit.METERS, LinearUnit.MILES))
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_linear_unit_filter_hash function
+
+
+def test_linear_unit_filter_deep_copy():
+    """
+    Test Linear Unit Filter deep copy
+    """
+    a = LinearUnitFilter((LinearUnit.MILES, LinearUnit.METERS))
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_linear_unit_filter_deep_copy function
+
+
 def test_travel_mode_unit_type():
     """
     Test Travel Mode Unit Type
@@ -161,6 +328,41 @@ def test_travel_mode_unit_type():
     ftr = TravelModeUnitTypeFilter([])
     assert ftr.serialize() == {}
 # End test_travel_mode_unit_type function
+
+
+def test_travel_mode_unit_type_repr():
+    """
+    Test Travel Mode Unit Type repr
+    """
+    ftr = TravelModeUnitTypeFilter(list(TravelModeUnitType))
+    assert repr(ftr) == 'TravelModeUnitTypeFilter(values=[TravelModeUnitType.TIME, TravelModeUnitType.DISTANCE, TravelModeUnitType.OTHER])'
+    ftr = TravelModeUnitTypeFilter([])
+    assert repr(ftr) == 'TravelModeUnitTypeFilter(values=[])'
+# End test_travel_mode_unit_type_repr function
+
+
+def test_travel_mode_unit_type_hash():
+    """
+    Test Travel Mode Unit Type hash
+    """
+    a = TravelModeUnitTypeFilter([TravelModeUnitType.TIME, TravelModeUnitType.DISTANCE])
+    b = TravelModeUnitTypeFilter([TravelModeUnitType.DISTANCE, TravelModeUnitType.TIME])
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_travel_mode_unit_type_hash function
+
+
+def test_travel_mode_unit_type_deep_copy():
+    """
+    Test Travel Mode Unit Type deep copy
+    """
+    a = TravelModeUnitTypeFilter([TravelModeUnitType.TIME, TravelModeUnitType.DISTANCE])
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_travel_mode_unit_type_deep_copy function
 
 
 def test_time_unit_filter():
@@ -184,6 +386,39 @@ def test_time_unit_filter():
 # End test_time_unit_filter function
 
 
+def test_time_unit_filter_repr():
+    """
+    Test Time Unit Filter repr
+    """
+    ftr = TimeUnitFilter([TimeUnit.UNKNOWN, TimeUnit.MONTHS])
+    assert repr(ftr) == 'TimeUnitFilter(values=[TimeUnit.UNKNOWN, TimeUnit.MONTHS])'
+# End test_time_unit_filter_repr function
+
+
+def test_time_unit_filter_hash():
+    """
+    Test Time Unit Filter hash
+    """
+    a = TimeUnitFilter([TimeUnit.UNKNOWN, TimeUnit.MONTHS])
+    b = TimeUnitFilter([TimeUnit.MONTHS, TimeUnit.UNKNOWN])
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_time_unit_filter_hash function
+
+
+def test_time_unit_filter_deep_copy():
+    """
+    Test Time Unit Filter deep copy
+    """
+    a = TimeUnitFilter([TimeUnit.UNKNOWN, TimeUnit.MONTHS])
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_time_unit_filter_deep_copy function
+
+
 def test_workspace_type_filter():
     """
     Test Workspace Type Filter
@@ -195,6 +430,39 @@ def test_workspace_type_filter():
     ftr = WorkspaceTypeFilter(list(WorkspaceType))
     assert ftr.serialize() == expected
 # End test_workspace_type_filter function
+
+
+def test_workspace_type_filter_repr():
+    """
+    Test Workspace Type Filter repr
+    """
+    ftr = WorkspaceTypeFilter(list(WorkspaceType))
+    assert repr(ftr) == 'WorkspaceTypeFilter(values=[WorkspaceType.FILE_SYSTEM, WorkspaceType.LOCAL_DATABASE, WorkspaceType.REMOTE_DATABASE])'
+# End test_workspace_type_filter_repr function
+
+
+def test_workspace_type_filter_hash():
+    """
+    Test Workspace Type Filter hash
+    """
+    a = WorkspaceTypeFilter([WorkspaceType.FILE_SYSTEM, WorkspaceType.LOCAL_DATABASE])
+    b = WorkspaceTypeFilter([WorkspaceType.LOCAL_DATABASE, WorkspaceType.FILE_SYSTEM])
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_workspace_type_filter_hash function
+
+
+def test_workspace_type_filter_deep_copy():
+    """
+    Test Workspace Type Filter Deep Copy
+    """
+    a = WorkspaceTypeFilter([WorkspaceType.FILE_SYSTEM, WorkspaceType.LOCAL_DATABASE])
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_workspace_type_filter_deep_copy function
 
 
 def test_long_range_filter():
@@ -213,6 +481,41 @@ def test_long_range_filter():
 # End test_long_range_filter function
 
 
+@mark.parametrize('min_, max_, expected', [
+    (-1, 9876543210, 'LongRangeFilter(minimum=-1, maximum=9876543210)'),
+    ('a', 'b', 'LongRangeFilter(minimum=0, maximum=0)'),
+])
+def test_long_range_filter_repr(min_, max_, expected):
+    """
+    Test Long Range Filter repr
+    """
+    ftr = LongRangeFilter(min_, max_)
+    assert repr(ftr) == expected
+# End test_long_range_filter_repr function
+
+
+def test_long_range_filter_hash():
+    """
+    Test Long Range Filter hash
+    """
+    a = LongRangeFilter(-1, 10)
+    b = LongRangeFilter(10, -1)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_long_range_filter_hash function
+
+
+def test_long_range_filter_deep_copy():
+    """
+    Test Long Range Filter deep copy
+    """
+    a = LongRangeFilter(-1, 10)
+    b = deepcopy(a)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_long_range_filter_deep_copy function
+
+
 def test_double_range_filter():
     """
     Test Double Range Filter
@@ -226,6 +529,39 @@ def test_double_range_filter():
     max_value = float(domain['max'])
     assert approx(values, abs=0.001) == (min_value, max_value)
 # End test_double_range_filter function
+
+
+def test_double_range_filter_repr():
+    """
+    Test Double Range Filter repr
+    """
+    ftr = DoubleRangeFilter(-999.999, 9876.543)
+    assert repr(ftr) == 'DoubleRangeFilter(minimum=-999.999, maximum=9876.543)'
+# End test_double_range_filter_repr function
+
+
+def test_double_range_filter_hash():
+    """
+    Test Double Range Filter hash
+    """
+    a = DoubleRangeFilter(-999.999, 9876.543)
+    b = DoubleRangeFilter(9876.543, -999.999)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_double_range_filter_hash function
+
+
+def test_double_range_filter_deep_copy():
+    """
+    Test Double Range Filter deep copy
+    """
+    a = DoubleRangeFilter(-999.999, 9876.543)
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_double_range_filter_deep_copy function
 
 
 def test_long_value_filter():
@@ -248,6 +584,39 @@ def test_long_value_filter():
 # End test_long_value_filter function
 
 
+def test_long_value_filter_repr():
+    """
+    Test Long Value Filter repr
+    """
+    ftr = LongValueFilter((-999, 0, 1, 2, 3, 4, 5, 1234567890))
+    assert repr(ftr) == 'LongValueFilter(values=[-999, 0, 1, 2, 3, 4, 5, 1234567890])'
+# End test_long_value_filter_repr function
+
+
+def test_long_value_filter_hash():
+    """
+    Test Long Value Filter hash
+    """
+    a = LongValueFilter((-999, 0, 1, 5, 1234567890))
+    b = LongValueFilter((-999, 0, 5, 1234567890, 1))
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_long_value_filter_hash function
+
+
+def test_long_value_filter_deep_copy():
+    """
+    Test Long Value Filter deep copy
+    """
+    a = LongValueFilter((-999, 0, 1, 5, 1234567890))
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_long_value_filter_deep_copy function
+
+
 def test_double_value_filter():
     """
     Test Double Value Filter
@@ -267,6 +636,39 @@ def test_double_value_filter():
 # End test_double_value_filter function
 
 
+def test_double_value_filter_repr():
+    """
+    Test Double Value Filter repr
+    """
+    ftr = DoubleValueFilter((-999.999, 1.1, 2.22, 3.333, 4.4444, 5.55555, 123.456))
+    assert repr(ftr) == 'DoubleValueFilter(values=[-999.999, 1.1, 2.22, 3.333, 4.4444, 5.55555, 123.456])'
+# End test_double_value_filter_repr function
+
+
+def test_double_value_filter_hash():
+    """
+    Test Double Value Filter hash
+    """
+    a = DoubleValueFilter((-999.999, 1.1, 2.22, 123.456))
+    b = DoubleValueFilter((-999.999, 123.456, 1.1, 2.22))
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_double_value_filter_hash function
+
+
+def test_double_value_filter_deep_copy():
+    """
+    Test Double Value Filter deep copy
+    """
+    a = DoubleValueFilter((-999.999, 1.1, 2.22, 123.456))
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_double_value_filter_deep_copy function
+
+
 def test_string_value_filter():
     """
     Test String Value Filter
@@ -284,18 +686,51 @@ def test_string_value_filter():
         "string_value.domain.DDDD": "DDDD",
     }
     param_name = 'string_value'
-    ftp = StringValueFilter(('A', 'BB', 'CCC', 'DDDD'))
-    content, resource = ftp.serialize(param_name)
+    ftr = StringValueFilter(('A', 'BB', 'CCC', 'DDDD'))
+    content, resource = ftr.serialize(param_name)
     assert content == expected_content
     assert resource == expected_resource
 # End test_string_value_filter function
+
+
+def test_string_value_filter_repr():
+    """
+    Test String Value Filter repr
+    """
+    ftr = StringValueFilter(('A', 'BB', 'CCC', 'DDDD'))
+    assert repr(ftr) == "StringValueFilter(values=['A', 'BB', 'CCC', 'DDDD'])"
+# End test_string_value_filter_repr function
+
+
+def test_string_value_filter_hash():
+    """
+    Test String Value Filter hash
+    """
+    a = StringValueFilter(('A', 'BB', 'CCC', 'DDDD'))
+    b = StringValueFilter(('DDDD', 'A', 'BB', 'CCC'))
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_string_value_filter_hash function
+
+
+def test_string_value_filter_deep_copy():
+    """
+    Test String Value Filter deep copy
+    """
+    a = StringValueFilter(('A', 'BB', 'CCC', 'DDDD'))
+    b = deepcopy(a)
+    assert id(a) != id(b)
+    assert id(a.values) != id(b.values)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_string_value_filter_deep_copy function
 
 
 @mark.parametrize('values, expected', [
     (None, {}),
     ({}, {}),
     (WorkspaceType.LOCAL_DATABASE, {}),
-    (ArealUnit.ACRES_US, {'domain': {'items': [{'code': 'AcresUS', 'type': 'GPArealUnit', 'value': 'AcresUS'}], 'type': 'GPCodedValueDomain'}} ),
+    (ArealUnit.ACRES_US, {'domain': {'items': [{'code': 'AcresUS', 'type': 'GPArealUnit', 'value': 'AcresUS'}], 'type': 'GPCodedValueDomain'}}),
     (123, {}),
 ])
 def test_coded_domain(values, expected):
@@ -367,7 +802,7 @@ def test_range_filter_edge_cases(values, expected):
     """
     Test Range Filter Edge Cases
     """
-    a = AbstractRangeFilter(0, 0)
+    a = LongRangeFilter(0, 0)
     assert a._validate_and_convert(values, type_=int) == expected
     assert a.serialize() == {}
 # End test_range_filter_edge_cases function
@@ -387,7 +822,7 @@ def test_number_value_filter_edge_cases(values, expected):
     """
     Test Number Value Filter Edge Cases
     """
-    ftr = AbstractNumberValueFilter([])
+    ftr = LongValueFilter([])
     assert ftr._validate_and_convert(values, type_=int) == expected
     assert ftr.serialize() == {}
 # End test_number_value_filter_edge_cases function

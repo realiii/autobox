@@ -4,32 +4,35 @@ Enumerations
 """
 
 
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
+from copy import deepcopy
 from enum import StrEnum
 from math import isfinite
 from numbers import Real
-from typing import ClassVar, Type
-
+from typing import Any, ClassVar, Self, Type
 
 from autobox.constant import (
-    DOLLAR_RC, DOT, DomainContentKeys, GP_AREAL_UNIT, GP_CODED_VALUE_DOMAIN,
-    GP_DOUBLE, GP_FEATURE_CLASS_DOMAIN, GP_FIELD_DOMAIN, GP_FILE_DOMAIN,
-    GP_LINEAR_UNIT, GP_LONG, GP_RANGE_DOMAIN, GP_TIME_UNIT, GP_WORKSPACE_DOMAIN,
-    ItemsContentKeys, ParameterContentKeys, TRAVEL_MODES_STUB, XML,
-    XML_SERIALIZE)
+    COMMA_SPACE, DOLLAR_RC, DOT, DomainContentKeys, GP_AREAL_UNIT,
+    GP_CODED_VALUE_DOMAIN, GP_DOUBLE, GP_FEATURE_CLASS_DOMAIN, GP_FIELD_DOMAIN,
+    GP_FILE_DOMAIN, GP_LINEAR_UNIT, GP_LONG, GP_RANGE_DOMAIN, GP_TIME_UNIT,
+    GP_WORKSPACE_DOMAIN, ItemsContentKeys, ParameterContentKeys,
+    TRAVEL_MODES_STUB, XML, XML_SERIALIZE)
 from autobox.enum import (
     ArealUnit, FieldType, GeometryType, LinearUnit, TimeUnit,
     TravelModeUnitType, WorkspaceType)
 from autobox.type import (
     MAP_DICT_STR_LIST, MAP_STR, MAP_STR_LIST, NUMBER, STRING, STRINGS)
-from autobox.util import unique
+from autobox.util import copier, enum_repr, unique
 
 
-__all__ = ['ArealUnitFilter', 'FeatureClassTypeFilter', 'FieldTypeFilter',
-           'FileTypeFilter', 'LinearUnitFilter', 'WorkspaceTypeFilter']
+__all__ = ['ArealUnitFilter', 'DoubleRangeFilter', 'DoubleValueFilter',
+           'FeatureClassTypeFilter', 'FieldTypeFilter', 'FileTypeFilter',
+           'LinearUnitFilter', 'LongRangeFilter', 'LongValueFilter',
+           'StringValueFilter', 'TimeUnitFilter', 'TravelModeUnitTypeFilter',
+           'WorkspaceTypeFilter']
 
 
-class AbstractFilter:
+class AbstractFilter(metaclass=ABCMeta):
     """
     Abstract Filter
     """
@@ -40,6 +43,30 @@ class AbstractFilter:
         super().__init__()
         self._values: list = self._validate_values(values)
     # End init built-in
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
+        """
+        Deep Copy
+        """
+        kwargs = dict(values=deepcopy(self.values, memo=memo))
+        return copier(instance=self, memo=memo, kwargs=kwargs)
+    # End deepcopy built-in
+
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):  # pragma: no cover
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
 
     @abstractmethod
     def _validate_values(self, values: list | tuple) -> list:  # pragma: no cover
@@ -71,15 +98,31 @@ class AbstractFilter:
         """
         return self._serialize(name)
     # End serialize method
+
+    @abstractmethod
+    def as_tuple(self) -> tuple:  # pragma: no cover
+        """
+        As Tuple
+        """
+        pass
+    # End as_tuple method
 # End AbstractFilter class
 
 
-class AbstractEnumerationFilter(AbstractFilter):
+class AbstractEnumerationFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Enumeration Filter
     """
     keyword: ClassVar[str] = ''
     enumeration: ClassVar[Type[StrEnum]] = StrEnum
+
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        values = COMMA_SPACE.join(enum_repr(v) for v in self.values)
+        return f'{self.__class__.__name__}(values=[{values}])'
+    # End repr built-in
 
     def _validate_values(self, values: list[StrEnum] | tuple[StrEnum, ...]) \
             -> list[StrEnum]:
@@ -99,6 +142,13 @@ class AbstractEnumerationFilter(AbstractFilter):
         """
         pass
     # End _serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return self.keyword, frozenset(v.value for v in self.values)
+    # End as_tuple method
 # End AbstractEnumerationFilter class
 
 
@@ -212,6 +262,13 @@ class FileTypeFilter(AbstractEnumerationFilter):
             DomainContentKeys.type: GP_FILE_DOMAIN,
             DomainContentKeys.file_types: list(self.values)}}
     # End _serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return self.keyword, frozenset(self.values)
+    # End as_tuple method
 # End FileTypeFilter class
 
 
@@ -264,7 +321,7 @@ class WorkspaceTypeFilter(BaseTypeListFilter):
 # End WorkspaceTypeFilter class
 
 
-class AbstractRangeFilter(AbstractFilter):
+class AbstractRangeFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Range Filter
     """
@@ -274,6 +331,22 @@ class AbstractRangeFilter(AbstractFilter):
         """
         super().__init__((minimum, maximum))
     # End init built-in
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
+        """
+        Deep Copy
+        """
+        kwargs = dict(minimum=self.minimum, maximum=self.maximum)
+        return copier(instance=self, memo=memo, kwargs=kwargs)
+    # End deepcopy built-in
+
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        return (f'{self.__class__.__name__}('
+                f'minimum={self.minimum!r}, maximum={self.maximum!r})')
+    # End repr built-in
 
     @abstractmethod
     def _validate_values(self, values: tuple) -> list:  # pragma: no cover
@@ -308,12 +381,40 @@ class AbstractRangeFilter(AbstractFilter):
         """
         if not self.values:
             return {}
-        minimum, maximum = self.values
         return {ParameterContentKeys.domain: {
             DomainContentKeys.type: GP_RANGE_DOMAIN,
-            DomainContentKeys.minimum: repr(minimum),
-            DomainContentKeys.maximum: repr(maximum)}}
+            DomainContentKeys.minimum: repr(self.minimum),
+            DomainContentKeys.maximum: repr(self.maximum)}}
     # End _serialize method
+
+    @property
+    def minimum(self) -> NUMBER:
+        """
+        Minimum
+        """
+        if not self.values:
+            return 0
+        value, _ = self.values
+        return value
+    # End minimum property
+
+    @property
+    def maximum(self) -> NUMBER:
+        """
+        Maximum
+        """
+        if not self.values:
+            return 0
+        _, value = self.values
+        return value
+    # End maximum property
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return self.__class__.__name__, frozenset(self.values)
+    # End as_tuple method
 # End AbstractRangeFilter class
 
 
@@ -343,11 +444,18 @@ class DoubleRangeFilter(AbstractRangeFilter):
 # End DoubleRangeFilter class
 
 
-class AbstractNumberValueFilter(AbstractFilter):
+class AbstractNumberValueFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Number Value Filter
     """
     keyword: ClassVar[str] = ''
+
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        return f'{self.__class__.__name__}(values={self.values!r})'
+    # End repr built-in
 
     @abstractmethod
     def _validate_values(self, values: list | tuple) -> list:  # pragma: no cover
@@ -387,6 +495,13 @@ class AbstractNumberValueFilter(AbstractFilter):
             DomainContentKeys.type: GP_CODED_VALUE_DOMAIN,
             DomainContentKeys.items: items}}
     # End _serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return self.keyword, frozenset(self.values)
+    # End as_tuple method
 # End AbstractNumberValueFilter class
 
 
@@ -424,6 +539,13 @@ class StringValueFilter(AbstractFilter):
     """
     String Value Filter
     """
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        return f'{self.__class__.__name__}(values={self.values!r})'
+    # End repr built-in
+
     def _validate_values(self, values: STRINGS) -> list[str]:
         """
         Validate Values
@@ -458,6 +580,13 @@ class StringValueFilter(AbstractFilter):
         """
         return self._serialize(name)
     # End serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return self.__class__.__name__, frozenset(self.values)
+    # End as_tuple method
 # End StringValueFilter class
 
 

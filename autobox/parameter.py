@@ -2,22 +2,21 @@
 """
 Parameters
 """
-
-
+from copy import deepcopy
 from datetime import date, datetime, time
 from pathlib import Path
 from typing import Any, ClassVar, NoReturn, Self
 
 from autobox.constant import (
-    CSV, DATETIME_FORMAT, DATE_FORMAT, DBF, DERIVED, DOLLAR_RC, DOT, FILTER,
-    GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT, GP_MULTI_VALUE,
-    GP_TABLE_SCHEMA, GP_TIME_UNIT, LYR, LYRX, MXD, OPTIONAL, OUT, PARAMETER,
-    PRJ, ParameterContentKeys, ParameterContentResourceKeys, RELATIVE,
-    SEMI_COLON, SHP, SchemaContentKeys, ScriptToolContentKeys,
+    COMMA_SPACE, CSV, DATETIME_FORMAT, DATE_FORMAT, DBF, DERIVED, DOLLAR_RC,
+    DOT, ENUM_NAME, FILTER, GP_AREAL_UNIT, GP_FEATURE_SCHEMA, GP_LINEAR_UNIT,
+    GP_MULTI_VALUE, GP_TABLE_SCHEMA, GP_TIME_UNIT, LYR, LYRX, MXD, OPTIONAL,
+    OUT, PARAMETER, PRJ, ParameterContentKeys, ParameterContentResourceKeys,
+    RELATIVE, SEMI_COLON, SHP, SchemaContentKeys, ScriptToolContentKeys,
     ScriptToolContentResourceKeys, TAB, TIME_FORMAT, TRUE, TXT)
 from autobox.default import (
-    ArealUnitValue, CellSizeXY, Envelope, Extent, LinearUnitValue, MDomain,
-    Point, TimeUnitValue, XYDomain, ZDomain)
+    AbstractDefault, ArealUnitValue, CellSizeXY, Envelope, Extent,
+    LinearUnitValue, MDomain, Point, TimeUnitValue, XYDomain, ZDomain)
 from autobox.enum import SACellSize
 from autobox.filter import (
     AbstractFilter, ArealUnitFilter, DoubleRangeFilter, DoubleValueFilter,
@@ -28,7 +27,7 @@ from autobox.type import (
     BOOL, DATETIME, MAP_STR, NUMBER, PATH, STRING, STRINGS, TYPES, TYPE_FILTERS,
     TYPE_PARAMS)
 from autobox.util import (
-    make_parameter_name, quote, resolve_layer_path, unique,
+    copier, enum_repr, make_parameter_name, quote, resolve_layer_path, unique,
     validate_parameter_label, validate_parameter_name, validate_path,
     wrap_markup)
 
@@ -125,6 +124,87 @@ class BaseParameter:
         self._symbology: PATH = None
     # End init built-in
 
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
+        """
+        Deep Copy
+        """
+        kwargs = dict(
+            label=self.label, name=self.name, category=self.category,
+            description=self.description,
+            default_value=deepcopy(self.default_value),
+            is_input=self.is_input, is_required=self.is_required,
+            is_multi=self.is_multi, is_enabled=self.is_enabled)
+        obj = copier(instance=self, memo=memo, kwargs=kwargs)
+        obj.dependency = deepcopy(self.dependency, memo)
+        obj.filter = deepcopy(self.filter, memo)
+        obj.symbology = deepcopy(self.symbology, memo)
+        return obj
+    # End deepcopy built-in
+
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):  # pragma: no cover
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        attributes = self._build_attributes()
+        if not attributes:
+            stub = ''
+        else:
+            stub = COMMA_SPACE.join(a for a in attributes if a)
+            stub = f'{COMMA_SPACE}{stub}'
+        return (f'{self.__class__.__name__}('
+                f'label={self.label!r}, name={self.name!r}{stub})')
+    # End repr built-in
+
+    def _build_attributes(self) -> STRINGS:
+        """
+        Build Attributes
+        """
+        empty = ''
+        category = description = default_value = empty
+        if self.category:
+            category = f'category={self.category!r}'
+        if self.description:
+            description = f'description={self.description!r}'
+        if (value := self.default_value) is not None:
+            if isinstance(value, Path):
+                default_value = f'default_value={str(value)!r}'
+            elif hasattr(value, ENUM_NAME):
+                default_value = f'default_value={enum_repr(value)}'
+            else:
+                default_value = f'default_value={value!r}'
+        attributes = [category, description, default_value]
+        is_input = is_required = is_multi = is_enabled = empty
+        if not self.is_input:
+            is_input = f'is_input={self.is_input!r}'
+        if not self.is_required:
+            is_required = f'is_required={self.is_required!r}'
+        if self.is_multi:
+            is_multi = f'is_multi={self.is_multi!r}'
+        if not self.is_enabled:
+            is_enabled = f'is_enabled={self.is_enabled!r}'
+        attributes.extend([is_input, is_required, is_multi, is_enabled])
+        if not any(attributes):
+            return ()
+        else:
+            return attributes
+    # End _build_attributes method
+
     @staticmethod
     def _validate_label(label: str) -> str | NoReturn:
         """
@@ -156,6 +236,7 @@ class BaseParameter:
         values = [v for v in value if isinstance(v, self.default_types)]
         if values:
             return tuple(unique(values))
+        return None
     # End _validate_multi_default method
 
     def _validate_default(self, value: Any) -> Any:
@@ -189,7 +270,7 @@ class BaseParameter:
         Validate Type
         """
         if value is None or not types:
-            return
+            return None
         if not isinstance(value, types):
             raise TypeError(f'Invalid {text} type: {value}')
         return value
@@ -214,7 +295,7 @@ class BaseParameter:
         Validate Layer File
         """
         if not path:
-            return
+            return None
         text = 'layer file'
         path = validate_path(path, text=text)
         if path.suffix.casefold() not in (LYRX, LYR):
@@ -347,7 +428,7 @@ class BaseParameter:
         """
         values = []
         for v in value:
-            if isinstance(v, Path):
+            if isinstance(v, (Path, AbstractDefault)):
                 func = str
             else:
                 func = repr
@@ -538,6 +619,16 @@ class BaseParameter:
         """
         return self._serialize(categories, target=target)
     # End serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return (self.keyword, self.label, self.name, self.category,
+                self.description, self.is_input, self.is_required,
+                self.is_multi, self.is_enabled, self.default_value,
+                self.dependency, self.filter, self.symbology)
+    # End as_tuple method
 # End BaseParameter class
 
 
@@ -570,6 +661,38 @@ class InputParameter(BaseParameter):
             default_value=default_value, is_input=True, is_required=is_required,
             is_multi=is_multi, is_enabled=is_enabled)
     # End init built-in
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
+        """
+        Deep Copy
+        """
+        kwargs = dict(
+            label=self.label, name=self.name, category=self.category,
+            description=self.description,
+            default_value=deepcopy(self.default_value),
+            is_required=self.is_required, is_multi=self.is_multi,
+            is_enabled=self.is_enabled)
+        obj = copier(instance=self, memo=memo, kwargs=kwargs)
+        obj.dependency = deepcopy(self.dependency, memo)
+        obj.filter = deepcopy(self.filter, memo)
+        obj.symbology = deepcopy(self.symbology, memo)
+        return obj
+    # End deepcopy built-in
+
+    def __repr__(self) -> str:
+        """
+        String Representation
+        """
+        attributes = self._build_attributes()
+        if not attributes:
+            stub = ''
+        else:
+            stub = COMMA_SPACE.join(a for a in attributes
+                                    if a and not a.startswith('is_input='))
+            stub = f'{COMMA_SPACE}{stub}'
+        return (f'{self.__class__.__name__}('
+                f'label={self.label!r}, name={self.name!r}{stub})')
+    # End repr built-in
 # End InputParameter class
 
 

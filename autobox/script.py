@@ -4,7 +4,7 @@ Script Tool
 """
 
 
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from json import dump
 from operator import itemgetter
@@ -24,7 +24,10 @@ from autobox.util import (
     validate_script_name, wrap_markup)
 
 
-class AbstractScript:
+__all__ = ['ExecutionScript', 'ScriptTool', 'ValidationScript']
+
+
+class AbstractScript(metaclass=ABCMeta):
     """
     Abstract Script
     """
@@ -38,6 +41,46 @@ class AbstractScript:
         self._path: PATH = path
         self._embed: bool = embed
     # End init built-in
+
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
+    @property
+    def code(self) -> STRING:
+        """
+        Code
+        """
+        return self._code
+    # End code property
+
+    @property
+    def path(self) -> PATH:
+        """
+        Path
+        """
+        return self._path
+    # End path property
+
+    @property
+    def embed(self) -> bool:
+        """
+        Embed
+        """
+        return self._embed
+    # End embed property
 
     def _serialize(self, source: Path, target: Path) -> Path:
         """
@@ -55,16 +98,16 @@ class AbstractScript:
         """
         Get Content
         """
-        if not self._path and not self._code:
+        if not self.path and not self.code:
             raise ValueError('No code or path provided')
-        if self._code:
-            return self._code
-        if self._embed:
-            return self._path.read_text(encoding=ENCODING)
+        if self.code:
+            return self.code
+        if self.embed:
+            return self.path.read_text(encoding=ENCODING)
         try:
-            path = self._path.relative_to(target.resolve())
+            path = self.path.relative_to(target.resolve())
         except ValueError:
-            return str(self._path)
+            return str(self.path)
         return f'{RELATIVE}{path}'
     # End _get_content method
 
@@ -91,6 +134,13 @@ class AbstractScript:
         """
         return self._serialize(source=source, target=target)
     # End serialize method
+
+    def as_tuple(self) -> tuple[STRING, PATH, bool]:
+        """
+        As Tuple
+        """
+        return self.code, self.path, self.embed
+    # End as_tuple method
 # End AbstractScript class
 
 
@@ -183,7 +233,7 @@ class ScriptTool:
         :param label: An optional label for the script tool.
         :param description: An optional description of the script tool,
             this should be plain text only.
-        :param description: An optional summary of the script tool,
+        :param summary: An optional summary of the script tool,
             this text can be plain text or html.
         :param attributes: An optional tuple of booleans which set special
             attributes on the script tool.
@@ -202,12 +252,33 @@ class ScriptTool:
         self._parameters: list[PARAMETER] = []
     # End init built-in
 
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):  # pragma: no cover
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
+
     def __repr__(self) -> str:
         """
         Class Representation
         """
+        if any(self.attributes):
+            attributes = f', attributes={self.attributes!r}'
+        else:
+            attributes = ''
         return (f'{self.__class__.__name__}(name={self.name!r}, '
-                f'label={self.label!r}, description={self.description!r})')
+                f'label={self.label!r}, description={self.description!r}, '
+                f'summary={self.summary!r}{attributes})')
     # End repr built-in
 
     @staticmethod
@@ -346,7 +417,7 @@ class ScriptTool:
         Validate Image Path
         """
         if not path:
-            return
+            return None
         path = validate_path(path, text=text)
         if path.suffix.casefold() not in (PNG, JPG):
             raise TypeError(f'Invalid {text} file type: {path.suffix}')
@@ -365,7 +436,6 @@ class ScriptTool:
                               (content, resource)):
             file_path = script_path.joinpath(name)
             with file_path.open(mode='w', encoding=ENCODING) as fout:
-                # noinspection PyTypeChecker
                 dump(data, fp=fout, indent=2)
         if not self.execution_script:
             self.execution_script = DEFAULT_EXECUTION_SCRIPT
@@ -497,6 +567,16 @@ class ScriptTool:
         """
         return self._serialize(source=source, target=target)
     # End serialize method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return (self.name, self._folder, self.label, self.description,
+                self.summary, self.attributes, self._execution,
+                self._validation, self.icon, self.illustration,
+                tuple(self.parameters))
+    # End as_tuple method
 # End ScriptTool class
 
 

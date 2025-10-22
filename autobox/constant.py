@@ -8,15 +8,20 @@ from typing import ClassVar
 
 
 DOT: str = '.'
+COMMA: str = ','
 SPACE: str = ' '
 UNDERSCORE: str = '_'
 COLON: str = ':'
 SEMI_COLON: str = ';'
+COMMA_SPACE: str = f'{COMMA}{SPACE}'
 DOUBLE_SPACE: str = f'{SPACE}{SPACE}'
 DOUBLE_UNDERSCORE: str = f'{UNDERSCORE}{UNDERSCORE}'
 DOT_DOT_SLASH: str = f'{DOT}{DOT}\\'
 # NOTE relative from a tool folder to folder containing toolbox
 RELATIVE: str = f'{DOT_DOT_SLASH}{DOT_DOT_SLASH}'
+
+
+ENUM_NAME: str = '_name_'
 
 
 DATE_FORMAT: str = '%m/%d/%Y'

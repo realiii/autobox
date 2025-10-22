@@ -4,7 +4,7 @@ Toolset
 """
 
 
-from typing import NoReturn, Optional, TYPE_CHECKING
+from typing import NoReturn, Optional, Self, TYPE_CHECKING
 
 from autobox.constant import ILLUSTRATION, PARENT
 from autobox.util import validate_toolset_name
@@ -12,6 +12,9 @@ from autobox.util import validate_toolset_name
 
 if TYPE_CHECKING:  # pragma: no cover
     from autobox import ScriptTool
+
+
+__all__ = ['Toolset']
 
 
 class Toolset:
@@ -31,6 +34,22 @@ class Toolset:
         self._tools: list['ScriptTool'] = []
         self._parent: Optional['Toolset'] = None
     # End init built-in
+
+    def __eq__(self, other: Self) -> bool:
+        """
+        Equality
+        """
+        if not isinstance(other, self.__class__):  # pragma: no cover
+            return False
+        return self.as_tuple() == other.as_tuple()
+    # End eq built-in
+
+    def __hash__(self) -> int:
+        """
+        Hash
+        """
+        return hash(self.as_tuple())
+    # End hash built-in
 
     def __repr__(self) -> str:
         """
@@ -132,6 +151,13 @@ class Toolset:
         toolset.parent = self
         self.toolsets.append(toolset)
     # End add_toolset method
+
+    def as_tuple(self) -> tuple:
+        """
+        As Tuple
+        """
+        return self.qualified_name, tuple(self.tools), tuple(self.toolsets)
+    # End as_tuple method
 # End Toolset class
 
 

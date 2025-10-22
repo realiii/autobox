@@ -4,6 +4,7 @@ Classes for Default Value
 """
 
 
+from abc import ABCMeta, abstractmethod
 from enum import StrEnum
 from typing import ClassVar, NoReturn, Self, Type
 
@@ -11,7 +12,20 @@ from autobox.enum import ArealUnit, LinearUnit, TimeUnit
 from autobox.type import NUMBER, STRING
 
 
-class BaseRangeDomain:
+class AbstractDefault(metaclass=ABCMeta):
+    """
+    Abstract Default
+    """
+    def __eq__(self, other: Self) -> bool: ...
+    def __hash__(self) -> int: ...
+    def __repr__(self) -> str: ...
+    def __str__(self) -> str: ...
+    @abstractmethod
+    def as_tuple(self) -> tuple: ...
+# End AbstractDefault class
+
+
+class BaseRangeDomain(AbstractDefault):
     """
     Base Range Domain
     """
@@ -19,21 +33,24 @@ class BaseRangeDomain:
     _max: NUMBER
 
     def __init__(self, minimum: NUMBER, maximum: NUMBER) -> None: ...
-    def __eq__(self, other: Self) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __repr__(self) -> str: ...
     def _validate_range(self, minimum: NUMBER, maximum: NUMBER) -> tuple[NUMBER, NUMBER]: ...
     @staticmethod
     def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn: ...
     @property
-    def maximum(self) -> NUMBER: ...
-    @property
     def minimum(self) -> NUMBER: ...
+    @property
+    def maximum(self) -> NUMBER: ...
     def as_tuple(self) -> tuple[NUMBER, NUMBER]: ...
 # End BaseRangeDomain class
 
 
-class BaseUnitValue:
+class MDomain(BaseRangeDomain): ...
+class XDomain(BaseRangeDomain): ...
+class YDomain(BaseRangeDomain): ...
+class ZDomain(BaseRangeDomain): ...
+
+
+class BaseUnitValue(AbstractDefault):
     """
     Base Unit Value
     """
@@ -46,25 +63,12 @@ class BaseUnitValue:
     @staticmethod
     def _validate_value(value: NUMBER) -> NUMBER | NoReturn: ...
     def _validate_unit(self, value: StrEnum) -> StrEnum | NoReturn: ...
-    def as_tuple(self) -> tuple[int, StrEnum]: ...
+    @property
+    def unit(self) -> StrEnum: ...
+    @property
+    def value(self) -> NUMBER: ...
+    def as_tuple(self) -> tuple[NUMBER, StrEnum]: ...
 # End BaseUnitValue class
-
-
-class BaseBoundingBox:
-    """
-    Base Bounding Box
-    """
-    _x: XDomain
-    _y: YDomain
-
-    def __init__(self, x: XDomain, y: YDomain) -> None: ...
-    def __eq__(self, other) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __repr__(self): ...
-    @staticmethod
-    def _validate_domain(value, type_) -> BaseRangeDomain | NoReturn: ...
-    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]: ...
-# End BaseBoundingBox class
 
 
 class ArealUnitValue(BaseUnitValue):
@@ -81,42 +85,6 @@ class ArealUnitValue(BaseUnitValue):
 # End ArealUnitValue class
 
 
-class Envelope(BaseBoundingBox):
-    """
-    Envelope
-    """
-# End Envelope class
-
-
-class Extent(BaseBoundingBox):
-    """
-    Extent
-    """
-    _crs: STRING
-
-    def __init__(self, x: XDomain, y: YDomain, crs: STRING = None) -> None: ...
-    @staticmethod
-    def _validate_coordinate_system(value: STRING) -> STRING | NoReturn: ...
-# End Extent class
-
-
-class CellSizeXY:
-    """
-    Cell Size XY
-    """
-    _x: NUMBER
-    _y: NUMBER
-
-    def __init__(self, x: NUMBER, y: NUMBER) -> None: ...
-    def __eq__(self, other: Self) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __repr__(self) -> str: ...
-    @staticmethod
-    def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn: ...
-    def as_tuple(self) -> tuple[NUMBER, NUMBER]: ...
-# End CellSizeXY class
-
-
 class LinearUnitValue(BaseUnitValue):
     """
     Linear Unit Value
@@ -129,26 +97,6 @@ class LinearUnitValue(BaseUnitValue):
     def _validate_unit(self, value: LinearUnit) -> LinearUnit | NoReturn: ...
     def as_tuple(self) -> tuple[int, LinearUnit]: ...
 # End LinearUnitValue class
-
-
-class MDomain(BaseRangeDomain): ...
-
-
-class Point:
-    """
-    Point
-    """
-    _x: NUMBER
-    _y: NUMBER
-
-    def __init__(self, x: NUMBER, y: NUMBER) -> None: ...
-    def __eq__(self, other: Self) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __repr__(self) -> str: ...
-    @staticmethod
-    def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn: ...
-    def as_tuple(self) -> tuple[NUMBER, NUMBER]: ...
-# End Point class
 
 
 class TimeUnitValue(BaseUnitValue):
@@ -165,18 +113,80 @@ class TimeUnitValue(BaseUnitValue):
 # End TimeUnitValue class
 
 
-class XDomain(BaseRangeDomain): ...
-class YDomain(BaseRangeDomain): ...
-
-
-class XYDomain(BaseBoundingBox):
+class BaseBoundingBox(AbstractDefault):
     """
-    XY Domain
+    Base Bounding Box
     """
-# End XYDomain class
+    _x: XDomain
+    _y: YDomain
+
+    def __init__(self, x: XDomain, y: YDomain) -> None: ...
+    @staticmethod
+    def _validate_domain(value, type_) -> BaseRangeDomain | NoReturn: ...
+    @property
+    def x_domain(self) -> XDomain: ...
+    @property
+    def y_domain(self) -> YDomain: ...
+    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]: ...
+# End BaseBoundingBox class
 
 
-class ZDomain(BaseRangeDomain): ...
+class Envelope(BaseBoundingBox): ...
+
+
+class Extent(BaseBoundingBox):
+    """
+    Extent
+    """
+    _crs: STRING
+    crs: STRING
+
+    def __init__(self, x: XDomain, y: YDomain, crs: STRING = None) -> None: ...
+    @staticmethod
+    def _validate_coordinate_system(value: STRING) -> STRING | NoReturn: ...
+    @property
+    def coordinate_reference_system(self) -> STRING: ...
+    def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER, STRING]: ...
+# End Extent class
+
+
+class XYDomain(BaseBoundingBox): ...
+
+
+class CellSizeXY(AbstractDefault):
+    """
+    Cell Size XY
+    """
+    _x: NUMBER
+    _y: NUMBER
+
+    def __init__(self, x: NUMBER, y: NUMBER) -> None: ...
+    @staticmethod
+    def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn: ...
+    @property
+    def x_size(self) -> NUMBER: ...
+    @property
+    def y_size(self) -> NUMBER: ...
+    def as_tuple(self) -> tuple[NUMBER, NUMBER]: ...
+# End CellSizeXY class
+
+
+class Point(AbstractDefault):
+    """
+    Point
+    """
+    _x: NUMBER
+    _y: NUMBER
+
+    def __init__(self, x: NUMBER, y: NUMBER) -> None: ...
+    @staticmethod
+    def _validate_value(value: NUMBER, text: str) -> NUMBER | NoReturn: ...
+    @property
+    def x(self) -> NUMBER: ...
+    @property
+    def y(self) -> NUMBER: ...
+    def as_tuple(self) -> tuple[NUMBER, NUMBER]: ...
+# End Point class
 
 
 if __name__ == '__main__':  # pragma: no cover

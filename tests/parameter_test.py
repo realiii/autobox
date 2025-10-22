@@ -4,18 +4,17 @@ Parameter Test
 """
 
 
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
+from sys import platform
 
 from pytest import approx, mark, raises
 
-from autobox.constant import ParameterContentKeys, SEMI_COLON
+from autobox.constant import ParameterContentKeys
 from autobox.default import (
     ArealUnitValue, CellSizeXY, Envelope, Extent, LinearUnitValue, MDomain,
-    Point, TimeUnitValue,
-    XDomain, XYDomain,
-    YDomain,
-    ZDomain)
+    Point, TimeUnitValue, XDomain, XYDomain, YDomain, ZDomain)
 from autobox.enum import (
     ArealUnit, SACellSize, FieldType, GeometryType, LinearUnit, TimeUnit,
     WorkspaceType)
@@ -26,22 +25,16 @@ from autobox.filter import (
 from autobox.parameter import (
     AnalysisCellSizeParameter, ArealUnitParameter, BooleanParameter,
     CalculatorExpressionParameter, CellSizeXYParameter,
-    CoordinateSystemParameter, DateParameter,
-    DbaseTableParameter, DoubleParameter,
-    EncryptedStringParameter, EnvelopeParameter, ExtentParameter,
-    FeatureClassParameter,
-    FeatureDatasetParameter,
+    CoordinateSystemParameter, DateParameter, DbaseTableParameter,
+    DoubleParameter, EncryptedStringParameter, EnvelopeParameter,
+    ExtentParameter, FeatureClassParameter, FeatureDatasetParameter,
     FeatureLayerParameter, FieldParameter, FileParameter, FolderParameter,
     InputOutputParameter, InputParameter, LinearUnitParameter, LongParameter,
-    MDomainParameter, MapDocumentParameter, PointParameter,
-    PrjFileParameter, RasterDatasetParameter,
-    SACellSizeParameter,
-    SQLExpressionParameter, ShapeFileParameter, StringHiddenParameter,
-    StringParameter,
-    TableParameter, TextfileParameter, TimeUnitParameter, TinParameter,
-    WorkspaceParameter,
-    XYDomainParameter,
-    ZDomainParameter)
+    MDomainParameter, MapDocumentParameter, PointParameter, PrjFileParameter,
+    RasterDatasetParameter, SACellSizeParameter, SQLExpressionParameter,
+    ShapeFileParameter, SpatialReferenceParameter, StringHiddenParameter,
+    StringParameter, TableParameter, TextfileParameter, TimeUnitParameter,
+    TinParameter, WorkspaceParameter, XYDomainParameter, ZDomainParameter)
 
 
 def test_parameter_instantiate():
@@ -68,6 +61,8 @@ def test_parameter_instantiate():
 
     param.is_enabled = False
     assert not param.is_enabled
+
+    assert repr(param) == "InputOutputParameter(label='param', name='param', category='cat', description='desc', default_value='asdf', is_enabled=False)"
 # End test_parameter_instantiate function
 
 
@@ -93,17 +88,17 @@ def test_parameter_label(cls, label, expected):
 # End test_parameter_label function
 
 
-@mark.parametrize('is_required, is_input, is_enabled', [
-    (True, True, True),
-    (True, True, False),
-    (True, False, True),
-    (True, False, False),
-    (False, True, True),
-    (False, True, False),
-    (False, False, True),
-    (False, False, False),
+@mark.parametrize('is_required, is_input, is_enabled, expected', [
+    (True, True, True, "InputOutputParameter(label='param', name='param')"),
+    (True, True, False, "InputOutputParameter(label='param', name='param', is_enabled=False)"),
+    (True, False, True, "InputOutputParameter(label='param', name='param', is_input=False)"),
+    (True, False, False, "InputOutputParameter(label='param', name='param', is_input=False, is_enabled=False)"),
+    (False, True, True, "InputOutputParameter(label='param', name='param', is_required=False)"),
+    (False, True, False, "InputOutputParameter(label='param', name='param', is_required=False, is_enabled=False)"),
+    (False, False, True, "InputOutputParameter(label='param', name='param', is_input=False, is_required=False)"),
+    (False, False, False, "InputOutputParameter(label='param', name='param', is_input=False, is_required=False, is_enabled=False)"),
 ])
-def test_parameter_set_derived(is_required, is_input, is_enabled):
+def test_parameter_set_derived(is_required, is_input, is_enabled, expected):
     """
     Test Parameter set derived
     """
@@ -113,9 +108,11 @@ def test_parameter_set_derived(is_required, is_input, is_enabled):
     assert param.is_required is is_required
     assert param.is_input is is_input
     assert param.is_enabled is is_enabled
+    assert repr(param) == expected
     param.set_derived()
     assert param.is_required is None
     assert not param.is_input
+    assert 'is_required=None' in repr(param)
     assert param.is_enabled
 # End test_parameter_set_derived function
 
@@ -146,7 +143,28 @@ def test_parameter_simple_string():
     content, resource = param.serialize(categories, target=None)
     assert content == expected_content[name]
     assert resource == expected_resource
+    assert repr(param) == "StringParameter(label='Simple String Label', name='Simple_String_Name', category='cat 1', description='plain text description', default_value='the quick brown fox')"
 # End test_parameter_simple_string function
+
+
+def test_parameter_simple_string_hash():
+    """
+    Test Parameter Simple String hash
+    """
+    name = "Simple_String_Name"
+    category = 'cat 1'
+    label = 'Simple String Label'
+    description = 'plain text description'
+    default = 'the quick brown fox'
+    a = StringParameter(
+        label=label, name=name, category=category,
+        description=description, default_value=default)
+    b = StringParameter(
+        label=label, name=name, category=category,
+        description=description, default_value=default)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_parameter_simple_string_hash function
 
 
 def test_parameter_derived_string():
@@ -179,7 +197,30 @@ def test_parameter_derived_string():
     content, resource = param.serialize(categories, target=None)
     assert content == expected_content[name]
     assert resource == expected_resource
+    assert repr(param) == """StringParameter(label='Derived String Label', name='DerivedStringName', category='cat 2', description='<xdoc><p><span style="text-decoration:underline;">underline </span><span>and </span><i>emphasis</i></p></xdoc>', default_value='lazy dog', is_input=False, is_required=None)"""
 # End test_parameter_derived_string function
+
+
+def test_parameter_derived_string_hash():
+    """
+    Test Parameter derived string hash
+    """
+    name = "DerivedStringName"
+    category = 'cat 2'
+    description = '<p><span style=\"text-decoration:underline;\">underline </span><span>and </span><i>emphasis</i></p>'
+    default = 'lazy dog'
+    label = 'Derived String Label'
+    a = StringParameter(
+        label=label, name=name, category=category,
+        description=description, default_value=default)
+    a.set_derived()
+    b = StringParameter(
+        label=label, name=name, category=category,
+        description=description, default_value=default)
+    b.set_derived()
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_parameter_derived_string_hash function
 
 
 def test_parameter_multi_string():
@@ -221,77 +262,120 @@ def test_parameter_multi_string():
 # End test_parameter_multi_string function
 
 
-@mark.parametrize('cls, label, name, default_value, expected_content, expected_resource', [
+def test_parameter_multi_string_hash():
+    """
+    Test Parameter Multi String hash
+    """
+    name = "multi_string_name"
+    category = 'cat 1'
+    defaults = ('jumps over the', 'second line',
+                'includes "double quote" characters',
+                "includes 'single quote' characters")
+    label = 'Multi String Label'
+    description = '<p><b>all bold</b></p>'
+    a = StringParameter(
+        label=label, name=name, category=category,
+        description=description, default_value=defaults,
+        is_required=False, is_multi=True)
+    b = StringParameter(
+        label=label, name=name, category=category,
+        description=description, default_value=defaults,
+        is_required=False, is_multi=True)
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_parameter_multi_string_hash function
+
+
+@mark.parametrize('cls, label, name, default_value, expected_content, expected_resource, expected_repr', [
     (LongParameter, 'Long', 'long_name', 123,
      {"displayname": "$rc:long_name.title", "datatype": {"type": "GPLong"}, "value": "123"},
-     {"long_name.title": "Long"}),
+     {"long_name.title": "Long"}, "LongParameter(label='Long', name='long_name', default_value=123)"),
     (LongParameter, 'Long Multi', 'long_multi_name', (12, 34, 56),
      {"displayname": "$rc:long_multi_name.title", "datatype": {"type": "GPMultiValue", "datatype": {"type": "GPLong"}}, "value": "12;34;56"},
-     {"long_multi_name.title": "Long Multi"}),
+     {"long_multi_name.title": "Long Multi"}, "LongParameter(label='Long Multi', name='long_multi_name', default_value=(12, 34, 56), is_multi=True)"),
     (DoubleParameter, 'Double', 'double_name', 123.456,
      {"displayname": "$rc:double_name.title", "datatype": {"type": "GPDouble"}, "value": "123.456"},
-     {"double_name.title": "Double"}),
+     {"double_name.title": "Double"}, "DoubleParameter(label='Double', name='double_name', default_value=123.456)"),
     (DoubleParameter, 'Double Multi', 'double_multi_name', (23.456, 789.1),
      {"displayname": "$rc:double_multi_name.title", "datatype": {"type": "GPMultiValue", "datatype": {"type": "GPDouble"}}, "value": "23.456;789.1"},
-     {"double_multi_name.title": "Double Multi"}),
+     {"double_multi_name.title": "Double Multi"}, "DoubleParameter(label='Double Multi', name='double_multi_name', default_value=(23.456, 789.1), is_multi=True)"),
 ])
-def test_parameter_numeric(cls, label, name, default_value, expected_content, expected_resource):
+def test_parameter_numeric(cls, label, name, default_value, expected_content, expected_resource, expected_repr):
     """
     Test parameter numeric
     """
-    param = cls(label=label, name=name, default_value=default_value,
-                is_multi=isinstance(default_value, tuple))
-    content, resource = param.serialize({}, target=None)
+    a = cls(label=label, name=name, default_value=default_value,
+            is_multi=isinstance(default_value, tuple))
+    b = cls(label=label, name=name, default_value=default_value,
+            is_multi=isinstance(default_value, tuple))
+    content, resource = a.serialize({}, target=None)
     assert content == expected_content
     assert resource == expected_resource
+    assert repr(a) == expected_repr
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_parameter_numeric function
 
 
-@mark.parametrize('cls, label, name, description, is_input, is_required, expected_content, expected_resource', [
+@mark.parametrize('cls, label, name, description, is_input, is_required, expected_content, expected_resource, expected_repr', [
     (WorkspaceParameter, 'Workspaces', 'workspaces', 'Allow for multiple workspaces', True, True,
      {"displayname": "$rc:workspaces.title", "datatype": {"type": "GPMultiValue", "datatype": {"type": "DEWorkspace"}}, "description": "$rc:workspaces.descr"},
-     {"workspaces.descr": "Allow for multiple workspaces", "workspaces.title": "Workspaces"}),
+     {"workspaces.descr": "Allow for multiple workspaces", "workspaces.title": "Workspaces"},
+     "WorkspaceParameter(label='Workspaces', name='workspaces', description='Allow for multiple workspaces', is_multi=True)"),
     (WorkspaceParameter, 'Output Workspace', 'output_workspace_name', None, False, True,
      {"direction": "out", "displayname": "$rc:output_workspace_name.title", "datatype": {"type": "DEWorkspace"}},
-     {"output_workspace_name.title": "Output Workspace"}),
+     {"output_workspace_name.title": "Output Workspace"},
+     "WorkspaceParameter(label='Output Workspace', name='output_workspace_name', is_input=False)"),
     (FeatureDatasetParameter, 'A Feature Dataset', 'a_feature_dataset_name', None, False, True,
      {"direction": "out", "displayname": "$rc:a_feature_dataset_name.title", "datatype": {"type": "DEFeatureDataset"}},
-     {"a_feature_dataset_name.title": "A Feature Dataset"}),
+     {"a_feature_dataset_name.title": "A Feature Dataset"},
+     "FeatureDatasetParameter(label='A Feature Dataset', name='a_feature_dataset_name', is_input=False)"),
     (FeatureClassParameter, 'Main Feature Class', 'main_feature_class_name', None, False, False,
      {"type": "optional", "direction": "out", "displayname": "$rc:main_feature_class_name.title", "datatype": {"type": "DEFeatureClass"}, "schema": {"type": "GPFeatureSchema", "generateoutputcatalogpath": "true"}},
-     {"main_feature_class_name.title": "Main Feature Class"}),
+     {"main_feature_class_name.title": "Main Feature Class"},
+     "FeatureClassParameter(label='Main Feature Class', name='main_feature_class_name', is_input=False, is_required=False)"),
     (FeatureClassParameter, 'Feature Class Input', 'feature_class_input_name', None, True, True,
      {"displayname": "$rc:feature_class_input_name.title", "datatype": {"type": "DEFeatureClass"}},
-     {"feature_class_input_name.title": "Feature Class Input"}),
+     {"feature_class_input_name.title": "Feature Class Input"},
+     "FeatureClassParameter(label='Feature Class Input', name='feature_class_input_name')"),
     (FeatureLayerParameter, 'Feature Layer Example', 'feature_layer_example', None, True, True,
      {"displayname": "$rc:feature_layer_example.title", "datatype": {"type": "GPFeatureLayer"}},
-     {"feature_layer_example.title": "Feature Layer Example"}),
+     {"feature_layer_example.title": "Feature Layer Example"},
+     "FeatureLayerParameter(label='Feature Layer Example', name='feature_layer_example')"),
     (RasterDatasetParameter, 'Raster Dataset Input', 'raster_dataset_input_name', None, True, True,
      {"displayname": "$rc:raster_dataset_input_name.title", "datatype": {"type": "DERasterDataset"}},
-     {"raster_dataset_input_name.title": "Raster Dataset Input"}),
+     {"raster_dataset_input_name.title": "Raster Dataset Input"},
+     "RasterDatasetParameter(label='Raster Dataset Input', name='raster_dataset_input_name')"),
     (RasterDatasetParameter, 'Raster Dataset Output', 'raster_dataset_output_name', None, False, True,
      {"direction": "out", "displayname": "$rc:raster_dataset_output_name.title", "datatype": {"type": "DERasterDataset"}},
-     {"raster_dataset_output_name.title": "Raster Dataset Output"}),
+     {"raster_dataset_output_name.title": "Raster Dataset Output"},
+     "RasterDatasetParameter(label='Raster Dataset Output', name='raster_dataset_output_name', is_input=False)"),
     (TinParameter, 'Tin Man', 'tin_man_name', None, True, True,
      {"displayname": "$rc:tin_man_name.title", "datatype": {"type": "DETin"}},
-     {"tin_man_name.title": "Tin Man"}),
+     {"tin_man_name.title": "Tin Man"}, "TinParameter(label='Tin Man', name='tin_man_name')"),
     (TableParameter, 'Table Input', 'table_input_name', None, True, True,
      {"displayname": "$rc:table_input_name.title", "datatype": {"type": "DETable"}},
-     {"table_input_name.title": "Table Input"}),
+     {"table_input_name.title": "Table Input"}, "TableParameter(label='Table Input', name='table_input_name')"),
     (TableParameter, 'Table Output', 'table_output_name', None, False, True,
      {"direction": "out", "displayname": "$rc:table_output_name.title", "datatype": {"type": "DETable"}, "schema": {"type": "GPTableSchema", "generateoutputcatalogpath": "true"}},
-     {"table_output_name.title": "Table Output"}),
+     {"table_output_name.title": "Table Output"}, "TableParameter(label='Table Output', name='table_output_name', is_input=False)"),
 ])
-def test_parameter_data_element(cls, label, name, description, is_input, is_required, expected_content, expected_resource):
+def test_parameter_data_element(cls, label, name, description, is_input, is_required, expected_content, expected_resource, expected_repr):
     """
     Test parameter data elements
     """
-    param = cls(label=label, name=name, description=description,
-                is_required=is_required, is_input=is_input,
-                is_multi=name.endswith('s'))
-    content, resource = param.serialize({}, target=None)
+    a = cls(label=label, name=name, description=description,
+            is_required=is_required, is_input=is_input,
+            is_multi=name.endswith('s'))
+    b = cls(label=label, name=name, description=description,
+            is_required=is_required, is_input=is_input,
+            is_multi=name.endswith('s'))
+    content, resource = a.serialize({}, target=None)
     assert content == expected_content
     assert resource == expected_resource
+    assert repr(a) == expected_repr
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_parameter_workspace_multi function
 
 
@@ -299,25 +383,39 @@ def test_parameter_dependency():
     """
     Test parameter dependency
     """
-    param1 = FeatureClassParameter(name='FeatureClassName', label='Feature Class Name')
-    param2 = FieldParameter(name='FieldName', label='Field Name')
+    name = 'FeatureClassName'
+    label = 'Feature Class Name'
+    a = FeatureClassParameter(name=name, label=label)
+    field_a = FieldParameter(name='FieldName', label='Field Name')
     key = ParameterContentKeys.depends
-    content, _ = param1.serialize({}, target=None)
+    content, _ = a.serialize({}, target=None)
     assert key not in content
-    content, _ = param2.serialize({}, target=None)
+    content, _ = field_a.serialize({}, target=None)
     assert key not in content
 
-    param1.dependency = param2
-    assert param1.dependency is None
+    a.dependency = field_a
+    assert a.dependency is None
 
     with raises(TypeError):
-        param2.dependency = Ellipsis
+        field_a.dependency = Ellipsis
 
-    param2.dependency = param1
-    assert param2.dependency is not None
-    content, _ = param2.serialize({}, target=None)
+    field_a.dependency = a
+    assert field_a.dependency is not None
+    content, _ = field_a.serialize({}, target=None)
     assert key in content
-    assert content[key] == ['FeatureClassName']
+    assert content[key] == [name]
+
+    assert repr(a) == "FeatureClassParameter(label='Feature Class Name', name='FeatureClassName')"
+    assert repr(field_a) == "FieldParameter(label='Field Name', name='FieldName')"
+
+    b = FeatureClassParameter(name=name, label=label)
+    field_b = FieldParameter(name='FieldName', label='Field Name')
+    field_b.dependency = b
+
+    assert a == b
+    assert hash(a) == hash(b)
+    assert field_a == field_b
+    assert hash(field_a) == hash(field_b)
 # End test_parameter_dependency function
 
 
@@ -366,11 +464,18 @@ def test_areal_unit_parameter_filter():
     expected_resource = {
         "areal_unit.title": "Areal Unit",
     }
-    param = ArealUnitParameter(label='Areal Unit', name='Areal_Unit')
-    param.filter = ArealUnitFilter(list(ArealUnit))
-    content, resource = param.serialize({}, target=None)
-    assert content == expected_content[param.name]
+    a = ArealUnitParameter(label='Areal Unit', name='Areal_Unit')
+    a.filter = ArealUnitFilter(list(ArealUnit))
+    b = deepcopy(a)
+    content, resource = a.serialize({}, target=None)
+    assert content == expected_content[a.name]
     assert resource == expected_resource
+    assert repr(a) == "ArealUnitParameter(label='Areal Unit', name='Areal_Unit')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_areal_unit_parameter_filter function
 
 
@@ -414,11 +519,18 @@ def test_linear_unit_parameter_filter():
     expected_resource = {
         "linear_unit.title": "Linear Unit",
     }
-    param = LinearUnitParameter(label='Linear Unit', name='Linear_Unit')
-    param.filter = LinearUnitFilter(list(LinearUnit))
-    content, resource = param.serialize({}, target=None)
-    assert content == expected_content[param.name]
+    a = LinearUnitParameter(label='Linear Unit', name='Linear_Unit')
+    a.filter = LinearUnitFilter(list(LinearUnit))
+    b = deepcopy(a)
+    content, resource = a.serialize({}, target=None)
+    assert content == expected_content[a.name]
     assert resource == expected_resource
+    assert repr(a) == "LinearUnitParameter(label='Linear Unit', name='Linear_Unit')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_linear_unit_parameter_filter function
 
 
@@ -451,11 +563,18 @@ def test_feature_class_parameter_filter():
     expected_resource = {
         "feature_type.title": "Feature Type",
     }
-    param = FeatureClassParameter(label='Feature Type', name='Feature_Type')
-    param.filter = FeatureClassTypeFilter(list(GeometryType))
-    content, resource = param.serialize({}, target=None)
-    assert content == expected_content[param.name]
+    a = FeatureClassParameter(label='Feature Type', name='Feature_Type')
+    a.filter = FeatureClassTypeFilter(list(GeometryType))
+    b = deepcopy(a)
+    content, resource = a.serialize({}, target=None)
+    assert content == expected_content[a.name]
     assert resource == expected_resource
+    assert repr(a) == "FeatureClassParameter(label='Feature Type', name='Feature_Type')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_feature_class_parameter_filter function
 
 
@@ -476,11 +595,18 @@ def test_field_parameter_filter():
     expected_resource = {
         "field_type.title": "Field Type",
     }
-    param = FieldParameter(label='Field Type', name='Field_Type')
-    param.filter = FieldTypeFilter(list(FieldType))
-    content, resource = param.serialize({}, target=None)
-    assert content == expected_content[param.name]
+    a = FieldParameter(label='Field Type', name='Field_Type')
+    a.filter = FieldTypeFilter(list(FieldType))
+    b = deepcopy(a)
+    content, resource = a.serialize({}, target=None)
+    assert content == expected_content[a.name]
     assert resource == expected_resource
+    assert repr(a) == "FieldParameter(label='Field Type', name='Field_Type')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_field_parameter_filter function
 
 
@@ -496,11 +622,19 @@ def test_file_parameter_filter():
     expected_resource = {
         "file_type.title": "File Type",
     }
-    param = FileParameter(label='File Type', name='File_Type')
-    param.filter = FileTypeFilter(('txt', 'csv ', 'shp'))
-    content, resource = param.serialize({}, target=None)
-    assert content == expected_content[param.name]
+    a = FileParameter(label='File Type', name='File_Type')
+    a.filter = FileTypeFilter(('txt', 'csv ', 'shp'))
+    b = deepcopy(a)
+
+    content, resource = a.serialize({}, target=None)
+    assert content == expected_content[a.name]
     assert resource == expected_resource
+    assert repr(a) == "FileParameter(label='File Type', name='File_Type')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_file_parameter_filter function
 
 
@@ -527,11 +661,18 @@ def test_workspace_parameter_filter():
     expected_resource = {
         "workspace.title": "Workspace",
     }
-    param = WorkspaceParameter(label='Workspace', name='Workspace')
-    param.filter = WorkspaceTypeFilter(list(WorkspaceType))
-    content, resource = param.serialize({}, target=None)
-    assert content == expected_content[param.name]
+    a = WorkspaceParameter(label='Workspace', name='Workspace')
+    a.filter = WorkspaceTypeFilter(list(WorkspaceType))
+    b = deepcopy(a)
+    content, resource = a.serialize({}, target=None)
+    assert content == expected_content[a.name]
     assert resource == expected_resource
+    assert repr(a) == "WorkspaceParameter(label='Workspace', name='Workspace')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_workspace_parameter_filter function
 
 
@@ -555,11 +696,18 @@ def test_long_parameter_range_filter():
     expected_resource = {
         "long_range.title": "Long Range",
     }
-    param = LongParameter(label='Long Range', name='Long_Range')
-    param.filter = LongRangeFilter(-1, 9876543210)
-    content, resource = param.serialize({}, target=None)
-    assert content == expected_content[param.name]
+    a = LongParameter(label='Long Range', name='Long_Range')
+    a.filter = LongRangeFilter(-1, 9876543210)
+    b = deepcopy(a)
+    content, resource = a.serialize({}, target=None)
+    assert content == expected_content[a.name]
     assert resource == expected_resource
+    assert repr(a) == "LongParameter(label='Long Range', name='Long_Range')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_long_parameter_range_filter function
 
 
@@ -575,8 +723,8 @@ def test_double_parameter_range_filter():
             },
             "domain": {
                 "type": "GPRangeDomain",
-                "min": "-999.99900000000002",
-                "max": "9876.5429999999997"
+                "min": "-999.999",
+                "max": "9876.543"
             }
         }
     }
@@ -584,15 +732,23 @@ def test_double_parameter_range_filter():
         "double_range.title": "Double Range",
     }
     values = -999.999, 9876.543
-    param = DoubleParameter(label='Double Range', name='Double_Range')
-    param.filter = DoubleRangeFilter(*values)
-    content, resource = param.serialize({}, target=None)
+    a = DoubleParameter(label='Double Range', name='Double_Range')
+    a.filter = DoubleRangeFilter(*values)
+    b = deepcopy(a)
+    content, resource = a.serialize({}, target=None)
     domain = content['domain']
     assert domain['type'] == 'GPRangeDomain'
     min_value = float(domain['min'])
     max_value = float(domain['max'])
     assert approx(values, abs=0.001) == (min_value, max_value)
+    assert content == expected_content[a.name]
     assert resource == expected_resource
+    assert repr(a) == "DoubleParameter(label='Double Range', name='Double_Range')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_double_parameter_range_filter function
 
 
@@ -617,11 +773,18 @@ def test_long_parameter_value_filter():
     expected_resource = {
         "long_value.title": "Long Value",
     }
-    param = LongParameter(label='Long Value', name='Long_Value')
-    param.filter = LongValueFilter((-999, 0, 1, 2, 3, 4, 5, 1234567890))
-    content, resource = param.serialize({}, target=None)
-    assert content == expected_content[param.name]
+    a = LongParameter(label='Long Value', name='Long_Value')
+    a.filter = LongValueFilter((-999, 0, 1, 2, 3, 4, 5, 1234567890))
+    b = deepcopy(a)
+    content, resource = a.serialize({}, target=None)
+    assert content == expected_content[a.name]
     assert resource == expected_resource
+    assert repr(a) == "LongParameter(label='Long Value', name='Long_Value')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_long_parameter_value_filter function
 
 
@@ -645,11 +808,18 @@ def test_double_parameter_value_filter():
         "double_value.title": "Double Value",
     }
     values = -999.999, 1.1, 2.22, 3.333, 4.4444, 5.55555, 123.456
-    param = DoubleParameter(label='Double Value', name='Double_Value')
-    param.filter = DoubleValueFilter(values)
-    content, resource = param.serialize({}, target=None)
-    assert content == expected_content[param.name]
+    a = DoubleParameter(label='Double Value', name='Double_Value')
+    a.filter = DoubleValueFilter(values)
+    b = deepcopy(a)
+    content, resource = a.serialize({}, target=None)
+    assert content == expected_content[a.name]
     assert resource == expected_resource
+    assert repr(a) == "DoubleParameter(label='Double Value', name='Double_Value')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_double_parameter_value_filter function
 
 
@@ -675,11 +845,18 @@ def test_string_parameter_value_filter():
 
     }
     values = "A", "BB", "CCC", "DDDD"
-    param = StringParameter(label='String Value', name='String_Value')
-    param.filter = StringValueFilter(values)
-    content, resource = param.serialize({}, target=None)
-    assert content == expected_content[param.name]
+    a = StringParameter(label='String Value', name='String_Value')
+    a.filter = StringValueFilter(values)
+    b = deepcopy(a)
+    content, resource = a.serialize({}, target=None)
+    assert content == expected_content[a.name]
     assert resource == expected_resource
+    assert repr(a) == "StringParameter(label='String Value', name='String_Value')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_string_parameter_value_filter function
 
 
@@ -694,28 +871,35 @@ def test_parameter_symbology(tmp_path, data_path):
     lyr_legacy = data_path / 'boxbox.lyr'
     assert not lyr_legacy.is_file()
 
-    fc = FeatureClassParameter(label='Feature Class')
-    assert fc.symbology is None
-    fc.symbology = None
-    assert fc.symbology is None
+    a = FeatureClassParameter(label='Feature Class')
+    assert a.symbology is None
+    a.symbology = None
+    assert a.symbology is None
 
     with raises(TypeError):
-        fc.symbology = script
-    assert fc.symbology is None
+        a.symbology = script
+    assert a.symbology is None
 
     with raises(FileNotFoundError):
-        fc.symbology = lyr_legacy
-    assert fc.symbology is None
+        a.symbology = lyr_legacy
+    assert a.symbology is None
 
-    fc = FeatureClassParameter(label='Feature Class', is_input=False)
-    fc.symbology = lyr
-    assert fc.symbology is not None
-
-    content, resources = fc.serialize({}, target=tmp_path)
+    a = FeatureClassParameter(label='Feature Class', is_input=False)
+    a.symbology = lyr
+    b = deepcopy(a)
+    assert a.symbology is not None
+    content, resources = a.serialize({}, target=tmp_path)
     assert ParameterContentKeys.symbology in content
     value = content[ParameterContentKeys.symbology]
     assert lyr.name in value
     assert resources == {'feature_class.title': 'Feature Class'}
+    assert repr(a) == "FeatureClassParameter(label='Feature Class', name='feature_class', is_input=False)"
+
+    assert id(a) != id(b)
+    assert id(a.symbology) != id(b.symbology)
+    assert a == b
+    assert hash(a) == hash(b)
+
 # End test_parameter_symbology function
 
 
@@ -761,12 +945,16 @@ def test_boolean_specialization():
         BooleanParameter(label='Boolean', name='Boolean', default_value=1)
     with raises(ValueError):
         BooleanParameter(label='Boolean', name='Boolean', is_required=False)
-    b = BooleanParameter(label='Boolean', name='Boolean')
-    assert b.default_value is True
+    a = BooleanParameter(label='Boolean', name='Boolean')
+    b = deepcopy(a)
+    assert a.default_value is True
     with raises(TypeError):
-        b.default_value = 'True'
-    data, _ = b.serialize({}, target=None)
+        a.default_value = 'True'
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == 'true'
+    assert repr(a) == "BooleanParameter(label='Boolean', name='Boolean', default_value=True)"
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_boolean_specialization function
 
 
@@ -774,31 +962,44 @@ def test_default_value_analysis_cell_size():
     """
     Test default value analysis cell size
     """
-    p = AnalysisCellSizeParameter(label='Analysis Cell Size')
+    a = AnalysisCellSizeParameter(label='Analysis Cell Size')
+    b = deepcopy(a)
+
+    assert a == b
+    assert hash(a) == hash(b)
+
     with raises(TypeError):
-        p.default_value = '100'
+        a.default_value = '100'
 
     with raises(ValueError):
-        p.default_value = -10
+        a.default_value = -10
 
-    p.default_value = 100
-    assert p.default_value == 100
-    data, _ = p.serialize({}, target=None)
+    a.default_value = 100
+    assert a.default_value == 100
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == '100'
 
-    p.default_value = 123.45
-    assert p.default_value == 123.45
-    data, _ = p.serialize({}, target=None)
+    assert repr(a) == "AnalysisCellSizeParameter(label='Analysis Cell Size', name='analysis_cell_size', default_value=100)"
+
+    a.default_value = 123.45
+    assert a.default_value == 123.45
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == '123.45'
 
+    assert repr(a) == "AnalysisCellSizeParameter(label='Analysis Cell Size', name='analysis_cell_size', default_value=123.45)"
+
     path = Path('c:/temp/test.tif')
-    p.default_value = path
-    assert p.default_value == path
-    data, _ = p.serialize({}, target=None)
+    a.default_value = path
+    assert a.default_value == path
+    data, _ = a.serialize({}, target=None)
     assert data['value'] in ('c:/temp/test.tif', r'c:\temp\test.tif')
 
-    p.default_value = None
-    assert p.default_value is None
+    assert repr(a).startswith("AnalysisCellSizeParameter(label='Analysis Cell Size', name='analysis_cell_size', default_value='c:")
+
+    a.default_value = None
+    assert a.default_value is None
+
+    assert repr(a) == "AnalysisCellSizeParameter(label='Analysis Cell Size', name='analysis_cell_size')"
 # End test_default_value_analysis_cell_size function
 
 
@@ -806,24 +1007,33 @@ def test_default_value_cell_size_xy():
     """
     Test default value cell size xy
     """
-    p = CellSizeXYParameter(label='Cell Size XY')
+    a = CellSizeXYParameter(label='Cell Size XY')
+    b = deepcopy(a)
+    assert a == b
+    assert hash(a) == hash(b)
     with raises(TypeError):
-        p.default_value = '100'
+        a.default_value = '100'
     with raises(TypeError):
-        p.default_value = 100
+        a.default_value = 100
 
     xy = CellSizeXY(100, 200)
-    p.default_value = xy
-    data, _ = p.serialize({}, target=None)
+    a.default_value = xy
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == '100 200'
 
+    assert repr(a) == "CellSizeXYParameter(label='Cell Size XY', name='cell_size_xy', default_value=CellSizeXY(x=100, y=200))"
+
     xy = CellSizeXY(100.123, 200.456)
-    p.default_value = xy
-    data, _ = p.serialize({}, target=None)
+    a.default_value = xy
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == '100.123 200.456'
 
-    p.default_value = None
-    assert p.default_value is None
+    assert repr(a) == "CellSizeXYParameter(label='Cell Size XY', name='cell_size_xy', default_value=CellSizeXY(x=100.123, y=200.456))"
+
+    a.default_value = None
+    assert a.default_value is None
+
+    assert repr(a) == "CellSizeXYParameter(label='Cell Size XY', name='cell_size_xy')"
 # End test_default_value_cell_size_xy function
 
 
@@ -831,28 +1041,39 @@ def test_default_value_sa_cell_size():
     """
     Test default value sa cell size
     """
-    p = SACellSizeParameter(label='SA Cell Size')
+    a = SACellSizeParameter(label='SA Cell Size')
+    b = deepcopy(a)
+    assert a == b
+    assert hash(a) == hash(b)
     with raises(TypeError):
-        p.default_value = '100'
+        a.default_value = '100'
     with raises(TypeError):
-        p.default_value = 100
+        a.default_value = 100
 
     path = Path('c:/temp/test.tif')
-    p.default_value = path
-    assert p.default_value == path
-    data, _ = p.serialize({}, target=None)
+    a.default_value = path
+    assert a.default_value == path
+    data, _ = a.serialize({}, target=None)
     assert data['value'] in ('c:/temp/test.tif', r'c:\temp\test.tif')
 
-    p.default_value = SACellSize.MAXIMUM
-    data, _ = p.serialize({}, target=None)
+    assert repr(a).startswith("SACellSizeParameter(label='SA Cell Size', name='sa_cell_size', default_value='c:")
+
+    a.default_value = SACellSize.MAXIMUM
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == 'Maximum of Inputs'
 
-    p.default_value = SACellSize.MINIMUM
-    data, _ = p.serialize({}, target=None)
+    assert repr(a) == "SACellSizeParameter(label='SA Cell Size', name='sa_cell_size', default_value=SACellSize.MAXIMUM)"
+
+    a.default_value = SACellSize.MINIMUM
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == 'Minimum of Inputs'
 
-    p.default_value = None
-    assert p.default_value is None
+    assert repr(a) == "SACellSizeParameter(label='SA Cell Size', name='sa_cell_size', default_value=SACellSize.MINIMUM)"
+
+    a.default_value = None
+    assert a.default_value is None
+
+    assert repr(a) == "SACellSizeParameter(label='SA Cell Size', name='sa_cell_size')"
 # End test_default_value_sa_cell_size function
 
 
@@ -864,13 +1085,18 @@ def test_default_value_range_domain(param_cls, default_cls):
     """
     Test Default Value for M Domain and Z Domain
     """
-    p = param_cls(label='Domain')
+    a = param_cls(label='Domain')
+    b = deepcopy(a)
     with raises(TypeError):
-        p.default_value = '100'
+        a.default_value = '100'
 
-    p.default_value = default_cls(-1000, 1000)
-    data, _ = p.serialize({}, target=None)
+    a.default_value = default_cls(-1000, 1000)
+    b.default_value = default_cls(-1000, 1000)
+    assert a == b
+    assert hash(a) == hash(b)
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == '-1000 1000'
+    assert repr(a) == f"{param_cls.__name__}(label='Domain', name='domain', default_value={default_cls.__name__}(minimum=-1000, maximum=1000))"
 # End test_default_value_m_domain function
 
 
@@ -878,13 +1104,18 @@ def test_default_value_xy_domain():
     """
     Test Default Value for XY Domain
     """
-    p = XYDomainParameter(label='XY Domain')
+    a = XYDomainParameter(label='XY Domain')
+    b = deepcopy(a)
     with raises(TypeError):
-        p.default_value = '100'
+        a.default_value = '100'
 
-    p.default_value = XYDomain(XDomain(-1000, 1000), YDomain(-2000, 2000))
-    data, _ = p.serialize({}, target=None)
+    a.default_value = XYDomain(XDomain(-1000, 1000), YDomain(-2000, 2000))
+    b.default_value = XYDomain(XDomain(-1000, 1000), YDomain(-2000, 2000))
+    assert a == b
+    assert hash(a) == hash(b)
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == '-1000 -2000 1000 2000'
+    assert repr(a) == "XYDomainParameter(label='XY Domain', name='xy_domain', default_value=XYDomain(x=XDomain(minimum=-1000, maximum=1000), y=YDomain(minimum=-2000, maximum=2000)))"
 # End test_default_value_xy_domain function
 
 
@@ -898,10 +1129,14 @@ def test_default_value_string_hidden_encrypted(cls):
     """
     with raises(ValueError):
         cls(label='String', default_value='abc')
-    p = cls(label='String')
+    a = cls(label='String')
+    b = deepcopy(a)
     with raises(ValueError):
-        p.default_value = 'abc'
-    assert p.default_value is None
+        a.default_value = 'abc'
+    assert a == b
+    assert hash(a) == hash(b)
+    assert a.default_value is None
+    assert repr(a) == f"{cls.__name__}(label='String', name='string')"
 # End test_default_value_string_hidden_encrypted function
 
 
@@ -914,15 +1149,20 @@ def test_default_value_string_calc_sql(cls):
     """
     Test Default Value String, Calculator Expression, and SQL Expression
     """
-    p = cls(label='String')
+    a = cls(label='String')
+    b = deepcopy(a)
     with raises(TypeError):
-        p.default_value = 12345
-    assert p.default_value is None
+        a.default_value = 12345
+    assert a.default_value is None
     value = 'abcdefg'
-    p.default_value = value
-    assert p.default_value == value
-    data, _ = p.serialize({}, target=None)
+    a.default_value = value
+    b.default_value = value
+    assert a.default_value == value
+    assert a == b
+    assert hash(a) == hash(b)
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == value
+    assert repr(a) == f"{cls.__name__}(label='String', name='string', default_value='abcdefg')"
 # End test_default_value_string_calc_sql function
 
 
@@ -935,49 +1175,68 @@ def test_default_value_string_multi(value, expected):
     """
     Test Default Value String Multi
     """
-    p = StringParameter(label='String', is_multi=True, default_value=value)
-    assert p.default_value == expected
+    a = StringParameter(label='String', is_multi=True, default_value=value)
+    b = deepcopy(a)
+    assert a.default_value == expected
+    assert repr(a) == "StringParameter(label='String', name='string', default_value=('100',), is_multi=True)"
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_default_value_string_multi function
 
 
-@mark.parametrize('param_cls, default_cls, value, unit, expected', [
-    (ArealUnitParameter, ArealUnitValue, 10, ArealUnit.HECTARES, '10 Hectares'),
-    (LinearUnitParameter, LinearUnitValue, 123.45, LinearUnit.METERS, '123.45 Meters'),
-    (TimeUnitParameter, TimeUnitValue, 31, TimeUnit.DAYS, '31 Days'),
+@mark.parametrize('param_cls, default_cls, value, unit, expected, expected_repr', [
+    (ArealUnitParameter, ArealUnitValue, 10, ArealUnit.HECTARES, '10 Hectares', "ArealUnitParameter(label='Unit', name='unit', default_value=ArealUnitValue(value=10, unit=ArealUnit.HECTARES))"),
+    (LinearUnitParameter, LinearUnitValue, 123.45, LinearUnit.METERS, '123.45 Meters', "LinearUnitParameter(label='Unit', name='unit', default_value=LinearUnitValue(value=123.45, unit=LinearUnit.METERS))"),
+    (TimeUnitParameter, TimeUnitValue, 31, TimeUnit.DAYS, '31 Days', "TimeUnitParameter(label='Unit', name='unit', default_value=TimeUnitValue(value=31, unit=TimeUnit.DAYS))"),
 ])
-def test_default_value_unit(param_cls, default_cls, value, unit, expected):
+def test_default_value_unit(param_cls, default_cls, value, unit, expected, expected_repr):
     """
     Test Default Value Unit
     """
-    p = param_cls(label='Unit')
+    a = param_cls(label='Unit')
+    b = deepcopy(a)
     with raises(TypeError):
-        p.default_value = 12345
-    assert p.default_value is None
+        a.default_value = 12345
+    assert a.default_value is None
 
-    unit = default_cls(value, unit)
-    p.default_value = unit
-    assert p.default_value == unit
-    data, _ = p.serialize({}, target=None)
+    u = default_cls(value, unit)
+    a.default_value = u
+    b.default_value = default_cls(value, unit)
+    assert a.default_value == u
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == expected
+
+    assert repr(a) == expected_repr
+
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_default_value_unit function
 
 
-@mark.parametrize('param_cls, default_cls, args, expected', [
-    (ArealUnitParameter, ArealUnitValue, ((10, ArealUnit.HECTARES), (5, ArealUnit.SQUARE_MILES)), "'10 Hectares';'5 SquareMiles'"),
-    (LinearUnitParameter, LinearUnitValue, ((123.45, LinearUnit.METERS), (100, LinearUnit.FEET)), "'123.45 Meters';'100 Feet'"),
-    (TimeUnitParameter, TimeUnitValue, (( 31, TimeUnit.DAYS), (2, TimeUnit.HOURS)), "'31 Days';'2 Hours'"),
+@mark.parametrize('param_cls, default_cls, args, expected, expected_repr', [
+    (ArealUnitParameter, ArealUnitValue, ((10, ArealUnit.HECTARES), (5, ArealUnit.SQUARE_MILES)), "'10 Hectares';'5 SquareMiles'",
+     "ArealUnitParameter(label='Unit', name='unit', default_value=(ArealUnitValue(value=10, unit=ArealUnit.HECTARES), ArealUnitValue(value=5, unit=ArealUnit.SQUARE_MILES)), is_multi=True)"),
+    (LinearUnitParameter, LinearUnitValue, ((123.45, LinearUnit.METERS), (100, LinearUnit.FEET)), "'123.45 Meters';'100 Feet'",
+     "LinearUnitParameter(label='Unit', name='unit', default_value=(LinearUnitValue(value=123.45, unit=LinearUnit.METERS), LinearUnitValue(value=100, unit=LinearUnit.FEET)), is_multi=True)"),
+    (TimeUnitParameter, TimeUnitValue, (( 31, TimeUnit.DAYS), (2, TimeUnit.HOURS)), "'31 Days';'2 Hours'",
+     "TimeUnitParameter(label='Unit', name='unit', default_value=(TimeUnitValue(value=31, unit=TimeUnit.DAYS), TimeUnitValue(value=2, unit=TimeUnit.HOURS)), is_multi=True)"),
 ])
-def test_default_value_multi_unit(param_cls, default_cls, args, expected):
+def test_default_value_multi_unit(param_cls, default_cls, args, expected, expected_repr):
     """
     Test Default Value Unit
     """
-    p = param_cls(label='Unit', is_multi=True)
-    assert p.default_value is None
+    a = param_cls(label='Unit', is_multi=True)
+    b = deepcopy(a)
+    assert a.default_value is None
     units = [default_cls(*arg) for arg in args]
-    p.default_value = units
-    assert p.default_value == tuple(units)
-    data, _ = p.serialize({}, target=None)
+    a.default_value = units
+    b.default_value = units
+    assert a.default_value == tuple(units)
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == expected
+    assert repr(a) == expected_repr
+    assert a == b
+    assert hash(a) == hash(b)
 # End test_default_value_unit function
 
 
@@ -993,9 +1252,13 @@ def test_default_value_long(value, expected):
         with raises(TypeError):
             LongParameter(label='Long', default_value=value)
     else:
-        p = LongParameter(label='Long', default_value=value)
-        data, _ = p.serialize({}, target=None)
+        a = LongParameter(label='Long', default_value=value)
+        b = deepcopy(a)
+        data, _ = a.serialize({}, target=None)
         assert data['value'] == expected
+        assert repr(a) == "LongParameter(label='Long', name='long', default_value=123)"
+        assert a == b
+        assert hash(a) == hash(b)
 # End test_default_value_long function
 
 
@@ -1006,9 +1269,15 @@ def test_default_value_long(value, expected):
     """
     Test Default Value for Long
     """
-    p = LongParameter(label='Long', default_value=value, is_multi=True)
-    data, _ = p.serialize({}, target=None)
+    a = LongParameter(label='Long', default_value=value, is_multi=True)
+    b = deepcopy(a)
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == expected
+    assert repr(a) == "LongParameter(label='Long', name='long', default_value=(123, 456), is_multi=True)"
+    assert a == b
+    assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 # End test_default_value_long function
 
 
@@ -1026,9 +1295,13 @@ def test_default_value_double(value, expected):
         with raises(TypeError):
             DoubleParameter(label='Double', default_value=value)
     else:
-        p = DoubleParameter(label='Double', default_value=value)
-        data, _ = p.serialize({}, target=None)
+        a = DoubleParameter(label='Double', default_value=value)
+        b = deepcopy(a)
+        data, _ = a.serialize({}, target=None)
         assert data['value'] == expected
+        assert repr(a) == f"DoubleParameter(label='Double', name='double', default_value={value!r})"
+        assert a == b
+        assert hash(a) == hash(b)
 # End test_default_value_double function
 
 
@@ -1041,9 +1314,15 @@ def test_default_value_double_multi(value, expected):
     """
     Test Default Value for Double
     """
-    p = DoubleParameter(label='Double', default_value=value, is_multi=True)
-    data, _ = p.serialize({}, target=None)
+    a = DoubleParameter(label='Double', default_value=value, is_multi=True)
+    b = deepcopy(a)
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == expected
+    assert repr(a) == f"DoubleParameter(label='Double', name='double', default_value={value!r}, is_multi=True)"
+    assert a == b
+    assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 # End test_default_value_double_multi function
 
 
@@ -1063,9 +1342,13 @@ def test_default_value_date(value, expected):
         with raises(TypeError):
             DateParameter(label='Date', default_value=value)
     else:
-        p = DateParameter(label='Date', default_value=value)
-        data, _ = p.serialize({}, target=None)
+        a = DateParameter(label='Date', default_value=value)
+        b = deepcopy(a)
+        data, _ = a.serialize({}, target=None)
         assert data['value'] == expected
+        assert repr(a) == f"DateParameter(label='Date', name='date', default_value={value!r})"
+        assert a == b
+        assert hash(a) == hash(b)
 # End test_default_value_date function
 
 
@@ -1079,12 +1362,18 @@ def test_default_value_date_multi(value, expected):
     """
     Test Default Value for Date
     """
-    p = DateParameter(label='Date', default_value=value, is_multi=True)
-    data, _ = p.serialize({}, target=None)
+    a = DateParameter(label='Date', default_value=value, is_multi=True)
+    b = deepcopy(a)
+    data, _ = a.serialize({}, target=None)
     if value is None:
         assert 'value' not in data
     else:
         assert data['value'] == expected
+        assert repr(a) == f"DateParameter(label='Date', name='date', default_value=({value!r},), is_multi=True)"
+        assert a == b
+        assert hash(a) == hash(b)
+        assert id(a) != id(b)
+        assert id(a.default_value) != id(b.default_value)
 # End test_default_value_date_multi function
 
 
@@ -1092,13 +1381,19 @@ def test_default_value_coordinate_system():
     """
     Test Default Value Coordinate System
     """
-    p = CoordinateSystemParameter(label='Coordinate System')
+    a = CoordinateSystemParameter(label='Coordinate System')
+    b = deepcopy(a)
     with raises(TypeError):
-        p.default_value = 100
+        a.default_value = 100
     crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
-    p.default_value = crs
-    data, _ = p.serialize({}, target=None)
+    a.default_value = crs
+    b.default_value = crs
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == crs
+    assert repr(a) == f"CoordinateSystemParameter(label='Coordinate System', name='coordinate_system', default_value={crs!r})"
+    assert a == b
+    assert hash(a) == hash(b)
+    assert id(a) != id(b)
 # End test_default_value_coordinate_system function
 
 
@@ -1106,14 +1401,20 @@ def test_default_value_coordinate_system_multi():
     """
     Test Default Value Coordinate System
     """
-    p = CoordinateSystemParameter(label='Coordinate System', is_multi=True)
+    a = CoordinateSystemParameter(label='Coordinate System', is_multi=True)
+    b = deepcopy(a)
     with raises(TypeError):
-        p.default_value = 100
+        a.default_value = 100
     crs1 = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
     crs2 = 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]'
-    p.default_value = (crs1, crs2)
-    data, _ = p.serialize({}, target=None)
+    a.default_value = (crs1, crs2)
+    b.default_value = (crs1, crs2)
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == "'{}';'{}'".format(crs1, crs2)
+    assert a == b
+    assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 # End test_default_value_coordinate_system function
 
 
@@ -1121,13 +1422,19 @@ def test_default_value_spatial_reference():
     """
     Test Default Value Spatial Reference
     """
-    p = CoordinateSystemParameter(label='Coordinate System')
+    a = SpatialReferenceParameter(label='Spatial Reference')
+    b = deepcopy(a)
     with raises(TypeError):
-        p.default_value = 100
+        a.default_value = 100
     srs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]];-20037700 -30241100 10000;-100000 10000;-100000 10000;0.001;0.001;0.001;IsHighPrecision'
-    p.default_value = srs
-    data, _ = p.serialize({}, target=None)
+    a.default_value = srs
+    b.default_value = srs
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == srs
+    assert repr(a) == f"SpatialReferenceParameter(label='Spatial Reference', name='spatial_reference', default_value={srs!r})"
+    assert a == b
+    assert hash(a) == hash(b)
+    assert id(a) != id(b)
 # End test_default_value_spatial_reference function
 
 
@@ -1135,14 +1442,24 @@ def test_default_value_envelope():
     """
     Test Default Value Envelope
     """
-    p = EnvelopeParameter(label='Envelope')
+    a = EnvelopeParameter(label='Envelope')
+    b = deepcopy(a)
     with raises(TypeError):
-        p.default_value = 100
-    p.default_value = Envelope(XDomain(100, 200), YDomain(1000, 2000))
-    data, _ = p.serialize({}, target=None)
+        a.default_value = 100
+    a.default_value = Envelope(XDomain(100, 200), YDomain(1000, 2000))
+    b.default_value = Envelope(XDomain(100, 200), YDomain(1000, 2000))
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == '100 1000 200 2000'
-    p.default_value = None
-    assert p.default_value is None
+
+    assert repr(a) == "EnvelopeParameter(label='Envelope', name='envelope', default_value=Envelope(x=XDomain(minimum=100, maximum=200), y=YDomain(minimum=1000, maximum=2000)))"
+
+    assert a == b
+    assert hash(a) == hash(b)
+
+    a.default_value = None
+    assert a.default_value is None
+    assert repr(a) == "EnvelopeParameter(label='Envelope', name='envelope')"
+    assert id(a) != id(b)
 # End test_default_value_envelope function
 
 
@@ -1150,14 +1467,25 @@ def test_default_value_envelope_multi():
     """
     Test Default Value Envelope Multi
     """
-    p = EnvelopeParameter(label='Envelope', is_multi=True)
+    a = EnvelopeParameter(label='Envelope', is_multi=True)
     envelopes = (Envelope(XDomain(100, 200), YDomain(1000, 2000)),
                  Envelope(XDomain(111, 222), YDomain(3333, 4444)))
-    p.default_value = envelopes
-    data, _ = p.serialize({}, target=None)
+    a.default_value = envelopes
+    b = deepcopy(a)
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == "'100 1000 200 2000';'111 3333 222 4444'"
-    p.default_value = None
-    assert p.default_value is None
+
+    assert repr(a) == "EnvelopeParameter(label='Envelope', name='envelope', default_value=(Envelope(x=XDomain(minimum=100, maximum=200), y=YDomain(minimum=1000, maximum=2000)), Envelope(x=XDomain(minimum=111, maximum=222), y=YDomain(minimum=3333, maximum=4444))), is_multi=True)"
+
+    assert a == b
+    assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
+
+    a.default_value = None
+    assert a.default_value is None
+
+    assert repr(a) == "EnvelopeParameter(label='Envelope', name='envelope', is_multi=True)"
 # End test_default_value_envelope_multi function
 
 
@@ -1165,15 +1493,27 @@ def test_default_value_extent():
     """
     Test Default Value Extent
     """
-    p = ExtentParameter(label='Extent')
+    a = ExtentParameter(label='Extent')
     with raises(TypeError):
-        p.default_value = 100
+        a.default_value = 100
     crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
-    p.default_value = Extent(XDomain(100, 200), YDomain(1000, 2000), crs=crs)
-    data, _ = p.serialize({}, target=None)
+    extents = Extent(XDomain(100, 200), YDomain(1000, 2000), crs=crs)
+    a.default_value = extents
+    b = deepcopy(a)
+
+    assert repr(a) == f"ExtentParameter(label='Extent', name='extent', default_value=Extent(x=XDomain(minimum=100, maximum=200), y=YDomain(minimum=1000, maximum=2000), crs={crs!r}))"
+
+    assert a == b
+    assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
+
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == f'100 1000 200 2000 {crs}'
-    p.default_value = None
-    assert p.default_value is None
+    a.default_value = None
+    assert a.default_value is None
+
+    assert repr(a) == "ExtentParameter(label='Extent', name='extent')"
 # End test_default_value_extent function
 
 
@@ -1181,15 +1521,24 @@ def test_default_value_extent_multi():
     """
     Test Default Value Extent Multi
     """
-    p = ExtentParameter(label='Extent', is_multi=True)
+    a = ExtentParameter(label='Extent', is_multi=True)
     crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
     extents = (Extent(XDomain(100, 200), YDomain(1000, 2000)),
                Extent(XDomain(111, 222), YDomain(3333, 4444), crs=crs))
-    p.default_value = extents
-    data, _ = p.serialize({}, target=None)
+    a.default_value = extents
+    b = deepcopy(a)
+
+    assert a == b
+    assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
+
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == f"'100 1000 200 2000';'111 3333 222 4444 {crs}'"
-    p.default_value = None
-    assert p.default_value is None
+    a.default_value = None
+    assert a.default_value is None
+
+    assert repr(a) == "ExtentParameter(label='Extent', name='extent', is_multi=True)"
 # End test_default_value_extent_multi function
 
 
@@ -1197,14 +1546,23 @@ def test_default_value_point():
     """
     Test Default Value Point
     """
-    p = PointParameter(label='Point')
+    a = PointParameter(label='Point')
     with raises(TypeError):
-        p.default_value = 100
-    p.default_value = Point(100, 200)
-    data, _ = p.serialize({}, target=None)
+        a.default_value = 100
+    a.default_value = Point(100, 200)
+    b = deepcopy(a)
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == '100 200'
-    p.default_value = None
-    assert p.default_value is None
+
+    assert repr(a) == "PointParameter(label='Point', name='point', default_value=Point(x=100, y=200))"
+
+    assert a == b
+    assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
+
+    a.default_value = None
+    assert a.default_value is None
 # End test_default_value_point function
 
 
@@ -1212,49 +1570,68 @@ def test_default_value_point_multi():
     """
     Test Default Value Point Multi
     """
-    p = PointParameter(label='Point', is_multi=True)
+    a = PointParameter(label='Point', is_multi=True)
     points = Point(100, 200), Point(123.4, 45.6)
-    p.default_value = points
-    data, _ = p.serialize({}, target=None)
+    a.default_value = points
+    data, _ = a.serialize({}, target=None)
     assert data['value'] == "'100 200';'123.4 45.6'"
-    p.default_value = None
-    assert p.default_value is None
+    b = deepcopy(a)
+
+    assert repr(a) == "PointParameter(label='Point', name='point', default_value=(Point(x=100, y=200), Point(x=123.4, y=45.6)), is_multi=True)"
+
+    assert a == b
+    assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
+
+    a.default_value = None
+    assert a.default_value is None
 # End test_default_value_point_multi function
 
 
-@mark.parametrize('cls, expected', [
-    (DbaseTableParameter, 3),
-    (FileParameter, 9),
-    (MapDocumentParameter, 1),
-    (PrjFileParameter, 1),
-    (ShapeFileParameter, 2),
-    (TextfileParameter, 4)
+@mark.parametrize('cls, expected_value, expected_repr', [
+    (DbaseTableParameter, 'file2.dbf;file3.shp;file6.shp', ("DbaseTableParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file2.dbf'), PosixPath('file3.shp'), PosixPath('file6.shp')), is_multi=True)")),
+    (FileParameter, 'file1.txt;file2.dbf;file3.shp;file4.mxd;file5.prj;file6.shp;file7.csv;file8.txt;file9.tab', "FileParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file1.txt'), PosixPath('file2.dbf'), PosixPath('file3.shp'), PosixPath('file4.mxd'), PosixPath('file5.prj'), PosixPath('file6.shp'), PosixPath('file7.csv'), PosixPath('file8.txt'), PosixPath('file9.tab')), is_multi=True)"),
+    (MapDocumentParameter, 'file4.mxd', "MapDocumentParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file4.mxd'),), is_multi=True)"),
+    (PrjFileParameter, 'file5.prj', "PrjFileParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file5.prj'),), is_multi=True)"),
+    (ShapeFileParameter, 'file3.shp;file6.shp', "ShapeFileParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file3.shp'), PosixPath('file6.shp')), is_multi=True)"),
+    (TextfileParameter, 'file1.txt;file7.csv;file8.txt;file9.tab', "TextfileParameter(label='Path Esque', name='path_esque', default_value=(PosixPath('file1.txt'), PosixPath('file7.csv'), PosixPath('file8.txt'), PosixPath('file9.tab')), is_multi=True)")
 ])
-def test_default_value_path_esque_multi(cls, expected):
+def test_default_value_path_esque_multi(cls, expected_value, expected_repr):
     """
     Test Default Value Path Esque Multi
     """
-    p = cls(label='Path Esque', is_multi=True)
+    if platform == 'win32':
+        expected_repr = expected_repr.replace('PosixPath', 'WindowsPath')
+    a = cls(label='Path Esque', is_multi=True)
     with raises(TypeError):
-        p.default_value = ('/path/to/file1.txt', '/path/to/file2.txt')
-    p.default_value = None
-    assert p.default_value is None
+        a.default_value = ('/path/to/file1.txt', '/path/to/file2.txt')
+    a.default_value = None
+    assert a.default_value is None
     files = ('file1.txt', 'file2.dbf', 'file3.shp', 'file4.mxd', 'file5.prj',
              'file6.shp', 'file7.csv', 'file8.txt', 'file9.tab')
-    paths = [Path.home() / f for f in files]
-    p.default_value = paths
-    data, _ = p.serialize({}, target=None)
-    assert data['value'].count(SEMI_COLON) == (expected - 1)
+    paths = [Path(f) for f in files]
+    a.default_value = paths
+    b = deepcopy(a)
+    data, _ = a.serialize({}, target=None)
+    assert data['value'] == expected_value
 
-    paths = p.default_value
-    if p.suffixes:
+    assert repr(a) == expected_repr
+
+    assert a == b
+    assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
+
+    paths = a.default_value
+    if a.suffixes:
         with raises(ValueError):
-            p.default_value = Path.home() / 'file.xyz'
-    p = cls(label='Path Esque')
-    p.default_value = paths[0]
-    if p.suffixes:
+            a.default_value = Path.home() / 'file.xyz'
+    a = cls(label='Path Esque')
+    a.default_value = paths[0]
+    if a.suffixes:
         with raises(ValueError):
-            p.default_value = Path.home() / 'file.xyz'
+            a.default_value = Path.home() / 'file.xyz'
 # End test_default_value_path_esque_multi function
 
 

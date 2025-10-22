@@ -4,10 +4,10 @@ Filter Stubs
 """
 
 
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from enum import StrEnum
 from numbers import Real
-from typing import ClassVar, Type
+from typing import ClassVar, Self, Type
 
 from autobox.enum import (
     ArealUnit, FieldType, GeometryType, LinearUnit, TimeUnit,
@@ -18,13 +18,15 @@ from autobox.type import (
     WORKSPACE_TYPES)
 
 
-class AbstractFilter:
+class AbstractFilter(metaclass=ABCMeta):
     """
     Abstract Filter
     """
     _values: list
 
     def __init__(self, values: list | tuple) -> None: ...
+    def __eq__(self, other: Self) -> bool: ...
+    def __hash__(self) -> int: ...
     @abstractmethod
     def _validate_values(self, values: list | tuple) -> list: ...
     @abstractmethod
@@ -32,10 +34,12 @@ class AbstractFilter:
     @property
     def values(self) -> list: ...
     def serialize(self, name: STRING = None) -> dict: ...
+    @abstractmethod
+    def as_tuple(self) -> tuple: ...
 # End AbstractFilter class
 
 
-class AbstractEnumerationFilter(AbstractFilter):
+class AbstractEnumerationFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Enumeration Filter
     """
@@ -44,11 +48,14 @@ class AbstractEnumerationFilter(AbstractFilter):
     _values: list[StrEnum]
 
     def __init__(self, values: list[StrEnum] | tuple[StrEnum, ...]) -> None: ...
+    def __repr__(self) -> str: ...
     def _validate_values(self, values: list[StrEnum] | tuple[StrEnum, ...]) -> list[StrEnum]: ...
+    @abstractmethod
     def _serialize(self, name: STRING = None) -> dict: ...
     @property
     def values(self) -> list[StrEnum]: ...
     def serialize(self, name: STRING = None) -> dict: ...
+    def as_tuple(self) -> tuple: ...
 # End AbstractEnumerationFilter class
 
 
@@ -224,16 +231,22 @@ class WorkspaceTypeFilter(BaseTypeListFilter):
 # End WorkspaceTypeFilter class
 
 
-class AbstractRangeFilter(AbstractFilter):
+class AbstractRangeFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Range Filter
     """
     def __init__(self, minimum: Real, maximum: Real) -> None: ...
+    def __repr__(self) -> str: ...
     @abstractmethod
     def _validate_values(self, values: tuple) -> list: ...
     @staticmethod
     def _validate_and_convert(values: tuple, type_: Type[NUMBER]) -> list: ...
     def _serialize(self, name: STRING = None) -> dict[str, MAP_STR]: ...
+    @property
+    def minimum(self) -> NUMBER: ...
+    @property
+    def maximum(self) -> NUMBER: ...
+    def as_tuple(self) -> tuple: ...
 # End AbstractRangeFilter class
 
 
@@ -253,16 +266,19 @@ class DoubleRangeFilter(AbstractRangeFilter):
 # End DoubleRangeFilter class
 
 
-class AbstractNumberValueFilter(AbstractFilter):
+class AbstractNumberValueFilter(AbstractFilter, metaclass=ABCMeta):
     """
     Abstract Number Value Filter
     """
     keyword: ClassVar[str]
+
+    def __repr__(self) -> str: ...
     @abstractmethod
     def _validate_values(self, values: list | tuple) -> list: ...
     @staticmethod
     def _validate_and_convert(values: list | tuple, type_: Type[NUMBER]) -> list: ...
     def _serialize(self, name: STRING = None) -> MAP_STR_LIST: ...
+    def as_tuple(self) -> tuple: ...
 # End AbstractNumberValueFilter class
 
 
@@ -288,8 +304,10 @@ class StringValueFilter(AbstractFilter):
     """
     String Value Filter
     """
+    def __repr__(self) -> str: ...
     def _validate_values(self, values: STRINGS) -> list[str]: ...
     def _serialize(self, name: STRING = None) -> tuple[MAP_STR_LIST, MAP_STR]: ...
+    def as_tuple(self) -> tuple: ...
 # End StringValueFilter class
 
 
