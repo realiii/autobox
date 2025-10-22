@@ -27,6 +27,9 @@ if TYPE_CHECKING:  # pragma: no cover
     from autobox.toolset import Toolset
 
 
+__all__ = ['Toolbox']
+
+
 class Toolbox:
     """
     Toolbox
