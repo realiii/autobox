@@ -105,20 +105,20 @@ class BaseRangeDomain(AbstractDefault):
     # End _validate_value method
 
     @property
-    def maximum(self) -> NUMBER:
-        """
-        Maximum Value
-        """
-        return self._max
-    # End maximum property
-
-    @property
     def minimum(self) -> NUMBER:
         """
         Minimum Value
         """
         return self._min
     # End minimum property
+
+    @property
+    def maximum(self) -> NUMBER:
+        """
+        Maximum Value
+        """
+        return self._max
+    # End maximum property
 
     def as_tuple(self) -> tuple[NUMBER, NUMBER]:
         """
