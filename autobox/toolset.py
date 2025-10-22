@@ -14,6 +14,9 @@ if TYPE_CHECKING:  # pragma: no cover
     from autobox import ScriptTool
 
 
+__all__ = ['Toolset']
+
+
 class Toolset:
     """
     Toolset

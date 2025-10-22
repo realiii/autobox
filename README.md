@@ -12,7 +12,7 @@ Toolsets, and documentation. Pure Python package and cross-platform (no dependen
 
 ## Python Compatibility
 
-The `autobox` library is compatible with Python 3.11 to 3.13.  Developed and 
+The `autobox` library is compatible with Python 3.11 to 3.14.  Developed and 
 tested on **macOS** and **Windows**, should be fine on **Linux** too.
 
 
@@ -272,6 +272,16 @@ tool.validation_script = ValidationScript.from_file(Path('../data/scripts/valida
 
 
 ## Release History
+
+### v0.4.0
+* Implement `__str__` and `__repr__` methods in support of debugging and serialization
+* Add support for `__hash__` and `__eq__` operators
+* Implement `__deepcopy__` on default value, filter, and parameter objects
+* Ensure `ABCMeta` is set on abstract classes
+* Update `__all__` and added `__all__` across the package
+* Expose more attributes on objects via readonly properties
+* Tested with Python 3.14
+* TOML modernization for license file reference
 
 ### v0.3.1
 * Fix `filter` type hint on `FieldParameter` and `ArealUnitParameter`
