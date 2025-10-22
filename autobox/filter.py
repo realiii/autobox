@@ -5,10 +5,11 @@ Enumerations
 
 
 from abc import ABCMeta, abstractmethod
+from copy import deepcopy
 from enum import StrEnum
 from math import isfinite
 from numbers import Real
-from typing import ClassVar, Self, Type
+from typing import Any, ClassVar, Self, Type
 
 from autobox.constant import (
     COMMA_SPACE, DOLLAR_RC, DOT, DomainContentKeys, GP_AREAL_UNIT,
@@ -21,7 +22,7 @@ from autobox.enum import (
     TravelModeUnitType, WorkspaceType)
 from autobox.type import (
     MAP_DICT_STR_LIST, MAP_STR, MAP_STR_LIST, NUMBER, STRING, STRINGS)
-from autobox.util import enum_repr, unique
+from autobox.util import copier, enum_repr, unique
 
 
 __all__ = ['ArealUnitFilter', 'DoubleRangeFilter', 'DoubleValueFilter',
@@ -42,6 +43,14 @@ class AbstractFilter(metaclass=ABCMeta):
         super().__init__()
         self._values: list = self._validate_values(values)
     # End init built-in
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
+        """
+        Deep Copy
+        """
+        kwargs = dict(values=deepcopy(self.values, memo=memo))
+        return copier(instance=self, memo=memo, kwargs=kwargs)
+    # End deepcopy built-in
 
     def __eq__(self, other: Self) -> bool:
         """
@@ -322,6 +331,14 @@ class AbstractRangeFilter(AbstractFilter, metaclass=ABCMeta):
         """
         super().__init__((minimum, maximum))
     # End init built-in
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
+        """
+        Deep Copy
+        """
+        kwargs = dict(minimum=self.minimum, maximum=self.maximum)
+        return copier(instance=self, memo=memo, kwargs=kwargs)
+    # End deepcopy built-in
 
     def __repr__(self) -> str:
         """
