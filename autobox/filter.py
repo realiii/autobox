@@ -327,12 +327,8 @@ class AbstractRangeFilter(AbstractFilter, metaclass=ABCMeta):
         """
         String Representation
         """
-        if self.values:
-            minimum, maximum = self.values
-        else:
-            minimum = maximum = 0
         return (f'{self.__class__.__name__}('
-                f'minimum={minimum!r}, maximum={maximum!r})')
+                f'minimum={self.minimum!r}, maximum={self.maximum!r})')
     # End repr built-in
 
     @abstractmethod
@@ -368,11 +364,10 @@ class AbstractRangeFilter(AbstractFilter, metaclass=ABCMeta):
         """
         if not self.values:
             return {}
-        minimum, maximum = self.values
         return {ParameterContentKeys.domain: {
             DomainContentKeys.type: GP_RANGE_DOMAIN,
-            DomainContentKeys.minimum: repr(minimum),
-            DomainContentKeys.maximum: repr(maximum)}}
+            DomainContentKeys.minimum: repr(self.minimum),
+            DomainContentKeys.maximum: repr(self.maximum)}}
     # End _serialize method
 
     @property
