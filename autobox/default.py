@@ -6,7 +6,7 @@ Classes for Default Value
 
 from abc import ABCMeta, abstractmethod
 from enum import StrEnum
-from typing import ClassVar, NoReturn, Self, Type
+from typing import Any, ClassVar, NoReturn, Self, Type
 
 from autobox.enum import ArealUnit, LinearUnit, TimeUnit
 from autobox.type import NUMBER, STRING
@@ -57,7 +57,7 @@ class BaseRangeDomain(AbstractDefault):
         self._max: NUMBER = maximum
     # End init built-in
 
-    def __deepcopy__(self, memo) -> Self:
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
         """
         Deep Copy
         """
@@ -172,7 +172,7 @@ class BaseUnitValue(AbstractDefault):
         self._unit: StrEnum = self._validate_unit(unit)
     # End init built-in
 
-    def __deepcopy__(self, memo) -> Self:
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
         """
         Deep Copy
         """
@@ -276,7 +276,7 @@ class BaseBoundingBox(AbstractDefault):
         self._y: YDomain = self._validate_domain(y, YDomain)
     # End init built-in
 
-    def __deepcopy__(self, memo) -> Self:
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
         """
         Deep Copy
         """
@@ -355,7 +355,7 @@ class Extent(BaseBoundingBox):
         self._crs: STRING = self._validate_coordinate_system(crs)
     # End init built-in
 
-    def __deepcopy__(self, memo) -> Self:
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
         """
         Deep Copy
         """
@@ -433,7 +433,7 @@ class CellSizeXY(AbstractDefault):
         self._y: NUMBER = self._validate_value(y, 'y')
     # End init built-in
 
-    def __deepcopy__(self, memo) -> Self:
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
         """
         Deep Copy
         """
@@ -506,7 +506,7 @@ class Point(AbstractDefault):
         self._y: NUMBER = self._validate_value(y, 'y')
     # End init built-in
 
-    def __deepcopy__(self, memo) -> Self:
+    def __deepcopy__(self, memo: dict[int, Any]) -> Self:
         """
         Deep Copy
         """
