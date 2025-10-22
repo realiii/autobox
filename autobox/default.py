@@ -251,7 +251,7 @@ class BaseBoundingBox(AbstractDefault):
     """
     Base Bounding Box
     """
-    def __init__(self, x: 'XDomain', y: 'YDomain') -> None:
+    def __init__(self, x: XDomain, y: YDomain) -> None:
         """
         Initialize the Envelope class
         """
@@ -323,7 +323,7 @@ class Extent(BaseBoundingBox):
     """
     Extent
     """
-    def __init__(self, x: 'XDomain', y: 'YDomain', crs: STRING = None) -> None:
+    def __init__(self, x: XDomain, y: YDomain, crs: STRING = None) -> None:
         """
         Initialize the Extent class
         """
