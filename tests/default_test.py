@@ -251,7 +251,7 @@ def test_bounding_box_str(cls):
 ])
 def test_bounding_box_hash_support(cls):
     """
-    Test XY domain hash implementation
+    Test extent / envelope hash implementation
     """
     domain = cls(XDomain(0, 100), YDomain(1000, 2000))
     assert domain == cls(XDomain(0, 100), YDomain(1000, 2000))
@@ -284,7 +284,7 @@ def test_extent_specialization():
 ])
 def test_point_raises(x, y, exception):
     """
-    Test Cell Size XY exceptions
+    Test Point exceptions
     """
     with raises(exception):
         Point(x=x, y=y)
@@ -297,7 +297,7 @@ def test_point_raises(x, y, exception):
 ])
 def test_point_str(x, y, expected):
     """
-    Test Cell Size XY str
+    Test Point str
     """
     assert str(Point(x=x, y=y)) == expected
 # End test_point_str function
@@ -309,7 +309,7 @@ def test_point_str(x, y, expected):
 ])
 def test_point_repr(x, y, expected):
     """
-    Test Cell Size XY repr
+    Test Point repr
     """
     assert repr(Point(x=x, y=y)) == expected
 # End test_point_repr function
@@ -317,7 +317,7 @@ def test_point_repr(x, y, expected):
 
 def test_point_hash_support():
     """
-    Test Cell Size XY hash implementation
+    Test Point hash implementation
     """
     xy = Point(1, 2)
     assert xy == Point(1, 2)
