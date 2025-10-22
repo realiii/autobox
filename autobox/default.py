@@ -169,14 +169,14 @@ class BaseUnitValue(AbstractDefault):
         String Representation
         """
         return (f'{self.__class__.__name__}('
-                f'value={self._value!r}, unit={enum_repr(self._unit)})')
+                f'value={self.value!r}, unit={enum_repr(self.unit)})')
     # End repr built-in
 
     def __str__(self) -> str:
         """
         String
         """
-        return f'{self._value} {self._unit}'
+        return f'{self.value} {self.unit}'
     # End str built-in
 
     @staticmethod
@@ -198,11 +198,27 @@ class BaseUnitValue(AbstractDefault):
         raise TypeError(f'unit must be a {self.unit_type.__name__}')
     # End _validate_unit method
 
-    def as_tuple(self) -> tuple[int, StrEnum]:
+    @property
+    def unit(self) -> StrEnum:
+        """
+        Unit
+        """
+        return self._unit
+    # End unit property
+
+    @property
+    def value(self) -> NUMBER:
+        """
+        Value
+        """
+        return self._value
+    # End value property
+
+    def as_tuple(self) -> tuple[NUMBER, StrEnum]:
         """
         As Tuple
         """
-        return self._value, self._unit
+        return self.value, self.unit
     # End as_tuple method
 # End BaseUnitValue class
 
@@ -248,15 +264,16 @@ class BaseBoundingBox(AbstractDefault):
         """
         String Representation
         """
-        return f'{self.__class__.__name__}(x={self._x!r}, y={self._y!r})'
+        return (f'{self.__class__.__name__}('
+                f'x={self.x_domain!r}, y={self.y_domain!r})')
     # End repr built-in
 
     def __str__(self) -> str:
         """
         String
         """
-        return (f'{self._x.minimum} {self._y.minimum} '
-                f'{self._x.maximum} {self._y.maximum}')
+        return (f'{self.x_domain.minimum} {self.y_domain.minimum} '
+                f'{self.x_domain.maximum} {self.y_domain.maximum}')
     # End str built-in
 
     @staticmethod
@@ -269,12 +286,28 @@ class BaseBoundingBox(AbstractDefault):
         raise TypeError(f'Expected a {type_.__name__}, got: {value}')
     # End _validate_domain method
 
+    @property
+    def x_domain(self) -> XDomain:
+        """
+        X Domain
+        """
+        return self._x
+    # End x_domain property
+
+    @property
+    def y_domain(self) -> YDomain:
+        """
+        Y Domain
+        """
+        return self._y
+    # End y_domain property
+
     def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER]:
         """
         As Tuple
         """
-        return (self._x.minimum, self._y.minimum,
-                self._x.maximum, self._y.maximum)
+        return (self.x_domain.minimum, self.y_domain.minimum,
+                self.x_domain.maximum, self.y_domain.maximum)
     # End as_tuple method
 # End BaseBoundingBox class
 
@@ -304,7 +337,7 @@ class Extent(BaseBoundingBox):
         """
         values = super().__repr__()
         if self._crs:
-            return f'{values[:-1]}, crs={self._crs!r})'
+            return f'{values[:-1]}, crs={self.crs!r})'
         return values
     # End repr built-in
 
@@ -313,8 +346,8 @@ class Extent(BaseBoundingBox):
         String
         """
         values = super().__str__()
-        if self._crs:
-            return f'{values} {self._crs}'
+        if self.crs:
+            return f'{values} {self.crs}'
         return values
     # End str built-in
 
@@ -330,11 +363,20 @@ class Extent(BaseBoundingBox):
         return value.strip() or None
     # End _validate_coordinate_system method
 
+    @property
+    def coordinate_reference_system(self) -> STRING:
+        """
+        Coordinate Reference System
+        """
+        return self._crs
+    # End coordinate_reference_system property
+    crs = coordinate_reference_system
+
     def as_tuple(self) -> tuple[NUMBER, NUMBER, NUMBER, NUMBER, STRING]:
         """
         As Tuple
         """
-        return *super().as_tuple(), self._crs
+        return *super().as_tuple(), self.crs
     # End as_tuple method
 # End Extent class
 
@@ -363,14 +405,15 @@ class CellSizeXY(AbstractDefault):
         """
         String Representation
         """
-        return f'{self.__class__.__name__}(x={self._x!r}, y={self._y!r})'
+        return (f'{self.__class__.__name__}('
+                f'x={self.x_size!r}, y={self.y_size!r})')
     # End repr built-in
 
     def __str__(self) -> str:
         """
         String
         """
-        return f'{self._x} {self._y}'
+        return f'{self.x_size} {self.y_size}'
     # End str built-in
 
     @staticmethod
@@ -385,11 +428,27 @@ class CellSizeXY(AbstractDefault):
         raise ValueError(f'{text} must be a greater than 0')
     # End _validate_value method
 
+    @property
+    def x_size(self) -> NUMBER:
+        """
+        X Cell Size
+        """
+        return self._x
+    # End x_size property
+
+    @property
+    def y_size(self) -> NUMBER:
+        """
+        Y Cell Size
+        """
+        return self._y
+    # End y_size property
+
     def as_tuple(self) -> tuple[NUMBER, NUMBER]:
         """
         As Tuple
         """
-        return self._x, self._y
+        return self.x_size, self.y_size
     # End as_tuple method
 # End CellSizeXY class
 
@@ -411,14 +470,14 @@ class Point(AbstractDefault):
         """
         String Representation
         """
-        return f'{self.__class__.__name__}(x={self._x!r}, y={self._y!r})'
+        return f'{self.__class__.__name__}(x={self.x!r}, y={self.y!r})'
     # End repr built-in
 
     def __str__(self) -> str:
         """
         String
         """
-        return f'{self._x} {self._y}'
+        return f'{self.x} {self.y}'
     # End str built-in
 
     @staticmethod
@@ -431,11 +490,27 @@ class Point(AbstractDefault):
         raise TypeError(f'{text} must be a number')
     # End _validate_value method
 
+    @property
+    def x(self) -> NUMBER:
+        """
+        X Coordinate
+        """
+        return self._x
+    # End x property
+
+    @property
+    def y(self) -> NUMBER:
+        """
+        Y Size
+        """
+        return self._y
+    # End y property
+
     def as_tuple(self) -> tuple[NUMBER, NUMBER]:
         """
         As Tuple
         """
-        return self._x, self._y
+        return self.x, self.y
     # End as_tuple method
 # End Point class
 
