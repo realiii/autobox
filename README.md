@@ -278,6 +278,7 @@ tool.validation_script = ValidationScript.from_file(Path('../data/scripts/valida
 * Add support for `__hash__` and `__eq__` operators
 * Implement `__deepcopy__` on default value, filter, and parameter objects
 * Ensure `ABCMeta` is set on abstract classes
+* Update `__all__` and added `__all__` across the package
 * Expose more attributes on objects via readonly properties
 * Tested with Python 3.14
 * TOML modernization for license file reference
