@@ -4,6 +4,7 @@ Parameter Test
 """
 
 
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from sys import platform
@@ -465,13 +466,14 @@ def test_areal_unit_parameter_filter():
     }
     a = ArealUnitParameter(label='Areal Unit', name='Areal_Unit')
     a.filter = ArealUnitFilter(list(ArealUnit))
-    b = ArealUnitParameter(label='Areal Unit', name='Areal_Unit')
-    b.filter = ArealUnitFilter(list(ArealUnit))
+    b = deepcopy(a)
     content, resource = a.serialize({}, target=None)
     assert content == expected_content[a.name]
     assert resource == expected_resource
     assert repr(a) == "ArealUnitParameter(label='Areal Unit', name='Areal_Unit')"
 
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
     assert a == b
     assert hash(a) == hash(b)
 # End test_areal_unit_parameter_filter function
@@ -519,12 +521,14 @@ def test_linear_unit_parameter_filter():
     }
     a = LinearUnitParameter(label='Linear Unit', name='Linear_Unit')
     a.filter = LinearUnitFilter(list(LinearUnit))
-    b = LinearUnitParameter(label='Linear Unit', name='Linear_Unit')
-    b.filter = LinearUnitFilter(list(LinearUnit))
+    b = deepcopy(a)
     content, resource = a.serialize({}, target=None)
     assert content == expected_content[a.name]
     assert resource == expected_resource
     assert repr(a) == "LinearUnitParameter(label='Linear Unit', name='Linear_Unit')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
     assert a == b
     assert hash(a) == hash(b)
 # End test_linear_unit_parameter_filter function
@@ -561,13 +565,14 @@ def test_feature_class_parameter_filter():
     }
     a = FeatureClassParameter(label='Feature Type', name='Feature_Type')
     a.filter = FeatureClassTypeFilter(list(GeometryType))
-    b = FeatureClassParameter(label='Feature Type', name='Feature_Type')
-    b.filter = FeatureClassTypeFilter(list(GeometryType))
+    b = deepcopy(a)
     content, resource = a.serialize({}, target=None)
     assert content == expected_content[a.name]
     assert resource == expected_resource
     assert repr(a) == "FeatureClassParameter(label='Feature Type', name='Feature_Type')"
 
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
     assert a == b
     assert hash(a) == hash(b)
 # End test_feature_class_parameter_filter function
@@ -592,13 +597,14 @@ def test_field_parameter_filter():
     }
     a = FieldParameter(label='Field Type', name='Field_Type')
     a.filter = FieldTypeFilter(list(FieldType))
-    b = FieldParameter(label='Field Type', name='Field_Type')
-    b.filter = FieldTypeFilter(list(FieldType))
+    b = deepcopy(a)
     content, resource = a.serialize({}, target=None)
     assert content == expected_content[a.name]
     assert resource == expected_resource
     assert repr(a) == "FieldParameter(label='Field Type', name='Field_Type')"
 
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
     assert a == b
     assert hash(a) == hash(b)
 # End test_field_parameter_filter function
@@ -618,12 +624,15 @@ def test_file_parameter_filter():
     }
     a = FileParameter(label='File Type', name='File_Type')
     a.filter = FileTypeFilter(('txt', 'csv ', 'shp'))
-    b = FileParameter(label='File Type', name='File_Type')
-    b.filter = FileTypeFilter(('txt', 'csv ', 'shp'))
+    b = deepcopy(a)
+
     content, resource = a.serialize({}, target=None)
     assert content == expected_content[a.name]
     assert resource == expected_resource
     assert repr(a) == "FileParameter(label='File Type', name='File_Type')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
     assert a == b
     assert hash(a) == hash(b)
 # End test_file_parameter_filter function
@@ -654,12 +663,14 @@ def test_workspace_parameter_filter():
     }
     a = WorkspaceParameter(label='Workspace', name='Workspace')
     a.filter = WorkspaceTypeFilter(list(WorkspaceType))
-    b = WorkspaceParameter(label='Workspace', name='Workspace')
-    b.filter = WorkspaceTypeFilter(list(WorkspaceType))
+    b = deepcopy(a)
     content, resource = a.serialize({}, target=None)
     assert content == expected_content[a.name]
     assert resource == expected_resource
     assert repr(a) == "WorkspaceParameter(label='Workspace', name='Workspace')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
     assert a == b
     assert hash(a) == hash(b)
 # End test_workspace_parameter_filter function
@@ -687,12 +698,14 @@ def test_long_parameter_range_filter():
     }
     a = LongParameter(label='Long Range', name='Long_Range')
     a.filter = LongRangeFilter(-1, 9876543210)
-    b = LongParameter(label='Long Range', name='Long_Range')
-    b.filter = LongRangeFilter(-1, 9876543210)
+    b = deepcopy(a)
     content, resource = a.serialize({}, target=None)
     assert content == expected_content[a.name]
     assert resource == expected_resource
     assert repr(a) == "LongParameter(label='Long Range', name='Long_Range')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
     assert a == b
     assert hash(a) == hash(b)
 # End test_long_parameter_range_filter function
@@ -721,8 +734,7 @@ def test_double_parameter_range_filter():
     values = -999.999, 9876.543
     a = DoubleParameter(label='Double Range', name='Double_Range')
     a.filter = DoubleRangeFilter(*values)
-    b = DoubleParameter(label='Double Range', name='Double_Range')
-    b.filter = DoubleRangeFilter(*values)
+    b = deepcopy(a)
     content, resource = a.serialize({}, target=None)
     domain = content['domain']
     assert domain['type'] == 'GPRangeDomain'
@@ -732,6 +744,9 @@ def test_double_parameter_range_filter():
     assert content == expected_content[a.name]
     assert resource == expected_resource
     assert repr(a) == "DoubleParameter(label='Double Range', name='Double_Range')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
     assert a == b
     assert hash(a) == hash(b)
 # End test_double_parameter_range_filter function
@@ -760,12 +775,14 @@ def test_long_parameter_value_filter():
     }
     a = LongParameter(label='Long Value', name='Long_Value')
     a.filter = LongValueFilter((-999, 0, 1, 2, 3, 4, 5, 1234567890))
-    b = LongParameter(label='Long Value', name='Long_Value')
-    b.filter = LongValueFilter((-999, 0, 1, 2, 3, 4, 5, 1234567890))
+    b = deepcopy(a)
     content, resource = a.serialize({}, target=None)
     assert content == expected_content[a.name]
     assert resource == expected_resource
     assert repr(a) == "LongParameter(label='Long Value', name='Long_Value')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
     assert a == b
     assert hash(a) == hash(b)
 # End test_long_parameter_value_filter function
@@ -793,12 +810,14 @@ def test_double_parameter_value_filter():
     values = -999.999, 1.1, 2.22, 3.333, 4.4444, 5.55555, 123.456
     a = DoubleParameter(label='Double Value', name='Double_Value')
     a.filter = DoubleValueFilter(values)
-    b = DoubleParameter(label='Double Value', name='Double_Value')
-    b.filter = DoubleValueFilter(values)
+    b = deepcopy(a)
     content, resource = a.serialize({}, target=None)
     assert content == expected_content[a.name]
     assert resource == expected_resource
     assert repr(a) == "DoubleParameter(label='Double Value', name='Double_Value')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
     assert a == b
     assert hash(a) == hash(b)
 # End test_double_parameter_value_filter function
@@ -828,12 +847,14 @@ def test_string_parameter_value_filter():
     values = "A", "BB", "CCC", "DDDD"
     a = StringParameter(label='String Value', name='String_Value')
     a.filter = StringValueFilter(values)
-    b = StringParameter(label='String Value', name='String_Value')
-    b.filter = StringValueFilter(values)
+    b = deepcopy(a)
     content, resource = a.serialize({}, target=None)
     assert content == expected_content[a.name]
     assert resource == expected_resource
     assert repr(a) == "StringParameter(label='String Value', name='String_Value')"
+
+    assert id(a) != id(b)
+    assert id(a.filter) != id(b.filter)
     assert a == b
     assert hash(a) == hash(b)
 # End test_string_parameter_value_filter function
@@ -865,18 +886,20 @@ def test_parameter_symbology(tmp_path, data_path):
 
     a = FeatureClassParameter(label='Feature Class', is_input=False)
     a.symbology = lyr
-    b = FeatureClassParameter(label='Feature Class', is_input=False)
-    b.symbology = lyr
+    b = deepcopy(a)
     assert a.symbology is not None
-
     content, resources = a.serialize({}, target=tmp_path)
     assert ParameterContentKeys.symbology in content
     value = content[ParameterContentKeys.symbology]
     assert lyr.name in value
     assert resources == {'feature_class.title': 'Feature Class'}
     assert repr(a) == "FeatureClassParameter(label='Feature Class', name='feature_class', is_input=False)"
+
+    assert id(a) != id(b)
+    assert id(a.symbology) != id(b.symbology)
     assert a == b
     assert hash(a) == hash(b)
+
 # End test_parameter_symbology function
 
 
@@ -923,7 +946,7 @@ def test_boolean_specialization():
     with raises(ValueError):
         BooleanParameter(label='Boolean', name='Boolean', is_required=False)
     a = BooleanParameter(label='Boolean', name='Boolean')
-    b = BooleanParameter(label='Boolean', name='Boolean')
+    b = deepcopy(a)
     assert a.default_value is True
     with raises(TypeError):
         a.default_value = 'True'
@@ -940,7 +963,7 @@ def test_default_value_analysis_cell_size():
     Test default value analysis cell size
     """
     a = AnalysisCellSizeParameter(label='Analysis Cell Size')
-    b = AnalysisCellSizeParameter(label='Analysis Cell Size')
+    b = deepcopy(a)
 
     assert a == b
     assert hash(a) == hash(b)
@@ -985,7 +1008,7 @@ def test_default_value_cell_size_xy():
     Test default value cell size xy
     """
     a = CellSizeXYParameter(label='Cell Size XY')
-    b = CellSizeXYParameter(label='Cell Size XY')
+    b = deepcopy(a)
     assert a == b
     assert hash(a) == hash(b)
     with raises(TypeError):
@@ -1019,7 +1042,7 @@ def test_default_value_sa_cell_size():
     Test default value sa cell size
     """
     a = SACellSizeParameter(label='SA Cell Size')
-    b = SACellSizeParameter(label='SA Cell Size')
+    b = deepcopy(a)
     assert a == b
     assert hash(a) == hash(b)
     with raises(TypeError):
@@ -1063,7 +1086,7 @@ def test_default_value_range_domain(param_cls, default_cls):
     Test Default Value for M Domain and Z Domain
     """
     a = param_cls(label='Domain')
-    b = param_cls(label='Domain')
+    b = deepcopy(a)
     with raises(TypeError):
         a.default_value = '100'
 
@@ -1082,7 +1105,7 @@ def test_default_value_xy_domain():
     Test Default Value for XY Domain
     """
     a = XYDomainParameter(label='XY Domain')
-    b = XYDomainParameter(label='XY Domain')
+    b = deepcopy(a)
     with raises(TypeError):
         a.default_value = '100'
 
@@ -1107,7 +1130,7 @@ def test_default_value_string_hidden_encrypted(cls):
     with raises(ValueError):
         cls(label='String', default_value='abc')
     a = cls(label='String')
-    b = cls(label='String')
+    b = deepcopy(a)
     with raises(ValueError):
         a.default_value = 'abc'
     assert a == b
@@ -1127,7 +1150,7 @@ def test_default_value_string_calc_sql(cls):
     Test Default Value String, Calculator Expression, and SQL Expression
     """
     a = cls(label='String')
-    b = cls(label='String')
+    b = deepcopy(a)
     with raises(TypeError):
         a.default_value = 12345
     assert a.default_value is None
@@ -1153,7 +1176,7 @@ def test_default_value_string_multi(value, expected):
     Test Default Value String Multi
     """
     a = StringParameter(label='String', is_multi=True, default_value=value)
-    b = StringParameter(label='String', is_multi=True, default_value=value)
+    b = deepcopy(a)
     assert a.default_value == expected
     assert repr(a) == "StringParameter(label='String', name='string', default_value=('100',), is_multi=True)"
     assert a == b
@@ -1171,7 +1194,7 @@ def test_default_value_unit(param_cls, default_cls, value, unit, expected, expec
     Test Default Value Unit
     """
     a = param_cls(label='Unit')
-    b = param_cls(label='Unit')
+    b = deepcopy(a)
     with raises(TypeError):
         a.default_value = 12345
     assert a.default_value is None
@@ -1203,7 +1226,7 @@ def test_default_value_multi_unit(param_cls, default_cls, args, expected, expect
     Test Default Value Unit
     """
     a = param_cls(label='Unit', is_multi=True)
-    b = param_cls(label='Unit', is_multi=True)
+    b = deepcopy(a)
     assert a.default_value is None
     units = [default_cls(*arg) for arg in args]
     a.default_value = units
@@ -1230,7 +1253,7 @@ def test_default_value_long(value, expected):
             LongParameter(label='Long', default_value=value)
     else:
         a = LongParameter(label='Long', default_value=value)
-        b = LongParameter(label='Long', default_value=value)
+        b = deepcopy(a)
         data, _ = a.serialize({}, target=None)
         assert data['value'] == expected
         assert repr(a) == "LongParameter(label='Long', name='long', default_value=123)"
@@ -1247,12 +1270,14 @@ def test_default_value_long(value, expected):
     Test Default Value for Long
     """
     a = LongParameter(label='Long', default_value=value, is_multi=True)
-    b = LongParameter(label='Long', default_value=value, is_multi=True)
+    b = deepcopy(a)
     data, _ = a.serialize({}, target=None)
     assert data['value'] == expected
     assert repr(a) == "LongParameter(label='Long', name='long', default_value=(123, 456), is_multi=True)"
     assert a == b
     assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 # End test_default_value_long function
 
 
@@ -1271,7 +1296,7 @@ def test_default_value_double(value, expected):
             DoubleParameter(label='Double', default_value=value)
     else:
         a = DoubleParameter(label='Double', default_value=value)
-        b = DoubleParameter(label='Double', default_value=value)
+        b = deepcopy(a)
         data, _ = a.serialize({}, target=None)
         assert data['value'] == expected
         assert repr(a) == f"DoubleParameter(label='Double', name='double', default_value={value!r})"
@@ -1290,12 +1315,14 @@ def test_default_value_double_multi(value, expected):
     Test Default Value for Double
     """
     a = DoubleParameter(label='Double', default_value=value, is_multi=True)
-    b = DoubleParameter(label='Double', default_value=value, is_multi=True)
+    b = deepcopy(a)
     data, _ = a.serialize({}, target=None)
     assert data['value'] == expected
     assert repr(a) == f"DoubleParameter(label='Double', name='double', default_value={value!r}, is_multi=True)"
     assert a == b
     assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 # End test_default_value_double_multi function
 
 
@@ -1316,7 +1343,7 @@ def test_default_value_date(value, expected):
             DateParameter(label='Date', default_value=value)
     else:
         a = DateParameter(label='Date', default_value=value)
-        b = DateParameter(label='Date', default_value=value)
+        b = deepcopy(a)
         data, _ = a.serialize({}, target=None)
         assert data['value'] == expected
         assert repr(a) == f"DateParameter(label='Date', name='date', default_value={value!r})"
@@ -1336,7 +1363,7 @@ def test_default_value_date_multi(value, expected):
     Test Default Value for Date
     """
     a = DateParameter(label='Date', default_value=value, is_multi=True)
-    b = DateParameter(label='Date', default_value=value, is_multi=True)
+    b = deepcopy(a)
     data, _ = a.serialize({}, target=None)
     if value is None:
         assert 'value' not in data
@@ -1345,6 +1372,8 @@ def test_default_value_date_multi(value, expected):
         assert repr(a) == f"DateParameter(label='Date', name='date', default_value=({value!r},), is_multi=True)"
         assert a == b
         assert hash(a) == hash(b)
+        assert id(a) != id(b)
+        assert id(a.default_value) != id(b.default_value)
 # End test_default_value_date_multi function
 
 
@@ -1353,7 +1382,7 @@ def test_default_value_coordinate_system():
     Test Default Value Coordinate System
     """
     a = CoordinateSystemParameter(label='Coordinate System')
-    b = CoordinateSystemParameter(label='Coordinate System')
+    b = deepcopy(a)
     with raises(TypeError):
         a.default_value = 100
     crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
@@ -1364,6 +1393,7 @@ def test_default_value_coordinate_system():
     assert repr(a) == f"CoordinateSystemParameter(label='Coordinate System', name='coordinate_system', default_value={crs!r})"
     assert a == b
     assert hash(a) == hash(b)
+    assert id(a) != id(b)
 # End test_default_value_coordinate_system function
 
 
@@ -1372,7 +1402,7 @@ def test_default_value_coordinate_system_multi():
     Test Default Value Coordinate System
     """
     a = CoordinateSystemParameter(label='Coordinate System', is_multi=True)
-    b = CoordinateSystemParameter(label='Coordinate System', is_multi=True)
+    b = deepcopy(a)
     with raises(TypeError):
         a.default_value = 100
     crs1 = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
@@ -1383,6 +1413,8 @@ def test_default_value_coordinate_system_multi():
     assert data['value'] == "'{}';'{}'".format(crs1, crs2)
     assert a == b
     assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 # End test_default_value_coordinate_system function
 
 
@@ -1391,7 +1423,7 @@ def test_default_value_spatial_reference():
     Test Default Value Spatial Reference
     """
     a = SpatialReferenceParameter(label='Spatial Reference')
-    b = SpatialReferenceParameter(label='Spatial Reference')
+    b = deepcopy(a)
     with raises(TypeError):
         a.default_value = 100
     srs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]];-20037700 -30241100 10000;-100000 10000;-100000 10000;0.001;0.001;0.001;IsHighPrecision'
@@ -1402,6 +1434,7 @@ def test_default_value_spatial_reference():
     assert repr(a) == f"SpatialReferenceParameter(label='Spatial Reference', name='spatial_reference', default_value={srs!r})"
     assert a == b
     assert hash(a) == hash(b)
+    assert id(a) != id(b)
 # End test_default_value_spatial_reference function
 
 
@@ -1410,7 +1443,7 @@ def test_default_value_envelope():
     Test Default Value Envelope
     """
     a = EnvelopeParameter(label='Envelope')
-    b = EnvelopeParameter(label='Envelope')
+    b = deepcopy(a)
     with raises(TypeError):
         a.default_value = 100
     a.default_value = Envelope(XDomain(100, 200), YDomain(1000, 2000))
@@ -1426,6 +1459,7 @@ def test_default_value_envelope():
     a.default_value = None
     assert a.default_value is None
     assert repr(a) == "EnvelopeParameter(label='Envelope', name='envelope')"
+    assert id(a) != id(b)
 # End test_default_value_envelope function
 
 
@@ -1434,11 +1468,10 @@ def test_default_value_envelope_multi():
     Test Default Value Envelope Multi
     """
     a = EnvelopeParameter(label='Envelope', is_multi=True)
-    b = EnvelopeParameter(label='Envelope', is_multi=True)
     envelopes = (Envelope(XDomain(100, 200), YDomain(1000, 2000)),
                  Envelope(XDomain(111, 222), YDomain(3333, 4444)))
     a.default_value = envelopes
-    b.default_value = envelopes
+    b = deepcopy(a)
     data, _ = a.serialize({}, target=None)
     assert data['value'] == "'100 1000 200 2000';'111 3333 222 4444'"
 
@@ -1446,6 +1479,8 @@ def test_default_value_envelope_multi():
 
     assert a == b
     assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 
     a.default_value = None
     assert a.default_value is None
@@ -1459,18 +1494,19 @@ def test_default_value_extent():
     Test Default Value Extent
     """
     a = ExtentParameter(label='Extent')
-    b = ExtentParameter(label='Extent')
     with raises(TypeError):
         a.default_value = 100
     crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
     extents = Extent(XDomain(100, 200), YDomain(1000, 2000), crs=crs)
     a.default_value = extents
-    b.default_value = extents
+    b = deepcopy(a)
 
     assert repr(a) == f"ExtentParameter(label='Extent', name='extent', default_value=Extent(x=XDomain(minimum=100, maximum=200), y=YDomain(minimum=1000, maximum=2000), crs={crs!r}))"
 
     assert a == b
     assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 
     data, _ = a.serialize({}, target=None)
     assert data['value'] == f'100 1000 200 2000 {crs}'
@@ -1486,15 +1522,16 @@ def test_default_value_extent_multi():
     Test Default Value Extent Multi
     """
     a = ExtentParameter(label='Extent', is_multi=True)
-    b = ExtentParameter(label='Extent', is_multi=True)
     crs = 'PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'
     extents = (Extent(XDomain(100, 200), YDomain(1000, 2000)),
                Extent(XDomain(111, 222), YDomain(3333, 4444), crs=crs))
     a.default_value = extents
-    b.default_value = extents
+    b = deepcopy(a)
 
     assert a == b
     assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 
     data, _ = a.serialize({}, target=None)
     assert data['value'] == f"'100 1000 200 2000';'111 3333 222 4444 {crs}'"
@@ -1510,11 +1547,10 @@ def test_default_value_point():
     Test Default Value Point
     """
     a = PointParameter(label='Point')
-    b = PointParameter(label='Point')
     with raises(TypeError):
         a.default_value = 100
     a.default_value = Point(100, 200)
-    b.default_value = Point(100, 200)
+    b = deepcopy(a)
     data, _ = a.serialize({}, target=None)
     assert data['value'] == '100 200'
 
@@ -1522,6 +1558,8 @@ def test_default_value_point():
 
     assert a == b
     assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 
     a.default_value = None
     assert a.default_value is None
@@ -1533,17 +1571,18 @@ def test_default_value_point_multi():
     Test Default Value Point Multi
     """
     a = PointParameter(label='Point', is_multi=True)
-    b = PointParameter(label='Point', is_multi=True)
     points = Point(100, 200), Point(123.4, 45.6)
     a.default_value = points
-    b.default_value = points
     data, _ = a.serialize({}, target=None)
     assert data['value'] == "'100 200';'123.4 45.6'"
+    b = deepcopy(a)
 
     assert repr(a) == "PointParameter(label='Point', name='point', default_value=(Point(x=100, y=200), Point(x=123.4, y=45.6)), is_multi=True)"
 
     assert a == b
     assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 
     a.default_value = None
     assert a.default_value is None
@@ -1565,7 +1604,6 @@ def test_default_value_path_esque_multi(cls, expected_value, expected_repr):
     if platform == 'win32':
         expected_repr = expected_repr.replace('PosixPath', 'WindowsPath')
     a = cls(label='Path Esque', is_multi=True)
-    b = cls(label='Path Esque', is_multi=True)
     with raises(TypeError):
         a.default_value = ('/path/to/file1.txt', '/path/to/file2.txt')
     a.default_value = None
@@ -1574,7 +1612,7 @@ def test_default_value_path_esque_multi(cls, expected_value, expected_repr):
              'file6.shp', 'file7.csv', 'file8.txt', 'file9.tab')
     paths = [Path(f) for f in files]
     a.default_value = paths
-    b.default_value = paths
+    b = deepcopy(a)
     data, _ = a.serialize({}, target=None)
     assert data['value'] == expected_value
 
@@ -1582,6 +1620,8 @@ def test_default_value_path_esque_multi(cls, expected_value, expected_repr):
 
     assert a == b
     assert hash(a) == hash(b)
+    assert id(a) != id(b)
+    assert id(a.default_value) != id(b.default_value)
 
     paths = a.default_value
     if a.suffixes:
