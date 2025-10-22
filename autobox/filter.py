@@ -375,6 +375,28 @@ class AbstractRangeFilter(AbstractFilter, metaclass=ABCMeta):
             DomainContentKeys.maximum: repr(maximum)}}
     # End _serialize method
 
+    @property
+    def minimum(self) -> NUMBER:
+        """
+        Minimum
+        """
+        if not self.values:
+            return 0
+        value, _ = self.values
+        return value
+    # End minimum property
+
+    @property
+    def maximum(self) -> NUMBER:
+        """
+        Maximum
+        """
+        if not self.values:
+            return 0
+        _, value = self.values
+        return value
+    # End maximum property
+
     def as_tuple(self) -> tuple:
         """
         As Tuple
