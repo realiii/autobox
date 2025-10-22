@@ -4,6 +4,8 @@ Test Default Value Classes
 """
 
 
+from copy import deepcopy
+
 from pytest import mark, raises
 
 from autobox.default import (
@@ -61,6 +63,18 @@ def test_cell_size_xy_hash_support():
 # End test_cell_size_xy_hash_support function
 
 
+def test_cell_size_xy_deep_copy():
+    """
+    Test Cell Size XY deep copy
+    """
+    xy = CellSizeXY(1, 2)
+    copied = deepcopy(xy)
+    assert id(xy) != id(copied)
+    assert xy == copied
+    assert hash(xy) == hash(copied)
+# End test_cell_size_xy_deep_copy function
+
+
 @mark.parametrize('minimum, maximum, exception', [
     ('', '', TypeError),
     (0, 0, ValueError),
@@ -86,6 +100,18 @@ def test_range_domain_repr(minimum, maximum, expected):
     """
     assert repr(BaseRangeDomain(minimum, maximum)) == expected
 # End test_range_domain_repr function
+
+
+def test_range_domain_deep():
+    """
+    Test range domain deep copy
+    """
+    domain = BaseRangeDomain(minimum=0, maximum=100)
+    copied = deepcopy(domain)
+    assert id(domain) != id(copied)
+    assert domain == copied
+    assert hash(domain) == hash(copied)
+# End test_range_domain_deep function
 
 
 @mark.parametrize('minimum, maximum, expected', [
@@ -208,6 +234,18 @@ def test_unit_value_hash_support():
 # End test_unit_value_hash_support function
 
 
+def test_unit_value_deep_copy():
+    """
+    Test unit value deep copy
+    """
+    value = BaseUnitValue(1, ArealUnit.SQUARE_MILES)
+    copied = deepcopy(value)
+    assert id(value) != id(copied)
+    assert value == copied
+    assert hash(value) == hash(copied)
+# End test_unit_value_hash_support function
+
+
 @mark.parametrize('cls, x, y, exception', [
     (Extent, '', '', TypeError),
     (Envelope, 0, 0, TypeError),
@@ -261,6 +299,21 @@ def test_bounding_box_hash_support(cls):
 # End test_bounding_box_hash_support function
 
 
+@mark.parametrize('cls', [
+    Extent, Envelope
+])
+def test_bounding_box_deep_copy(cls):
+    """
+    Test extent / envelope deep copy
+    """
+    domain = cls(XDomain(0, 100), YDomain(1000, 2000))
+    copied = deepcopy(domain)
+    assert id(domain) != id(copied)
+    assert domain == copied
+    assert hash(domain) == hash(copied)
+# End test_bounding_box_deep_copy function
+
+
 def test_extent_specialization():
     """
     Test Default Value Extent specialization
@@ -276,6 +329,11 @@ def test_extent_specialization():
     e = Extent(XDomain(0, 100), YDomain(1000, 2000), crs=crs)
     assert str(e) == f'0 1000 100 2000 {crs}'
     assert repr(e) == f'Extent(x=XDomain(minimum=0, maximum=100), y=YDomain(minimum=1000, maximum=2000), crs={crs!r})'
+
+    copied = deepcopy(e)
+    assert id(e) != id(copied)
+    assert e == copied
+    assert hash(e) == hash(copied)
 # End test_extent_specialization function
 
 
@@ -325,6 +383,18 @@ def test_point_hash_support():
     assert xy.as_tuple() == (1, 2)
     assert len({xy, xy}) == 1
 # End test_point_hash_support function
+
+
+def test_point_deep_copy():
+    """
+    Test Point deep copy
+    """
+    xy = Point(1, 2)
+    copied = deepcopy(xy)
+    assert id(xy) != id(copied)
+    assert xy == copied
+    assert hash(xy) == hash(copied)
+# End test_point_deep_copy function
 
 
 if __name__ == '__main__':  # pragma: no cover

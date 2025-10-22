@@ -57,6 +57,18 @@ class BaseRangeDomain(AbstractDefault):
         self._max: NUMBER = maximum
     # End init built-in
 
+    def __deepcopy__(self, memo) -> Self:
+        """
+        Deep Copy
+        """
+        id_ = id(self)
+        if id_ in memo:  # pragma: no cover
+            return memo[id_]
+        obj = self.__class__(minimum=self.minimum, maximum=self.maximum)
+        memo[id_] = obj
+        return obj
+    # End deepcopy built-in
+
     def __repr__(self) -> str:
         """
         String Representation
@@ -164,6 +176,18 @@ class BaseUnitValue(AbstractDefault):
         self._unit: StrEnum = self._validate_unit(unit)
     # End init built-in
 
+    def __deepcopy__(self, memo) -> Self:
+        """
+        Deep Copy
+        """
+        id_ = id(self)
+        if id_ in memo:  # pragma: no cover
+            return memo[id_]
+        obj = self.__class__(value=self.value, unit=self.unit)
+        memo[id_] = obj
+        return obj
+    # End deepcopy built-in
+
     def __repr__(self) -> str:
         """
         String Representation
@@ -260,6 +284,18 @@ class BaseBoundingBox(AbstractDefault):
         self._y: YDomain = self._validate_domain(y, YDomain)
     # End init built-in
 
+    def __deepcopy__(self, memo) -> Self:
+        """
+        Deep Copy
+        """
+        id_ = id(self)
+        if id_ in memo:  # pragma: no cover
+            return memo[id_]
+        obj = self.__class__(x=self.x_domain, y=self.y_domain)
+        memo[id_] = obj
+        return obj
+    # End deepcopy built-in
+
     def __repr__(self) -> str:
         """
         String Representation
@@ -331,6 +367,18 @@ class Extent(BaseBoundingBox):
         self._crs: STRING = self._validate_coordinate_system(crs)
     # End init built-in
 
+    def __deepcopy__(self, memo) -> Self:
+        """
+        Deep Copy
+        """
+        id_ = id(self)
+        if id_ in memo:  # pragma: no cover
+            return memo[id_]
+        obj = self.__class__(x=self.x_domain, y=self.y_domain, crs=self.crs)
+        memo[id_] = obj
+        return obj
+    # End deepcopy built-in
+
     def __repr__(self) -> str:
         """
         String Representation
@@ -401,6 +449,18 @@ class CellSizeXY(AbstractDefault):
         self._y: NUMBER = self._validate_value(y, 'y')
     # End init built-in
 
+    def __deepcopy__(self, memo) -> Self:
+        """
+        Deep Copy
+        """
+        id_ = id(self)
+        if id_ in memo:  # pragma: no cover
+            return memo[id_]
+        obj = self.__class__(x=self.x_size, y=self.y_size)
+        memo[id_] = obj
+        return obj
+    # End deepcopy built-in
+
     def __repr__(self) -> str:
         """
         String Representation
@@ -465,6 +525,18 @@ class Point(AbstractDefault):
         self._x: NUMBER = self._validate_value(x, 'x')
         self._y: NUMBER = self._validate_value(y, 'y')
     # End init built-in
+
+    def __deepcopy__(self, memo) -> Self:
+        """
+        Deep Copy
+        """
+        id_ = id(self)
+        if id_ in memo:  # pragma: no cover
+            return memo[id_]
+        obj = self.__class__(x=self.x, y=self.y)
+        memo[id_] = obj
+        return obj
+    # End deepcopy built-in
 
     def __repr__(self) -> str:
         """
