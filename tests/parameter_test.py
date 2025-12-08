@@ -223,6 +223,27 @@ def test_parameter_derived_string_hash():
 # End test_parameter_derived_string_hash function
 
 
+def test_parameter_derived_deepcopy():
+    """
+    Test Parameter derived string deepcopy hash
+    """
+    name = "DerivedStringName"
+    category = 'cat 2'
+    description = '<p><span style=\"text-decoration:underline;\">underline </span><span>and </span><i>emphasis</i></p>'
+    default = 'lazy dog'
+    label = 'Derived String Label'
+    a = StringParameter(
+        label=label, name=name, category=category,
+        description=description, default_value=default)
+    a.set_derived()
+    assert a.is_derived
+    b = deepcopy(a)
+    assert b.is_derived
+    assert a == b
+    assert hash(a) == hash(b)
+# End test_parameter_derived_deepcopy function
+
+
 def test_parameter_multi_string():
     """
     Test Parameter Multi String
